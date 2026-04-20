@@ -1,0 +1,15 @@
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/bin/Debug/net10.0/CdaToHtml
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/bin/Debug/net10.0/CdaToHtml.deps.json
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/bin/Debug/net10.0/CdaToHtml.runtimeconfig.json
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/bin/Debug/net10.0/CdaToHtml.dll
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/bin/Debug/net10.0/CdaToHtml.pdb
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.AssemblyInfoInputs.cache
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.AssemblyInfo.cs
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.csproj.CoreCompileInputs.cache
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.sourcelink.json
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.dll
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/refint/CdaToHtml.dll
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.pdb
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/CdaToHtml.genruntimeconfig.cache
+/home/runner/work/ans-cda/ans-cda/src/CdaToHtml/obj/Debug/net10.0/ref/CdaToHtml.dll
