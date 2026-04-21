@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
@@ -36,6 +37,13 @@ public static class CdaTransformer
         {
             [CdaStylesheet.CdaFo]  = new Lazy<XslCompiledTransform>(() => LoadXslt(CdaStylesheet.CdaFo))
         };
+
+    // Contenu du script datamatrix.min.js, chargé une seule fois depuis la ressource embarquée.
+    private static readonly Lazy<string> DatamatrixScript = new(LoadDatamatrixScript);
+
+    // Balise externe générée par la feuille XSL — remplacée lors du post-traitement.
+    private const string ExternalScriptTag =
+        @"<script src=""../FeuilleDeStyle/JS/datamatrix.min.js"" type=""text/javascript"" />";
 
     /// <summary>
     /// Transforme un document CDA (XML HL7 CDA R2) en HTML.
@@ -84,7 +92,9 @@ public static class CdaTransformer
         // document() (cda_l10n.xml, cda_narrativeblock.xml) depuis les ressources embarquées.
         xslt.Transform(cdaReader, arguments: null, xmlWriter, resolver);
 
-        return output.ToString();
+        // Remplace la référence externe au script datamatrix par le contenu JS embarqué,
+        // ce qui rend le HTML autonome (aucune dépendance externe requise).
+        return InjectDatamatrixScript(output.ToString());
     }
 
     // -------------------------------------------------------------------------
@@ -105,5 +115,24 @@ public static class CdaTransformer
         xslt.Load(xslUri.AbsoluteUri, settings, resolver);
 
         return xslt;
+    }
+
+    private static string LoadDatamatrixScript()
+    {
+        Assembly assembly = typeof(CdaTransformer).Assembly;
+        using Stream stream = assembly.GetManifestResourceStream("CdaToHtmlLib.Resources.datamatrix.min.js")
+            ?? throw new InvalidOperationException(
+                "Ressource embarquée introuvable : CdaToHtmlLib.Resources.datamatrix.min.js");
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        return reader.ReadToEnd();
+    }
+
+    private static string InjectDatamatrixScript(string html)
+    {
+        if (!html.Contains(ExternalScriptTag, StringComparison.Ordinal))
+            return html;
+
+        string inlineScript = $"<script type=\"text/javascript\">{DatamatrixScript.Value}</script>";
+        return html.Replace(ExternalScriptTag, inlineScript, StringComparison.Ordinal);
     }
 }
