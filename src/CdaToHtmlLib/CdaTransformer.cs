@@ -13,12 +13,7 @@ public enum CdaStylesheet
     /// Feuille de style générique ANS pour les documents CDA (CDA-FO.xsl).
     /// Utilisée par défaut.
     /// </summary>
-    CdaFo,
-
-    /// <summary>
-    /// Feuille de style spécifique aux comptes-rendus de biologie (cda_CRBIO.xsl).
-    /// </summary>
-    CrBio
+    CdaFo
 }
 
 /// <summary>
@@ -32,16 +27,14 @@ public static class CdaTransformer
     private static readonly Dictionary<CdaStylesheet, string> StylesheetFileNames =
         new()
         {
-            [CdaStylesheet.CdaFo]  = "CDA-FO.xsl",
-            [CdaStylesheet.CrBio]  = "cda_CRBIO.xsl"
+            [CdaStylesheet.CdaFo]  = "CDA-FO.xsl"
         };
 
     // Instances précompilées pour éviter de recharger les XSL à chaque appel.
     private static readonly Dictionary<CdaStylesheet, Lazy<XslCompiledTransform>> CompiledTransforms =
         new()
         {
-            [CdaStylesheet.CdaFo]  = new Lazy<XslCompiledTransform>(() => LoadXslt(CdaStylesheet.CdaFo)),
-            [CdaStylesheet.CrBio]  = new Lazy<XslCompiledTransform>(() => LoadXslt(CdaStylesheet.CrBio))
+            [CdaStylesheet.CdaFo]  = new Lazy<XslCompiledTransform>(() => LoadXslt(CdaStylesheet.CdaFo))
         };
 
     /// <summary>
