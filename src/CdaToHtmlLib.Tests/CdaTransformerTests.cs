@@ -27,30 +27,39 @@ public class CdaTransformerTests
     [Fact]
     public void TransformCdaToHtml_WithDluCda_ReturnsNonEmptyString()
     {
+        // Arrange
         string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
 
+        // Act
         string html = CdaTransformer.TransformCdaToHtml(xml);
 
+        // Assert
         Assert.False(string.IsNullOrWhiteSpace(html));
     }
 
     [Fact]
     public void TransformCdaToHtml_WithDluCda_ReturnsValidHtml()
     {
+        // Arrange
         string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
 
+        // Act
         string html = CdaTransformer.TransformCdaToHtml(xml);
 
+        // Assert
         Assert.Contains("<html", html, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void TransformCdaToHtml_WithDluCda_ReturnsHtmlContainingBody()
     {
+        // Arrange
         string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
 
+        // Act
         string html = CdaTransformer.TransformCdaToHtml(xml);
 
+        // Assert
         Assert.Contains("<body", html, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -61,30 +70,39 @@ public class CdaTransformerTests
     [Fact]
     public void TransformCdaToHtml_CrBioStylesheet_WithBioCda_ReturnsNonEmptyString()
     {
+        // Arrange
         string xml = ReadTestFile("BIO-CR-BIO_2024.01_TSH_1.xml");
 
+        // Act
         string html = CdaTransformer.TransformCdaToHtml(xml, CdaStylesheet.CrBio);
 
+        // Assert
         Assert.False(string.IsNullOrWhiteSpace(html));
     }
 
     [Fact]
     public void TransformCdaToHtml_CrBioStylesheet_WithBioCda_ReturnsValidHtml()
     {
+        // Arrange
         string xml = ReadTestFile("BIO-CR-BIO_2024.01_TSH_1.xml");
 
+        // Act
         string html = CdaTransformer.TransformCdaToHtml(xml, CdaStylesheet.CrBio);
 
+        // Assert
         Assert.Contains("<html", html, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void TransformCdaToHtml_CdaFoStylesheet_WithBioCda_ReturnsValidHtml()
     {
+        // Arrange
         string xml = ReadTestFile("BIO-CR-BIO_2024.01_TSH_1.xml");
 
+        // Act
         string html = CdaTransformer.TransformCdaToHtml(xml, CdaStylesheet.CdaFo);
 
+        // Assert
         Assert.Contains("<html", html, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -95,12 +113,14 @@ public class CdaTransformerTests
     [Fact]
     public void TransformCdaToHtml_NullInput_ThrowsArgumentNullException()
     {
+        // Arrange / Act / Assert
         Assert.Throws<ArgumentNullException>(() => CdaTransformer.TransformCdaToHtml(null!));
     }
 
     [Fact]
     public void TransformCdaToHtml_InvalidXml_ThrowsXmlException()
     {
+        // Arrange / Act / Assert
         Assert.Throws<XmlException>(() => CdaTransformer.TransformCdaToHtml("not xml"));
     }
 
@@ -111,11 +131,14 @@ public class CdaTransformerTests
     [Fact]
     public void TransformCdaToHtml_CalledTwice_ProducesSameResult()
     {
+        // Arrange
         string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
 
+        // Act
         string html1 = CdaTransformer.TransformCdaToHtml(xml);
         string html2 = CdaTransformer.TransformCdaToHtml(xml);
 
+        // Assert
         Assert.Equal(html1, html2);
     }
 }
