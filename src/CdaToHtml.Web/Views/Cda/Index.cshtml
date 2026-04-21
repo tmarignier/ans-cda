@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Visualiseur CDA";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Visualiseur de document CDA</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Sélectionnez un fichier XML CDA (HL7 CDA R2) pour le transformer en HTML
+                        et l'afficher dans votre navigateur.
+                    </p>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <p class="mb-0">@error.ErrorMessage</p>
+                            }
+                        </div>
+                    }
+
+                    <form method="post" action="/Cda/Transform" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="cdaFile" class="form-label fw-semibold">Fichier CDA (XML)</label>
+                            <input type="file"
+                                   id="cdaFile"
+                                   name="cdaFile"
+                                   class="form-control"
+                                   accept=".xml,.cda"
+                                   required />
+                            <div class="form-text">Taille maximale : 10 Mo.</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                Transformer et afficher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

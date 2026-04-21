@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="CdaToHtmlLib/CdaToHtmlLib.csproj" />
+  <Project Path="CdaToHtml.Web/CdaToHtml.Web.csproj" />
+  <Project Path="CdaToHtmlLib.Tests/CdaToHtmlLib.Tests.csproj" />
+</Solution>
