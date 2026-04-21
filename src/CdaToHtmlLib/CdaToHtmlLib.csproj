@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>CdaToHtmlLib</AssemblyName>
+    <RootNamespace>CdaToHtmlLib</RootNamespace>
+    <Description>Librairie autonome de transformation de documents CDA (XML HL7 CDA R2) en HTML via les feuilles de style XSL ANS embarquées</Description>
+    <Authors>ANS</Authors>
+  </PropertyGroup>
+
+  <!-- Feuilles de style et fichiers de ressources embarqués dans l'assembly -->
+  <ItemGroup>
+    <EmbeddedResource Include="../../FeuilleDeStyle/CDA-FO.xsl"
+                      LogicalName="CdaToHtmlLib.Resources.CDA-FO.xsl" />
+    <EmbeddedResource Include="../../FeuilleDeStyle/cda_CRBIO.xsl"
+                      LogicalName="CdaToHtmlLib.Resources.cda_CRBIO.xsl" />
+    <EmbeddedResource Include="../../FeuilleDeStyle/cda_l10n.xml"
+                      LogicalName="CdaToHtmlLib.Resources.cda_l10n.xml" />
+    <EmbeddedResource Include="../../FeuilleDeStyle/cda_l10n.xsl"
+                      LogicalName="CdaToHtmlLib.Resources.cda_l10n.xsl" />
+    <EmbeddedResource Include="../../FeuilleDeStyle/cda_narrativeblock.xml"
+                      LogicalName="CdaToHtmlLib.Resources.cda_narrativeblock.xml" />
+  </ItemGroup>
+
+</Project>
