@@ -13,15 +13,15 @@
 
   <!-- Feuilles de style et fichiers de ressources embarqués dans l'assembly -->
   <ItemGroup>
-    <EmbeddedResource Include="../../FeuilleDeStyle/CDA-FO.xsl"
+    <EmbeddedResource Include="Resources/CDA-FO.xsl"
                       LogicalName="CdaToHtmlLib.Resources.CDA-FO.xsl" />
-    <EmbeddedResource Include="../../FeuilleDeStyle/cda_CRBIO.xsl"
+    <EmbeddedResource Include="Resources/cda_CRBIO.xsl"
                       LogicalName="CdaToHtmlLib.Resources.cda_CRBIO.xsl" />
-    <EmbeddedResource Include="../../FeuilleDeStyle/cda_l10n.xml"
+    <EmbeddedResource Include="Resources/cda_l10n.xml"
                       LogicalName="CdaToHtmlLib.Resources.cda_l10n.xml" />
-    <EmbeddedResource Include="../../FeuilleDeStyle/cda_l10n.xsl"
+    <EmbeddedResource Include="Resources/cda_l10n.xsl"
                       LogicalName="CdaToHtmlLib.Resources.cda_l10n.xsl" />
-    <EmbeddedResource Include="../../FeuilleDeStyle/cda_narrativeblock.xml"
+    <EmbeddedResource Include="Resources/cda_narrativeblock.xml"
                       LogicalName="CdaToHtmlLib.Resources.cda_narrativeblock.xml" />
   </ItemGroup>
 
