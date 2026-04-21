@@ -5,105 +5,34 @@ namespace CdaToHtmlLib.Tests;
 
 /// <summary>
 /// Tests d'intégration de <see cref="CdaTransformer"/>.
-/// Chaque test charge un fichier CDA réel depuis le répertoire TestData
-/// et vérifie que la transformation produit un HTML valide et non vide.
+/// Le fichier CDA de référence est <c>CR_C.xml</c> (compte-rendu chirurgical).
+/// Le résultat HTML attendu est stocké dans <c>TestData/CR_C.expected.html</c> :
+/// tout changement de feuille de style sera visible dans le diff de ce fichier.
 /// </summary>
 public class CdaTransformerTests
 {
     private static string TestDataPath(string fileName) =>
         Path.Combine(AppContext.BaseDirectory, "TestData", fileName);
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     private static string ReadTestFile(string fileName) =>
         File.ReadAllText(TestDataPath(fileName));
 
     // -------------------------------------------------------------------------
-    // TransformCdaToHtml — signature principale (CdaFo par défaut)
+    // Snapshot — la transformation doit produire exactement le HTML de référence
     // -------------------------------------------------------------------------
 
     [Fact]
-    public void TransformCdaToHtml_WithDluCda_ReturnsNonEmptyString()
+    public void TransformCdaToHtml_WithCrCCda_MatchesSnapshot()
     {
         // Arrange
-        string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
+        string xml      = ReadTestFile("CR_C.xml");
+        string expected = ReadTestFile("CR_C.expected.html");
 
         // Act
         string html = CdaTransformer.TransformCdaToHtml(xml);
 
         // Assert
-        Assert.False(string.IsNullOrWhiteSpace(html));
-    }
-
-    [Fact]
-    public void TransformCdaToHtml_WithDluCda_ReturnsValidHtml()
-    {
-        // Arrange
-        string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
-
-        // Act
-        string html = CdaTransformer.TransformCdaToHtml(xml);
-
-        // Assert
-        Assert.Contains("<html", html, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [Fact]
-    public void TransformCdaToHtml_WithDluCda_ReturnsHtmlContainingBody()
-    {
-        // Arrange
-        string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
-
-        // Act
-        string html = CdaTransformer.TransformCdaToHtml(xml);
-
-        // Assert
-        Assert.Contains("<body", html, StringComparison.OrdinalIgnoreCase);
-    }
-
-    // -------------------------------------------------------------------------
-    // TransformCdaToHtml — feuille de style CrBio
-    // -------------------------------------------------------------------------
-
-    [Fact]
-    public void TransformCdaToHtml_CrBioStylesheet_WithBioCda_ReturnsNonEmptyString()
-    {
-        // Arrange
-        string xml = ReadTestFile("BIO-CR-BIO_2024.01_TSH_1.xml");
-
-        // Act
-        string html = CdaTransformer.TransformCdaToHtml(xml, CdaStylesheet.CrBio);
-
-        // Assert
-        Assert.False(string.IsNullOrWhiteSpace(html));
-    }
-
-    [Fact]
-    public void TransformCdaToHtml_CrBioStylesheet_WithBioCda_ReturnsValidHtml()
-    {
-        // Arrange
-        string xml = ReadTestFile("BIO-CR-BIO_2024.01_TSH_1.xml");
-
-        // Act
-        string html = CdaTransformer.TransformCdaToHtml(xml, CdaStylesheet.CrBio);
-
-        // Assert
-        Assert.Contains("<html", html, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [Fact]
-    public void TransformCdaToHtml_CdaFoStylesheet_WithBioCda_ReturnsValidHtml()
-    {
-        // Arrange
-        string xml = ReadTestFile("BIO-CR-BIO_2024.01_TSH_1.xml");
-
-        // Act
-        string html = CdaTransformer.TransformCdaToHtml(xml, CdaStylesheet.CdaFo);
-
-        // Assert
-        Assert.Contains("<html", html, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(expected, html);
     }
 
     // -------------------------------------------------------------------------
@@ -132,7 +61,7 @@ public class CdaTransformerTests
     public void TransformCdaToHtml_CalledTwice_ProducesSameResult()
     {
         // Arrange
-        string xml = ReadTestFile("DLU-FR-SU_2025.01.xml");
+        string xml = ReadTestFile("CR_C.xml");
 
         // Act
         string html1 = CdaTransformer.TransformCdaToHtml(xml);
