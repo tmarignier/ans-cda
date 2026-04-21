@@ -1183,20 +1183,23 @@
                     <xsl:comment> Javascript for Bar Code</xsl:comment>
                     <script src="../FeuilleDeStyle/JS/datamatrix.min.js" type="text/javascript"/>
                     <script type="text/javascript">
-                        if (document.getElementById('element') !== null) {
-                            var div = document.getElementsByClassName('barcodeStyle')[0];
-                            var cookieValue = div.getAttribute('value');
-                            var svgNode = DATAMatrix
-                            ({
-                                dim: 256,
-                                rct: 0,
-                                pad: 2,
-                                pal:[ "#000000", "#f2f4f8"],
-                                vrb: 0,
-                                msg: cookieValue
-                            });
-                            div.append(svgNode);
-                        }</script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var el = document.getElementById('element');
+                            if (el !== null) {
+                                var div = document.getElementsByClassName('barcodeStyle')[0];
+                                var cookieValue = div.getAttribute('value');
+                                var svgNode = DATAMatrix
+                                ({
+                                    dim: 256,
+                                    rct: 0,
+                                    pad: 2,
+                                    pal:[ "#000000", "#f2f4f8"],
+                                    vrb: 0,
+                                    msg: cookieValue
+                                });
+                                div.append(svgNode);
+                            }
+                        });</script>
                     <xsl:if test="string($useJavascript) = 'true'">
                         <xsl:comment> Javascript for Revisions switch </xsl:comment>
                         <script type="text/javascript">
