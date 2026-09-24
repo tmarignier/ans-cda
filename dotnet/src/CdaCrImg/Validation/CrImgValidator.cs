@@ -8,10 +8,11 @@ using CdaCrImg.Model.Hl7;
 namespace CdaCrImg.Validation
 {
     /// <summary>
-    /// Contrôles de complétude du modèle (données obligatoires de l'en-tête et du corps), alignés sur la
-    /// structuration minimale CI-SIS et les spécifications techniques IMG-CR-IMG 2024.01.
+    /// Contrôles du modèle avant production du document, alignés sur la structuration minimale CI-SIS et
+    /// les spécifications techniques IMG-CR-IMG 2024.01 : complétude (ce fichier), formats et cohérence
+    /// (<c>CrImgValidator.Formats.cs</c>).
     /// </summary>
-    public static class CrImgValidator
+    public static partial class CrImgValidator
     {
         private static readonly Regex OidPattern = new Regex(@"^[0-2](\.(0|[1-9][0-9]*))+$", RegexOptions.CultureInvariant);
 
@@ -92,6 +93,8 @@ namespace CdaCrImg.Validation
                     Err("Corps.Pdf", "le contenu n'est pas un fichier PDF (signature %PDF- absente).");
                     break;
             }
+
+            ValidateFormats(cr, Err);
 
             return issues;
         }
