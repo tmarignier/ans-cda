@@ -31,7 +31,10 @@ namespace CdaCrImg.Model
         /// <summary>Fin de réalisation de l'acte (optionnelle).</summary>
         public DateTimeOffset? Fin { get; set; }
 
-        /// <summary>PS exécutant (radiologue) ; l'identifiant de son organisation est obligatoire (DRIM-Box).</summary>
+        /// <summary>
+        /// PS exécutant (radiologue) ; son organisation est obligatoire avec identifiant (DRIM-Box) et
+        /// secteur d'activité (<see cref="Organisation.SecteurActivite"/>, structuration minimale).
+        /// </summary>
         public Professionnel? Executant { get; set; }
     }
 }

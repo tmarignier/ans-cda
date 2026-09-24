@@ -104,6 +104,68 @@ internal static class SampleReports
         return cr;
     }
 
+    /// <summary>
+    /// CR niveau 1 ne contenant que les champs obligatoires (docs/cr-img/champs-obligatoires.md) :
+    /// un auteur, une demande, un acte, patient avec INS.
+    /// </summary>
+    public static CompteRenduImagerie Minimal()
+    {
+        var date = new DateTimeOffset(2021, 1, 8, 11, 17, 0, ParisHiver);
+        var centre = new Organisation
+        {
+            Id = Identifier.FromFiness("920008059"),
+            SecteurActivite = new Code("AMBULATOIRE", CodeSystems.SecteurActivite, "Ambulatoire"),
+        };
+        var radiologue = new Professionnel
+        {
+            Id = Identifier.FromRpps("01234560801"),
+            Profession = Code.ProfessionSavoirFaire("G15_10/SM44", "Médecin - Radio-diagnostic (SM)"),
+            Organisation = centre,
+        };
+
+        var cr = new CompteRenduImagerie
+        {
+            Id = new Identifier("1.2.250.1.213.1.1.1.45.2024.3.1"),
+            SetId = new Identifier("1.2.250.1.213.1.1.1.45.2024.3"),
+            NumeroVersion = 1,
+            Titre = "CR d'imagerie médicale",
+            DateCreation = date,
+            Patient = new Patient
+            {
+                Ins = new Identifier(IdentifierRoots.InsNirTest, "279035121518989"),
+                NomNaissance = "PAT-TROIS",
+                PrenomsNaissance = "DOMINIQUE MARIE-LOUISE",
+                PremierPrenomNaissance = "DOMINIQUE",
+                Sexe = Sexe.Feminin,
+                DateNaissance = new DateTime(1979, 3, 28),
+                LieuNaissanceCog = "51215",
+            },
+            Custodian = centre,
+            SignataireLegal = new Signature(radiologue, date),
+            PriseEnCharge = new PriseEnCharge
+            {
+                Debut = new DateTimeOffset(2021, 1, 8, 10, 25, 0, ParisHiver),
+                Lieu = new LieuPriseEnCharge { CadreExercice = new Code("SA08", CodeSystems.CadreExercice, "Cabinet de groupe") },
+            },
+            Corps = new CorpsPdf(AnsPdf),
+        };
+        cr.Auteurs.Add(new Auteur(radiologue, date));
+        cr.Demandes.Add(new DemandeImagerie(
+            new Identifier("1.2.250.1.748.12345678.12", "984375862"),
+            new Identifier("1.2.250.1.925.994044785528.27", "105234751")));
+        var acte = new ActeImagerie
+        {
+            StudyInstanceUid = "1.2.250.1.925.994044.27.123.1876360",
+            Code = Code.Loinc("24727-0", "CT tête avec contraste IV"),
+            Debut = new DateTimeOffset(2021, 1, 8, 10, 25, 0, ParisHiver),
+            Executant = radiologue,
+        };
+        acte.Modalites.Add(Code.Dcm("CT", "Tomodensitométrie"));
+        acte.RegionsAnatomiques.Add(Code.Snomed("774007", "tête et cou"));
+        cr.Actes.Add(acte);
+        return cr;
+    }
+
     private static ActeImagerie Acte(string studyUid, Code loinc, Code? ccam, Code region, Professionnel executant)
     {
         var acte = new ActeImagerie

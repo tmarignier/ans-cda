@@ -53,3 +53,4 @@ concernés).
 - Lecture/parsing d'un CR existant (CDA → modèle) : Pas dans le périmètre
 - Génération d'une archive IHE XDM / métadonnées XDS (DMP) : hors périmètre pour le moment
 - Signature / horodatage : hors périmètre pour le moment
+- Patients : uniquement des patients identifiés par leur INS (INS et traits d'identité obligatoires)

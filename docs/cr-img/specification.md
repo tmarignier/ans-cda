@@ -42,7 +42,7 @@ inFulfillmentOf*, documentationOf+, relatedDocument*, componentOf, component`.
 | `confidentialityCode` | 1..1 | `N` (2.16.840.1.113883.5.25) par défaut |
 | `languageCode` | 1..1 | `fr-FR` |
 | `setId` + `versionNumber` | 1..1 | gestion des versions ; `relatedDocument typeCode="RPLC"` si remplacement |
-| `recordTarget/patientRole` | 1..1 | INS : `id` root `1.2.250.1.213.1.4.8` (NIR) / `.9` (NIA) / `.10` `.11` (test) + IPP local ; si INS : nom de naissance `family@qualifier=BR`, `given` (tous prénoms), `given@qualifier=BR` (1er prénom), `birthTime`, `birthplace/place/addr/county` (code COG), `administrativeGenderCode` **obligatoires** |
+| `recordTarget/patientRole` | 1..1 | **CdaCrImg : patients avec INS uniquement.** INS : `id` root `1.2.250.1.213.1.4.8` (NIR) / `.9` (NIA) / `.10` `.11` (test) + IPP local ; si INS : nom de naissance `family@qualifier=BR`, `given` (tous prénoms), `given@qualifier=BR` (1er prénom), `birthTime`, `birthplace/place/addr/county` (code COG), `administrativeGenderCode` **obligatoires** |
 | `author` | 1..* | `time`, `assignedAuthor/id` (RPPS : root `1.2.250.1.71.4.2.1`, extension `8…`), `code` profession/spécialité (TRE_G15/R85 `1.2.250.1.213.1.1.4.5`, ex. `G15_10/SM44` radio-diagnostic), `assignedPerson/name`, `representedOrganization` **1..1 (STD)**. En téléradiologie, ajouter un auteur pour le médecin responsable de la structure d'imagerie qui accueille le patient. |
 | `custodian` | 1..1 | organisation (id `1.2.250.1.71.4.2.2` + FINESS/SIRET) |
 | `legalAuthenticator` | 1..1 | `time`, `signatureCode@code=S`, `assignedEntity` (radiologue signataire ; en téléradiologie, médecin responsable de la structure qui accueille le patient) |

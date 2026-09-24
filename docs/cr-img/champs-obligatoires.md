@@ -27,19 +27,19 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
 ## Synthèse : nombre de champs obligatoires par section
 
 Un champ = une ligne des tableaux ci-dessous (les lignes de regroupement comme `Auteurs` ou
-`Demandes` sont comptées). **Conditionnel** : exigé seulement dans un cas précis (INS fourni,
-examen référencé dans le catalogue). **Répétition** : le groupe de champs est à fournir pour
+`Demandes` sont comptées). **Conditionnel** : exigé seulement dans un cas précis (examen
+référencé dans le catalogue). **Répétition** : le groupe de champs est à fournir pour
 chaque élément (un par auteur, par demande, par acte).
 
 | Section | Champs | Toujours obligatoires | Conditionnels | Répétition |
 |---|---:|---:|---:|---|
 | [1.1 Document](#11-document--5-champs) | 5 | 5 | 0 | — |
-| [1.2 Patient](#12-patient-patient--7-champs-2-toujours--5-si-ins) | 7 | 2 | 5 (si INS) | — |
+| [1.2 Patient](#12-patient-patient--7-champs) | 7 | 7 | 0 | — |
 | [1.3 Professionnels et structures](#13-professionnels-et-structures--9-champs-dont-5-par-auteur) | 9 | 9 | 0 | 5 champs par auteur |
 | [1.4 Demande d'examen](#14-demande-dexamen-demandes-1--3-champs-dont-2-par-demande) | 3 | 3 | 0 | 2 champs par demande |
-| [1.5 Acte(s) d'imagerie](#15-actes-dimagerie-documentés-actes-1--7-champs-par-acte) | 7 | 7 | 0 | 7 champs par acte |
+| [1.5 Acte(s) d'imagerie](#15-actes-dimagerie-documentés-actes-1--8-champs-par-acte) | 8 | 8 | 0 | 8 champs par acte |
 | [1.6 Prise en charge](#16-prise-en-charge-priseencharge--3-champs) | 3 | 3 | 0 | — |
-| **Sous-total en-tête** | **34** | **29** | **5** | |
+| **Sous-total en-tête** | **35** | **35** | **0** | |
 | [2. Corps niveau 1 (PDF)](#2-corps-niveau-1-non-structuré-disponible--1-champ) | 1 | 1 | 0 | — |
 | [3. Corps niveau 3 (structuré)](#3-corps-niveau-3-structuré-lot-2-à-venir--12-champs-9-toujours--3-si-examen-référencé) | 12 | 9 | 3 (si examen référencé) | technique et catalogue : par acte ; série et objet : par examen |
 
@@ -47,11 +47,16 @@ Total pour un CR minimal (un auteur, une demande, un acte) :
 
 | Document | Champs | Toujours obligatoires | Conditionnels |
 |---|---:|---:|---:|
-| **Niveau 1** (en-tête + PDF) | **35** | 30 | 5 |
-| **Niveau 3** (en-tête + corps structuré) | **46** | 38 | 8 |
+| **Niveau 1** (en-tête + PDF) | **36** | 36 | 0 |
+| **Niveau 3** (en-tête + corps structuré) | **47** | 44 | 3 |
 
 Les 8 valeurs du [§ 4](#4-valeurs-produites-automatiquement-par-la-librairie), produites
 automatiquement par la librairie, ne sont pas comptées.
+
+Exemple de CR niveau 1 ne contenant **que** ces champs obligatoires, validé par le XSD et les trois
+profils transverses (structuration minimale, modèles de contenus, IHE) :
+[`ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_minimal.xml`](../../ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_minimal.xml)
+(généré par le test `ExampleFileTests.GeneratesMinimalExampleInExemplesCda`).
 
 ## 1. En-tête (communs aux niveaux 1 et 3)
 
@@ -65,19 +70,22 @@ automatiquement par la librairie, ne sont pas comptées.
 | `Titre` | Titre du document | Médecin effecteur, via son LPS [SFD 3.2.3.4, 4.3] | `title` ; texte libre, ex. « CR d'imagerie médicale - Scanner thoracique » | STD |
 | `DateCreation` | Date et heure de création du document | LPS du créateur, à la création [SFD 4.3] | `effectiveTime` ; `DateTimeOffset` → `yyyyMMddHHmmss+hhmm` (fuseau obligatoire) | SM |
 
-### 1.2 Patient (`Patient`) — 7 champs (2 toujours + 5 si INS)
+### 1.2 Patient (`Patient`) — 7 champs
+
+La librairie ne gère que des **patients identifiés par leur INS** : l'INS et tous ses traits
+d'identité sont obligatoires (un patient sans INS est refusé par `CrImgValidator`).
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
-| `Ins` et/ou `AutresIdentifiants` | Au moins un identifiant du patient | Structure d'imagerie (LPS / RIS), identité reprise de la demande et qualifiée (identitovigilance) [SFD 3.2.2.1, 3.3.1] † | `patientRole/id` [1..*]. INS : root `1.2.250.1.213.1.4.8` (NIR), `.9` (NIA), `.10`/`.11` (NIR/NIA de test) + matricule en `extension`. IPP : root = OID de l'établissement | SM |
-| `NomNaissance` | Nom de naissance (acte de naissance) | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `name/family@qualifier="BR"` | SM |
-| `PrenomsNaissance` | Tous les prénoms de l'acte de naissance, séparés par des espaces | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `name/given` (sans qualifier). **Obligatoire si INS** | SM (traits INS) |
-| `PremierPrenomNaissance` | Premier prénom de l'acte de naissance | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `name/given@qualifier="BR"`. **Obligatoire si INS** | SM (traits INS) |
-| `Sexe` | Sexe administratif | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `administrativeGenderCode` (HL7 `2.16.840.1.113883.5.1`) : `M`, `F`, `U`. **Obligatoire si INS** (toujours émis, `U` par défaut) | SM, XSD |
-| `DateNaissance` | Date de naissance | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `birthTime` `yyyyMMdd`. **Obligatoire si INS** (sinon `nullFlavor="UNK"`) | SM (traits INS) |
-| `LieuNaissanceCog` | Code officiel géographique INSEE de la commune de naissance | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `birthplace/place/addr/county` (ex. `51215` ; `99xxx` pour l'étranger). **Obligatoire si INS** | SM (traits INS) |
+| `Ins` | Matricule INS du patient | Structure d'imagerie (LPS / RIS), identité reprise de la demande et qualifiée (identitovigilance) [SFD 3.2.2.1, 3.3.1] † | `patientRole/id` : root `1.2.250.1.213.1.4.8` (INS-NIR), `.9` (INS-NIA), `.10`/`.11` (NIR/NIA de test) + matricule en `extension` | SM, choix CdaCrImg |
+| `NomNaissance` | Nom de naissance (acte de naissance) | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `name/family@qualifier="BR"` | SM (traits INS) |
+| `PrenomsNaissance` | Tous les prénoms de l'acte de naissance, séparés par des espaces | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `name/given` (sans qualifier) | SM (traits INS) |
+| `PremierPrenomNaissance` | Premier prénom de l'acte de naissance | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `name/given@qualifier="BR"` | SM (traits INS) |
+| `Sexe` | Sexe administratif | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `administrativeGenderCode` (HL7 `2.16.840.1.113883.5.1`) : `M` ou `F` (trait INS ; `Sexe.Inconnu` refusé) | SM, XSD |
+| `DateNaissance` | Date de naissance | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `birthTime` `yyyyMMdd` | SM (traits INS) |
+| `LieuNaissanceCog` | Code officiel géographique INSEE de la commune de naissance | Structure d'imagerie (LPS / RIS), traits INS [SFD 3.3.1] † | `birthplace/place/addr/county` (ex. `51215` ; `99xxx` pour l'étranger) | SM (traits INS) |
 
-Facultatifs : nom et prénom utilisés (`qualifier="CL"`), commune de naissance, adresses, télécoms.
+Facultatifs : autres identifiants (`AutresIdentifiants`, ex. IPP : root = OID de l'établissement), nom et prénom utilisés (`qualifier="CL"`), commune de naissance, adresses, télécoms.
 
 ### 1.3 Professionnels et structures — 9 champs (dont 5 par auteur)
 
@@ -104,7 +112,7 @@ identifiant (`Professionnel.Id`) est exigé.
 | `NumeroDemande` | Order Placer Number, numéro attribué par le demandeur | **Médecin demandeur** : « numéro attribué par le demandeur » [STD 3.2, SFD 3.3.1] | `order/id` ; `Identifier.Null()` (nullFlavor) autorisé si pas de demande dématérialisée | STD, SCH |
 | `AccessionNumber` | Accession Number attribué par le RIS | **RIS** : « identifiant de la demande attribué par le RIS » [SFD 3.3.1, STD 3.3.4.5] | `order/ps3-20:accessionNumber` (extension DICOM, `urn:dicom-org:ps3-20`) ; valeur réelle obligatoire | STD, SCH |
 
-### 1.5 Acte(s) d'imagerie documenté(s) (`Actes`, [1..*]) — 7 champs par acte
+### 1.5 Acte(s) d'imagerie documenté(s) (`Actes`, [1..*]) — 8 champs par acte
 
 Un acte par examen réalisé. Chacun produit un `documentationOf/serviceEvent` et une
 `translation` du code du document.
@@ -118,6 +126,7 @@ Un acte par examen réalisé. Chacun produit un `documentationOf/serviceEvent` e
 | `Debut` | Date et heure de début de réalisation | Structure d'imagerie (RIS / modalité), date et heure de l'acte [SFD 3.2.2.1] † | `serviceEvent/effectiveTime/low` | SM |
 | `Executant.Id` | Radiologue exécutant | Structure d'imagerie : médecin effecteur responsable de l'exécution [SFD 3.2.3.4] | `serviceEvent/performer@typeCode="PRF"/assignedEntity/id` (RPPS) | SM, STD |
 | `Executant.Organisation.Id` | Établissement de rattachement de l'exécutant | Structure d'imagerie (établissement de rattachement, DRIM-Box) [STD 3.2] | `performer/assignedEntity/representedOrganization/id` (extension FR pour la DRIM-Box) | STD |
+| `Executant.Organisation.SecteurActivite` | Secteur d'activité de l'établissement de l'exécutant | Structure d'imagerie † | `performer/assignedEntity/representedOrganization/standardIndustryClassCode`, JDV_J04_XdsPracticeSettingCode_CISIS (`1.2.250.1.213.1.1.5.467`), système `1.2.250.1.213.1.1.4.9`, ex. `AMBULATOIRE`, `ETABLISSEMENT` | SM |
 
 Facultatifs : `CodeCcam` (translation CCAM [0..1]), `Fin`, `Depistage` (ajoute un `documentationOf` CIM-10 `Z13.9` ; contexte de la demande fourni par le médecin demandeur [SFD 3.3.1]).
 

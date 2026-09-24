@@ -52,6 +52,39 @@ public class CrImgValidatorTests
     }
 
     [Fact]
+    public void Ins_IsMandatory()
+    {
+        var cr = SampleReports.Level1();
+        cr.Patient!.Ins = null;
+
+        Assert.Equal(new[] { "Patient.Ins" }, CrImgValidator.Validate(cr).Select(i => i.Path));
+    }
+
+    [Fact]
+    public void Sexe_MustBeKnown()
+    {
+        var cr = SampleReports.Level1();
+        cr.Patient!.Sexe = Sexe.Inconnu;
+
+        Assert.Equal(new[] { "Patient.Sexe" }, CrImgValidator.Validate(cr).Select(i => i.Path));
+    }
+
+    [Fact]
+    public void MinimalReport_IsComplete()
+    {
+        Assert.Empty(CrImgValidator.Validate(SampleReports.Minimal()));
+    }
+
+    [Fact]
+    public void Executant_RequiresSecteurActivite()
+    {
+        var cr = SampleReports.Minimal();
+        cr.Actes[0].Executant!.Organisation!.SecteurActivite = null;
+
+        Assert.Contains(CrImgValidator.Validate(cr), i => i.Path == "Actes[0].Executant.Organisation.SecteurActivite");
+    }
+
+    [Fact]
     public void Auteur_RequiresOrganisation()
     {
         var cr = SampleReports.Level1();

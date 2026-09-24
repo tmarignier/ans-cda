@@ -30,16 +30,26 @@ public class SchematronTests(ITestOutputHelper output)
         }
     }
 
-    [JavaTheory]
-    [InlineData("profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin")]
-    [InlineData("profils/CI-SIS_ModelesDeContenusCDA")]
-    [InlineData("profils/IHE")]
-    public void GeneratedExampleFile_PassesTransverseProfiles(string schematron)
+    public static TheoryData<string, string> ExamplesAndProfiles()
     {
-        ExampleFileTests.EnsureLevel1Example();
+        var data = new TheoryData<string, string>();
+        foreach (var example in ExampleFileTests.Examples.Keys)
+        {
+            foreach (var profile in new[] { "profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin", "profils/CI-SIS_ModelesDeContenusCDA", "profils/IHE" })
+            {
+                data.Add(example, profile);
+            }
+        }
+        return data;
+    }
 
-        var errors = AnsJavaValidator.ValidateXsd(ExampleFileTests.Level1ExamplePath)
-            .Concat(AnsJavaValidator.ValidateSchematron(ExampleFileTests.Level1ExamplePath, schematron)).ToList();
+    [JavaTheory]
+    [MemberData(nameof(ExamplesAndProfiles))]
+    public void GeneratedExampleFile_PassesTransverseProfiles(string example, string schematron)
+    {
+        var path = ExampleFileTests.EnsureExample(example);
+
+        var errors = AnsJavaValidator.ValidateXsd(path).Concat(AnsJavaValidator.ValidateSchematron(path, schematron)).ToList();
         errors.ForEach(output.WriteLine);
         Assert.Empty(errors);
     }

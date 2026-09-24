@@ -16,13 +16,14 @@ namespace CdaCrImg.Model
     }
 
     /// <summary>
-    /// Patient (<c>recordTarget/patientRole</c>). Lorsque l'INS est fourni, les traits d'identité INS sont
-    /// obligatoires : nom et prénoms de naissance, premier prénom, date et lieu de naissance (COG), sexe.
+    /// Patient (<c>recordTarget/patientRole</c>). La librairie ne gère que des patients identifiés par leur
+    /// INS : l'INS et ses traits d'identité sont obligatoires (nom et prénoms de naissance, premier prénom,
+    /// sexe, date et lieu de naissance).
     /// </summary>
     public sealed class Patient
     {
         /// <summary>
-        /// Matricule INS (INS-NIR, INS-NIA ou leurs équivalents de test), ex.
+        /// Matricule INS (obligatoire : INS-NIR, INS-NIA ou leurs équivalents de test), ex.
         /// <c>new Identifier(IdentifierRoots.InsNir, "279035121518989")</c>.
         /// </summary>
         public Identifier? Ins { get; set; }
@@ -45,7 +46,7 @@ namespace CdaCrImg.Model
         /// <summary>Prénom utilisé (optionnel).</summary>
         public string? PrenomUtilise { get; set; }
 
-        /// <summary>Sexe.</summary>
+        /// <summary>Sexe (trait INS : masculin ou féminin).</summary>
         public Sexe Sexe { get; set; } = Sexe.Inconnu;
 
         /// <summary>Date de naissance.</summary>

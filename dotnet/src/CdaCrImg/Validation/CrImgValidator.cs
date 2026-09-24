@@ -92,18 +92,18 @@ namespace CdaCrImg.Validation
                 err("Patient", "obligatoire.");
                 return;
             }
-            if (patient.Ins == null && patient.AutresIdentifiants.Count == 0)
-                err("Patient", "au moins un identifiant (INS ou IPP) est obligatoire.");
-            if (string.IsNullOrWhiteSpace(patient.NomNaissance)) err("Patient.NomNaissance", "obligatoire.");
-            if (patient.Ins == null) return;
-
-            if (!InsRoots.Contains(patient.Ins.Root) || string.IsNullOrWhiteSpace(patient.Ins.Extension))
+            // La librairie ne produit que des CR de patients identifiés par leur INS : l'INS et ses traits
+            // d'identité (structuration minimale CI-SIS) sont donc toujours obligatoires.
+            if (patient.Ins == null)
+                err("Patient.Ins", "obligatoire : la librairie ne gère que les patients identifiés par leur INS.");
+            else if (!InsRoots.Contains(patient.Ins.Root) || string.IsNullOrWhiteSpace(patient.Ins.Extension))
                 err("Patient.Ins", "root INS-NIR/INS-NIA (1.2.250.1.213.1.4.8 à .11) et matricule (extension) attendus.");
-            // Traits INS obligatoires (structuration minimale CI-SIS).
+            if (string.IsNullOrWhiteSpace(patient.NomNaissance)) err("Patient.NomNaissance", "trait INS obligatoire.");
             if (string.IsNullOrWhiteSpace(patient.PrenomsNaissance)) err("Patient.PrenomsNaissance", "trait INS obligatoire.");
             if (string.IsNullOrWhiteSpace(patient.PremierPrenomNaissance)) err("Patient.PremierPrenomNaissance", "trait INS obligatoire.");
             if (patient.DateNaissance == null) err("Patient.DateNaissance", "trait INS obligatoire.");
             if (string.IsNullOrWhiteSpace(patient.LieuNaissanceCog)) err("Patient.LieuNaissanceCog", "trait INS obligatoire.");
+            if (patient.Sexe == Sexe.Inconnu) err("Patient.Sexe", "trait INS obligatoire (masculin ou féminin).");
         }
 
         private static void ValidateProfessionnel(Professionnel? ps, string path, bool requireProfession, Action<string, string> err)
@@ -141,8 +141,17 @@ namespace CdaCrImg.Validation
             else
             {
                 ValidateProfessionnel(acte.Executant, path + ".Executant", requireProfession: false, err);
-                if (acte.Executant.Organisation == null) err(path + ".Executant.Organisation", "obligatoire (DRIM-Box).");
-                else RequireId(acte.Executant.Organisation.Id, path + ".Executant.Organisation.Id", err);
+                if (acte.Executant.Organisation == null)
+                {
+                    err(path + ".Executant.Organisation", "obligatoire (DRIM-Box).");
+                }
+                else
+                {
+                    RequireId(acte.Executant.Organisation.Id, path + ".Executant.Organisation.Id", err);
+                    // Structuration minimale : standardIndustryClassCode obligatoire (JDV_J04_XdsPracticeSettingCode_CISIS).
+                    if (acte.Executant.Organisation.SecteurActivite == null)
+                        err(path + ".Executant.Organisation.SecteurActivite", "secteur d'activité obligatoire (JDV_J04, ex. AMBULATOIRE).");
+                }
             }
         }
 

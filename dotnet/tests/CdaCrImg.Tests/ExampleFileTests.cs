@@ -1,36 +1,64 @@
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using CdaCrImg.Model;
 using CdaCrImg.Serialization;
 
 namespace CdaCrImg.Tests;
 
 /// <summary>
-/// Génère dans ExemplesCDA/ un exemple de CR d'imagerie produit par la librairie, à côté des exemples ANS
-/// (qui ne sont jamais modifiés). Le fichier n'est réécrit que si son contenu change.
+/// Génère dans ExemplesCDA/ des exemples de CR d'imagerie produits par la librairie, à côté des exemples ANS
+/// (qui ne sont jamais modifiés). Un fichier n'est réécrit que si son contenu change.
 /// </summary>
 public class ExampleFileTests
 {
-    /// <summary>Exemple niveau 1 (PDF) produit par CdaCrImg.</summary>
+    /// <summary>Exemple niveau 1 (PDF) complet, repris des données de l'exemple ANS.</summary>
     public static string Level1ExamplePath => Path.Combine(RepoPaths.Examples, "CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1.xml");
+
+    /// <summary>Exemple niveau 1 (PDF) ne contenant que les champs obligatoires (docs/cr-img/champs-obligatoires.md).</summary>
+    public static string MinimalExamplePath => Path.Combine(RepoPaths.Examples, "CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_minimal.xml");
+
+    /// <summary>Exemples générés : nom → (chemin, fabrique du CR).</summary>
+    internal static readonly IReadOnlyDictionary<string, (Func<string> Path, Func<CompteRenduImagerie> Report)> Examples =
+        new Dictionary<string, (Func<string>, Func<CompteRenduImagerie>)>
+        {
+            ["complet"] = (() => Level1ExamplePath, SampleReports.Level1),
+            ["minimal"] = (() => MinimalExamplePath, SampleReports.Minimal),
+        };
 
     private static readonly object WriteLock = new();
 
     [Fact]
     public void GeneratesLevel1ExampleInExemplesCda()
     {
-        EnsureLevel1Example();
+        var written = XDocument.Load(EnsureExample("complet"));
 
-        var written = XDocument.Load(Level1ExamplePath);
         Assert.Empty(CdaXsdValidator.Validate(written));
         Assert.Equal(SampleReports.AnsPdf, Convert.FromBase64String(
             written.Descendants(CdaNamespaces.Hl7 + "nonXMLBody").Single().Element(CdaNamespaces.Hl7 + "text")!.Value));
     }
 
-    /// <summary>Écrit l'exemple s'il est absent ou obsolète (thread-safe : partagé avec SchematronTests).</summary>
-    internal static void EnsureLevel1Example()
+    [Fact]
+    public void GeneratesMinimalExampleInExemplesCda()
     {
-        var doc = CrImgWriter.Write(SampleReports.Level1());
+        var written = XDocument.Load(EnsureExample("minimal"));
+        var v3 = CdaNamespaces.Hl7;
+
+        Assert.Empty(CdaXsdValidator.Validate(written));
+        // Aucun champ facultatif : ni adresse postale, ni télécom, ni nom de PS, ni médecin demandeur, ni CCAM.
+        // Seule adresse présente : le lieu de naissance (code COG), trait INS obligatoire.
+        Assert.Equal(new[] { "birthplace" }, written.Descendants(v3 + "addr").Select(a => a.Parent!.Parent!.Name.LocalName));
+        Assert.Empty(written.Descendants(v3 + "telecom"));
+        Assert.Empty(written.Descendants(v3 + "assignedPerson"));
+        Assert.Empty(written.Root!.Elements(v3 + "participant"));
+        Assert.DoesNotContain(written.Descendants(v3 + "translation"), t => (string?)t.Attribute("codeSystem") == CodeSystems.Ccam);
+    }
+
+    /// <summary>Écrit l'exemple s'il est absent ou obsolète et retourne son chemin (thread-safe : partagé avec SchematronTests).</summary>
+    internal static string EnsureExample(string name)
+    {
+        var (path, report) = Examples[name];
+        var doc = CrImgWriter.Write(report());
         // Mêmes instructions de traitement que les exemples ANS : rendu navigateur et validation Oxygen.
         doc.Root!.AddBeforeSelf(
             new XProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"../FeuilleDeStyle/CDA-FO.xsl\""),
@@ -42,11 +70,12 @@ public class ExampleFileTests
         var content = Serialize(doc);
         lock (WriteLock)
         {
-            if (!File.Exists(Level1ExamplePath) || File.ReadAllText(Level1ExamplePath) != content)
+            if (!File.Exists(path()) || File.ReadAllText(path()) != content)
             {
-                File.WriteAllText(Level1ExamplePath, content, new UTF8Encoding(false));
+                File.WriteAllText(path(), content, new UTF8Encoding(false));
             }
         }
+        return path();
     }
 
     /// <summary>UTF-8 sans BOM, fins de ligne LF quel que soit l'OS (fichier versionné).</summary>
