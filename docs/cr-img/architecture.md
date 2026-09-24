@@ -47,10 +47,16 @@ Principes :
 5. **Niveau 1 uniquement** : le corps est un PDF encapsulé (`nonXMLBody`, `CorpsPdf`) ; le document
    porte les seuls templateId autorisés par la structuration minimale en non structuré (HL7 France,
    CI-SIS, IHE XDS-SD `1.3.6.1.4.1.19376.1.2.20`). Pas de `structuredBody`.
-6. **Validation intégrée légère** : la librairie ne peut pas embarquer Saxon/XSLT2 ; elle expose
-   `CrImgValidator` (règles réimplémentées en C#). La validation XSD .NET est possible par
-   l'appelant ; la validation schématron officielle reste externe (tests `Category=Schematron`,
-   `tools/validate-cda.sh`).
+6. **Validation intégrée** : la librairie ne peut pas embarquer Saxon/XSLT2 ; `CrImgValidator`
+   réimplémente en C# les règles utiles, en trois familles : complétude (`CrImgValidator.cs`), formats
+   et cohérence (`CrImgValidator.Formats.cs` : uid, cs, télécoms, INS, COG, dates) et terminologies
+   (`CrImgValidator.Terminologies.cs`). Chaque non-conformité porte le chemin de la propriété
+   (`ModelPaths` énumère identifiants, codes, télécoms, professionnels). La validation schématron
+   officielle reste externe (tests `Category=Schematron`, `tools/validate-cda.sh`).
+7. **Jeux de valeurs embarqués** (`CdaCrImg.Terminologies`) : les JDV du CI-SIS contrôlés par la
+   structuration minimale et ceux du volet sont des ressources liées aux fichiers du kit ANS (source
+   unique), chargées à la demande. `JeuDeValeurs.Charger` lit aussi un JDV fourni par l'appelant (SVS
+   ou ART-DECOR), par exemple le JDV LOINC des actes (1,5 Mo, non embarqué).
 
 ## API
 
@@ -109,7 +115,8 @@ dotnet/
 │   ├── CdaNamespaces.cs  CodeSystems.cs  Codes.cs  TemplateIds.cs
 │   ├── Model/            (POCO métier + Hl7/ : types HL7)
 │   ├── Serialization/    (CrImgWriter, CdaXml, Hl7Format)
-│   └── Validation/       (CrImgValidator, ValidationIssue, CrImgValidationException)
+│   ├── Terminologies/    (JeuDeValeurs, JeuxDeValeursCisis + JDV du kit ANS en ressources)
+│   └── Validation/       (CrImgValidator [complétude, formats, terminologies], options, ModelPaths)
 ├── demo/CdaCrImg.Demo/            # application web de démonstration (formulaire → CDA)
 └── tests/CdaCrImg.Tests/           # net10.0, xUnit
     ├── RepoPaths.cs                # accès ExemplesCDA/, infrastructure/, schematrons/
@@ -133,3 +140,10 @@ dotnet/
 Note XSD .NET : `CdaXsdValidator` omet l'import XSLT de `CDA_extended.xsd` et retire en mémoire le
 `xs:any ##other` du type ED (`general/datatypes-base.xsd`) qui viole la contrainte UPA refusée par
 `System.Xml`. Le validateur Java du kit reste la référence.
+
+## Diffusion
+
+- Paquet NuGet `CdaCrImg` : `dotnet pack dotnet/src/CdaCrImg -c Release` (README, documentation XML,
+  SourceLink, symboles `.snupkg`, aucune dépendance).
+- CI : `.github/workflows/cdacrimg.yml` (Linux et Windows) : build, tests (dont validation XSD Java et
+  schématrons ANS), pack, artefacts de tests et du paquet.

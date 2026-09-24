@@ -47,12 +47,25 @@ fonctionnement de la librairie : `dotnet run --project dotnet/demo/CdaCrImg.Demo
   modèles de contenus, IHE)
 - Limites : un auteur, une demande, un acte, une modalité et une région (la librairie en accepte plusieurs)
 
-## Lot 3 — Robustesse et diffusion
+## Lot 3 — Robustesse et diffusion ✅
 
-- [ ] Règles métier complémentaires en C# (messages alignés sur la structuration minimale)
-- [ ] Lecture des JDV SVS (embarqués ou fournis par l'appelant) pour contrôler les codes (modalités, régions, secteur d'activité…)
-- [ ] Test de non-régression : reconstruire l'exemple ANS niveau 1 (`ExemplesCDA/IMG_CR_IMG_2024.01_CDA-R2-Niveau-1.xml`) depuis le modèle et comparer structurellement
-- [ ] Packaging NuGet (métadonnées, README, SourceLink), CI GitHub Actions (build + tests + validation Java)
+- [x] Règles de format et de cohérence en C# (`CrImgValidator.Formats.cs`), alignées sur les types de données
+      contrôlés par la structuration minimale : `@root` de type uid (OID ou UUID), codes de type cs, télécoms
+      au format URL, matricule INS (15 caractères, clé contrôlée pour l'INS-NIR de production), code COG,
+      code de langue, cohérence des dates
+- [x] Jeux de valeurs (`CdaCrImg.Terminologies`) : `JeuDeValeurs` lit les formats IHE SVS et ART-DECOR ;
+      `JeuxDeValeursCisis` embarque dix JDV liés aux fichiers du kit ANS (J01 professions, J02, J04, J142,
+      J47, J245, J246, confidentialité, modalités, régions) ; `CrImgValidator` contrôle les codes
+      (`CrImgValidator.Terminologies.cs`) ; `CrImgValidationOptions` : désactivation, JDV LOINC des actes
+      fourni par l'appelant. La démo tire ses listes de ces JDV
+- [x] Non-régression (`AnsExampleNonRegressionTests`) : l'exemple ANS niveau 1 est reconstruit depuis le
+      modèle et comparé structurellement à l'original ; écarts listés explicitement (éléments non gérés,
+      incohérence de l'exemple ANS sur la 3e translation du code du document)
+- [x] Paquet NuGet `CdaCrImg` 0.1.0 (README, SourceLink, symboles snupkg, zéro dépendance) ;
+      CI GitHub Actions `.github/workflows/cdacrimg.yml` (Linux + Windows : build, tests dont schématrons
+      Java, pack)
+- **Critère atteint** : tests verts (266), document produit conforme XSD + trois profils transverses
+- À décider : licence du paquet (aucune licence de projet dans le dépôt) et publication sur nuget.org
 
 ## Points d'attention
 

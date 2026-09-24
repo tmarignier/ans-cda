@@ -11,7 +11,7 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
 - **Sources** : spécifications ANS SFD et STD (`docs/cr-img/ans/*.pdf`), schématron du volet
   (`schematrons/CI-SIS_IMG-CR-IMG_2024.01.sch`), structuration minimale CI-SIS
   (`schematrons/profils/structurationMinimale`), XSD CDA R2. Quand les sources divergent, la règle la
-  plus stricte est retenue (voir [§ 4](#4-écarts-entre-les-sources)).
+  plus stricte est retenue (voir [§ 5](#5-écarts-entre-les-sources)).
 - **Contrôle** : les champs des § 1 et 2 sont vérifiés par `CrImgValidator` avant l'écriture ; un
   champ manquant lève `CrImgValidationException` avec son chemin (ex. `Actes[0].Modalites`).
 - **Colonne « Source »** : STD = spécification technique, SFD = spécification fonctionnelle,
@@ -158,7 +158,31 @@ Ces éléments sont obligatoires dans le document mais **ne sont pas à fournir*
 | `legalAuthenticator/signatureCode` | `S` |
 | Qualifiers du `serviceEvent` | `121139` (modalité), `39111-0` (localisation anatomique) |
 
-## 4. Écarts entre les sources
+## 4. Formats et jeux de valeurs contrôlés
+
+Au-delà de leur présence, `CrImgValidator` contrôle la forme des valeurs :
+
+| Donnée | Règle | Source |
+|---|---|---|
+| Tout identifiant (`@root`) | OID ou UUID (type `uid`) | SM |
+| Tout code (`@code`) | sans espace (type `cs`) | SM |
+| Télécoms | URL `tel:`, `fax:`, `mailto:`, `http(s):` | SM (type TEL) |
+| `Patient.Ins` | 15 caractères (13 + clé ; Corse 2A/2B) ; clé contrôlée pour l'INS-NIR de production | INS |
+| `Patient.LieuNaissanceCog` | 5 caractères (ex. `51215`, `2A004`, `99xxx`) | INS |
+| `Langue` | code de langue (ex. `fr-FR`) | SM |
+| Dates | fin d'acte et de prise en charge après le début ; naissance avant la date du document | cohérence |
+| Professions (`Profession`) | JDV_J01_XdsAuthorSpecialty_CISIS (1.2.250.1.213.1.1.5.461) | SM |
+| Secteurs d'activité | JDV_J04_XdsPracticeSettingCode_CISIS (1.2.250.1.213.1.1.5.467) | SM |
+| `PriseEnCharge.Lieu.CadreExercice` | JDV_J02_XdsHealthcareFacilityTypeCode_CISIS (1.2.250.1.213.1.1.5.466) | SM |
+| `PriseEnCharge.Modalite` | JDV_J142_TypeRencontre_CISIS (1.2.250.1.213.1.1.5.589) | SM |
+| `Auteurs[i].Fonction` | JDV_J47_FunctionCode_CISIS (1.2.250.1.213.1.1.5.124) | SM |
+| Civilité / titre des PS | JDV_J245_Civilite_CISIS / JDV_J246_Titre_CISIS | SM |
+| `Confidentialite` | jdv-hl7-v3-xBasicConfidentialityKind-cisis | SM |
+| `Actes[i].Modalites` | jdv-modalite-acquisition-cisis (1.2.250.1.213.1.1.5.618) | STD |
+| `Actes[i].RegionsAnatomiques` | jdv-region-anatomique-cisis (1.2.250.1.213.1.1.5.695) | STD |
+| `Actes[i].Code` | jdv-code-document-imagerie-cisis (1.2.250.1.213.1.1.5.687), si fourni via `CrImgValidationOptions.ActesImagerie` | STD |
+
+## 5. Écarts entre les sources
 
 La librairie applique la règle la plus stricte :
 

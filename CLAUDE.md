@@ -33,6 +33,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `infrastructure/cda/CDA_extended.xsd` | XSD CDA R2 étendu (DICOM PS3.20, pharmacie, SDTC) |
 | `jeuxDeValeurs/*.xml` | Jeux de valeurs (JDV) au format IHE SVS (`urn:ihe:iti:svs:2008`) |
 | `tools/validate-cda.sh` | Validation XSD + schématron d'un document (Java, outillage du kit) |
+| `.github/workflows/cdacrimg.yml` | CI de la librairie : build, tests (dont schématrons), pack, sous Linux et Windows |
 | `FeuilleDeStyle/` | Feuilles XSL de rendu (CDA-FO.xsl) — hors périmètre de la librairie |
 | `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf` | Volet CR d’imagerie Spécifications fonctionnelles |
 | `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf` | Volet CR d’imagerie Spécifications techniques |
@@ -49,6 +50,9 @@ dotnet test dotnet/CdaCrImg.sln --filter "Category!=Schematron"   # exclure la v
 
 # Application web de démonstration (formulaire → CDA XML), http://localhost:5000 par défaut
 dotnet run --project dotnet/demo/CdaCrImg.Demo
+
+# Paquet NuGet (CdaCrImg.nupkg + symboles .snupkg)
+dotnet pack dotnet/src/CdaCrImg -c Release -o artifacts
 
 # Validation manuelle d'un CDA (bash + Java ; XSD + schématron ; ~15 s la 1re fois, compilation mise en cache)
 tools/validate-cda.sh <doc.xml> profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin
@@ -81,6 +85,11 @@ par le proxy de l'environnement web). Java 21 est disponible pour `tools/validat
 - **Démo** : tout champ ajouté à la librairie doit être ajouté au catalogue du formulaire
   (`dotnet/demo/CdaCrImg.Demo/Form/FormCatalog.cs`) et au mapper ; `DemoFormCatalogTests` vérifie que
   la mention obligatoire / facultatif de chaque champ correspond à `CrImgValidator`.
+- **Jeux de valeurs** : un code contraint par un JDV du CI-SIS est contrôlé par
+  `CrImgValidator.Terminologies.cs`. Un JDV embarqué est une `EmbeddedResource` liée au fichier du kit
+  ANS dans `CdaCrImg.csproj` (pas de copie), exposée par `JeuxDeValeursCisis`.
+- **CI** : `.github/workflows/cdacrimg.yml` (Linux et Windows) doit rester verte ; tester aussi les
+  chemins et fins de ligne Windows (voir `.gitattributes`).
 - Constantes (OID, codes) : les ajouter dans `TemplateIds.cs`, `Codes.cs`, `CodeSystems.cs` ;
   le test `SpecConstant_IsFoundInAnsArtifacts` vérifie qu'elles existent dans les artefacts ANS.
 - Documentation XML (`///`) en français sur l'API publique ; noms de types/méthodes en anglais
