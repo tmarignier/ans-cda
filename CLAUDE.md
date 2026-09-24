@@ -64,6 +64,8 @@ par le proxy de l'environnement web). Java 21 est disponible pour `tools/validat
   `docs/cr-img/specification.md`. Corriger la doc si elle diverge.
 - Ne jamais modifier les artefacts ANS (`schematrons/`, `infrastructure/`, `jeuxDeValeurs/`,
   `ExemplesCDA/`) pour faire passer un test.
+  Seule exception : les exemples générés par la librairie, préfixés `CdaCrImg_` dans `ExemplesCDA/`
+  (ex. `CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1.xml`, écrit par `ExampleFileTests`).
 - Constantes (OID, codes) : les ajouter dans `TemplateIds.cs`, `Codes.cs`, `CodeSystems.cs` ;
   le test `SpecConstant_IsFoundInAnsArtifacts` vérifie qu'elles existent dans les artefacts ANS.
 - Documentation XML (`///`) en français sur l'API publique ; noms de types/méthodes en anglais

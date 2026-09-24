@@ -32,6 +32,20 @@ public class SchematronTests(ITestOutputHelper output)
 
     [JavaTheory]
     [InlineData("profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin")]
+    [InlineData("profils/CI-SIS_ModelesDeContenusCDA")]
+    [InlineData("profils/IHE")]
+    public void GeneratedExampleFile_PassesTransverseProfiles(string schematron)
+    {
+        ExampleFileTests.EnsureLevel1Example();
+
+        var errors = AnsJavaValidator.ValidateXsd(ExampleFileTests.Level1ExamplePath)
+            .Concat(AnsJavaValidator.ValidateSchematron(ExampleFileTests.Level1ExamplePath, schematron)).ToList();
+        errors.ForEach(output.WriteLine);
+        Assert.Empty(errors);
+    }
+
+    [JavaTheory]
+    [InlineData("profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin")]
     public void Harness_ReportsFailedAsserts(string schematron)
     {
         // Garde-fou : un document non conforme doit bien produire des failed-assert.
