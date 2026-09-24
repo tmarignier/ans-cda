@@ -35,14 +35,6 @@ public static class FormCatalog
         new("M", CodeSystems.Hl7AdministrativeGender, "Masculin"),
     };
 
-    /// <summary>Niveaux de confidentialité HL7.</summary>
-    public static readonly IReadOnlyList<Option> Confidentialites = new Option[]
-    {
-        new("N", CodeSystems.Hl7Confidentiality, "Normal"),
-        new("R", CodeSystems.Hl7Confidentiality, "Restreint"),
-        new("V", CodeSystems.Hl7Confidentiality, "Très restreint"),
-    };
-
     /// <summary>Sections dans l'ordre d'affichage.</summary>
     public static IReadOnlyList<string> Sections { get; } = new[]
     {
@@ -73,7 +65,7 @@ public static class FormCatalog
             "2021-01-08T11:17", "DateCreation", FieldKind.DateTime),
         new("document.confidentialite", Document, "Confidentialité", Optional,
             "Niveau de confidentialité (confidentialityCode) ; « Normal » si non renseigné.",
-            "N", "Confidentialite", FieldKind.Select, Confidentialites),
+            "N", "Confidentialite", FieldKind.Select, JeuxDeValeurs.Confidentialite),
         new("document.langue", Document, "Langue", Optional,
             "Langue du document (languageCode) ; fr-FR si non renseignée.",
             "fr-FR", "Langue"),

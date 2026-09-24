@@ -18,9 +18,11 @@ namespace CdaCrImg.Serialization
         /// Produit le document CDA. Le modèle est d'abord contrôlé (<see cref="CrImgValidator"/>) :
         /// <see cref="CrImgValidationException"/> est levée s'il est incomplet.
         /// </summary>
-        public static XDocument Write(CompteRenduImagerie cr)
+        /// <param name="cr">Compte rendu à produire.</param>
+        /// <param name="options">Options de contrôle ; par défaut <see cref="CrImgValidationOptions.Defaut"/>.</param>
+        public static XDocument Write(CompteRenduImagerie cr, CrImgValidationOptions? options = null)
         {
-            CrImgValidator.EnsureValid(cr);
+            CrImgValidator.EnsureValid(cr, options);
 
             var root = El("ClinicalDocument",
                 // Déclaration explicite : les valeurs xsi:type (ex. IVL_TS) se résolvent via l'espace de noms par défaut.
@@ -54,21 +56,21 @@ namespace CdaCrImg.Serialization
         }
 
         /// <summary>Écrit le document CDA en UTF-8 (sans BOM) dans un flux.</summary>
-        public static void Write(CompteRenduImagerie cr, Stream output)
+        public static void Write(CompteRenduImagerie cr, Stream output, CrImgValidationOptions? options = null)
         {
             var settings = new XmlWriterSettings { Encoding = new UTF8Encoding(false), Indent = true };
             using (var writer = XmlWriter.Create(output, settings))
             {
-                Write(cr).Save(writer);
+                Write(cr, options).Save(writer);
             }
         }
 
         /// <summary>Retourne le document CDA sous forme de chaîne XML.</summary>
-        public static string WriteToString(CompteRenduImagerie cr)
+        public static string WriteToString(CompteRenduImagerie cr, CrImgValidationOptions? options = null)
         {
             using (var stream = new MemoryStream())
             {
-                Write(cr, stream);
+                Write(cr, stream, options);
                 return new UTF8Encoding(false).GetString(stream.ToArray());
             }
         }

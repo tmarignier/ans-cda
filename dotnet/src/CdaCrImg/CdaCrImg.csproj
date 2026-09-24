@@ -9,6 +9,23 @@
   </PropertyGroup>
 
   <!--
+    Jeux de valeurs ANS embarqués : liés directement aux fichiers du kit (source unique de vérité),
+    nommés par leur OID. Voir Terminologies/JeuxDeValeursCisis.cs.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-1.2.250.1.213.1.1.5.461-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.461.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-1.2.250.1.213.1.1.5.466-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.466.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-1.2.250.1.213.1.1.5.467-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.467.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-1.2.250.1.213.1.1.5.589-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.589.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-1.2.250.1.213.1.1.5.124-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.124.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-1.2.250.1.213.1.1.5.718-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.718.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-1.2.250.1.213.1.1.5.719-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.719.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\schematrons\profils\structurationMinimale\include\voc-2.16.840.1.113883.1.11.16926-DYNAMIC.xml" LogicalName="CdaCrImg.Terminologies.2.16.840.1.113883.1.11.16926.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\jeuxDeValeurs\jdv-modalite-acquisition-cisis.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.618.xml" Visible="false" />
+    <EmbeddedResource Include="..\..\..\jeuxDeValeurs\jdv-region-anatomique-cisis.xml" LogicalName="CdaCrImg.Terminologies.1.2.250.1.213.1.1.5.695.xml" Visible="false" />
+  </ItemGroup>
+
+  <!--
     Librairie AUTONOME : aucune PackageReference n'est autorisée ici.
     Uniquement la BCL netstandard2.0 (System.Xml.Linq, System.Xml.Schema...).
   -->

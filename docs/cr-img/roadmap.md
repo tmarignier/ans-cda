@@ -32,8 +32,8 @@ Application ASP.NET Core (`dotnet/demo/CdaCrImg.Demo`) exposant un formulaire qu
 fonctionnement de la librairie : `dotnet run --project dotnet/demo/CdaCrImg.Demo`.
 
 - [x] Un champ de formulaire pour chaque donnée gérée par la librairie (en-tête complet + PDF), décrit
-      dans un catalogue unique (`Form/FormCatalog.cs`) ; listes déroulantes générées depuis les JDV ANS
-      (`tools/generate-demo-jdv.py`)
+      dans un catalogue unique (`Form/FormCatalog.cs`) ; listes déroulantes issues des JDV ANS
+      (embarqués dans la librairie depuis le lot 3)
 - [x] Pour chaque champ : mention **obligatoire / facultatif / obligatoire si le groupe est renseigné**,
       **valeur d'exemple** pré-remplie, **description** et propriété CdaCrImg correspondante
 - [x] À la validation : le CDA XML est renvoyé (affichage ou téléchargement) ; en cas de données

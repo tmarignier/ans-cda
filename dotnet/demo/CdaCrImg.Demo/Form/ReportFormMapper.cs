@@ -103,7 +103,7 @@ public static class ReportFormMapper
             errors[key] = message;
             return 0;
         }
-        if (Option("document.confidentialite", FormCatalog.Confidentialites) is { } confidentialite)
+        if (Option("document.confidentialite", JeuxDeValeurs.Confidentialite) is { } confidentialite)
         {
             cr.Confidentialite = confidentialite;
         }

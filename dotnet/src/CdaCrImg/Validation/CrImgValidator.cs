@@ -10,7 +10,7 @@ namespace CdaCrImg.Validation
     /// <summary>
     /// Contrôles du modèle avant production du document, alignés sur la structuration minimale CI-SIS et
     /// les spécifications techniques IMG-CR-IMG 2024.01 : complétude (ce fichier), formats et cohérence
-    /// (<c>CrImgValidator.Formats.cs</c>).
+    /// (<c>CrImgValidator.Formats.cs</c>), terminologies (<c>CrImgValidator.Terminologies.cs</c>).
     /// </summary>
     public static partial class CrImgValidator
     {
@@ -21,10 +21,13 @@ namespace CdaCrImg.Validation
             IdentifierRoots.InsNir, IdentifierRoots.InsNia, IdentifierRoots.InsNirTest, IdentifierRoots.InsNiaTest,
         };
 
-        /// <summary>Retourne la liste des non-conformités (vide si le compte rendu est complet).</summary>
-        public static IReadOnlyList<ValidationIssue> Validate(CompteRenduImagerie cr)
+        /// <summary>Retourne la liste des non-conformités (vide si le compte rendu est conforme).</summary>
+        /// <param name="cr">Compte rendu à contrôler.</param>
+        /// <param name="options">Options ; par défaut <see cref="CrImgValidationOptions.Defaut"/>.</param>
+        public static IReadOnlyList<ValidationIssue> Validate(CompteRenduImagerie cr, CrImgValidationOptions? options = null)
         {
             if (cr == null) throw new ArgumentNullException(nameof(cr));
+            options ??= CrImgValidationOptions.Defaut;
             var issues = new List<ValidationIssue>();
             void Err(string path, string message) => issues.Add(new ValidationIssue(path, message));
 
@@ -95,14 +98,15 @@ namespace CdaCrImg.Validation
             }
 
             ValidateFormats(cr, Err);
+            ValidateTerminologies(cr, options, Err);
 
             return issues;
         }
 
         /// <summary>Lève <see cref="CrImgValidationException"/> si le compte rendu n'est pas complet.</summary>
-        public static void EnsureValid(CompteRenduImagerie cr)
+        public static void EnsureValid(CompteRenduImagerie cr, CrImgValidationOptions? options = null)
         {
-            var issues = Validate(cr);
+            var issues = Validate(cr, options);
             if (issues.Count > 0) throw new CrImgValidationException(issues);
         }
 

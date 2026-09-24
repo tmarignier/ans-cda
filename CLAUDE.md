@@ -33,7 +33,6 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `infrastructure/cda/CDA_extended.xsd` | XSD CDA R2 étendu (DICOM PS3.20, pharmacie, SDTC) |
 | `jeuxDeValeurs/*.xml` | Jeux de valeurs (JDV) au format IHE SVS (`urn:ihe:iti:svs:2008`) |
 | `tools/validate-cda.sh` | Validation XSD + schématron d'un document (Java, outillage du kit) |
-| `tools/generate-demo-jdv.py` | Génère les listes déroulantes de la démo (`Form/JeuxDeValeurs.g.cs`) depuis les JDV ANS |
 | `FeuilleDeStyle/` | Feuilles XSL de rendu (CDA-FO.xsl) — hors périmètre de la librairie |
 | `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf` | Volet CR d’imagerie Spécifications fonctionnelles |
 | `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf` | Volet CR d’imagerie Spécifications techniques |

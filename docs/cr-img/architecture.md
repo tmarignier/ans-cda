@@ -95,8 +95,8 @@ CrImgWriter.Write(cr, stream);           // UTF-8 ; ou CrImgWriter.WriteToString
 catalogue de champs (`Form/FormCatalog.cs` : libellé, obligatoire / facultatif / obligatoire si le groupe
 est renseigné, description, valeur d'exemple, propriété CdaCrImg). À la soumission, `ReportFormMapper`
 construit le `CompteRenduImagerie`, `CrImgValidator` le contrôle et `CrImgWriter` renvoie le CDA XML
-(affiché ou téléchargé). Les listes déroulantes sont générées depuis les JDV ANS
-(`tools/generate-demo-jdv.py` → `Form/JeuxDeValeurs.g.cs`). Sans fichier transmis, le PDF d'exemple
+(affiché ou téléchargé). Les listes déroulantes viennent des jeux de valeurs embarqués dans la
+librairie (`JeuxDeValeursCisis`). Sans fichier transmis, le PDF d'exemple
 de l'ANS (`wwwroot/exemple-cr.pdf`) est encapsulé.
 
 ## Organisation du code
