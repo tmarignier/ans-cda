@@ -94,6 +94,48 @@ public class CrImgValidatorTests
     }
 
     [Fact]
+    public void ProfessionnelName_RequiresFamily()
+    {
+        var cr = SampleReports.Level1();
+        cr.SignataireLegal!.Professionnel = new Professionnel { Id = Identifier.FromRpps("1"), Nom = new PersonName("", "Jacques") };
+
+        Assert.Contains(CrImgValidator.Validate(cr), i => i.Path == "SignataireLegal.Professionnel.Nom.Family");
+    }
+
+    [Fact]
+    public void Horodatages_AreMandatory()
+    {
+        var cr = SampleReports.Minimal();
+        cr.Auteurs[0].Horodatage = default;
+        cr.SignataireLegal!.Horodatage = default;
+
+        Assert.Equal(new[] { "Auteurs[0].Horodatage", "SignataireLegal.Horodatage" }, CrImgValidator.Validate(cr).Select(i => i.Path));
+    }
+
+    [Fact]
+    public void CodesConstrainedByStructurationMinimale_RequireDisplayName()
+    {
+        var cr = SampleReports.Level1();
+        cr.Auteurs[0].Professionnel.Profession = Code.ProfessionSavoirFaire("G15_10/SM44");
+        cr.MedecinsDemandeurs[0].Professionnel.Profession = Code.ProfessionSavoirFaire("G15_10/SM26");
+        cr.Actes[0].Executant = new Professionnel
+        {
+            Id = Identifier.FromRpps("1"),
+            Organisation = new Organisation { Id = Identifier.FromFiness("1"), SecteurActivite = new Code("AMBULATOIRE", CodeSystems.SecteurActivite) },
+        };
+        cr.PriseEnCharge!.Modalite = new Code("AMB", CodeSystems.Hl7ActCode);
+        cr.PriseEnCharge.Lieu!.CadreExercice = new Code("SA08", CodeSystems.CadreExercice);
+
+        Assert.Equal(
+            new[]
+            {
+                "Auteurs[0].Professionnel.Profession", "MedecinsDemandeurs[0].Professionnel.Profession",
+                "Actes[0].Executant.Organisation.SecteurActivite", "PriseEnCharge.Modalite", "PriseEnCharge.Lieu.CadreExercice",
+            },
+            CrImgValidator.Validate(cr).Select(i => i.Path));
+    }
+
+    [Fact]
     public void Auteur_RequiresOrganisation()
     {
         var cr = SampleReports.Level1();

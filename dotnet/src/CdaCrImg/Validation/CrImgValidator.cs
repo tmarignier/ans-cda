@@ -38,23 +38,38 @@ namespace CdaCrImg.Validation
             if (cr.Auteurs.Count == 0) Err("Auteurs", "au moins un auteur est obligatoire.");
             for (var i = 0; i < cr.Auteurs.Count; i++)
             {
+                if (cr.Auteurs[i].Horodatage == default) Err($"Auteurs[{i}].Horodatage", "date de rédaction obligatoire.");
                 var path = $"Auteurs[{i}].Professionnel";
                 ValidateProfessionnel(cr.Auteurs[i].Professionnel, path, requireProfession: true, Err);
+                RequireDisplayName(cr.Auteurs[i].Professionnel?.Profession, path + ".Profession", Err);
                 var organisation = cr.Auteurs[i].Professionnel?.Organisation;
                 if (organisation == null)
+                {
                     Err(path + ".Organisation", "obligatoire pour l'auteur d'un CR d'imagerie.");
+                }
                 else
+                {
                     RequireId(organisation.Id, path + ".Organisation.Id", Err);
+                    RequireDisplayName(organisation.SecteurActivite, path + ".Organisation.SecteurActivite", Err);
+                }
             }
 
             if (cr.Custodian == null) Err("Custodian", "obligatoire.");
             else RequireId(cr.Custodian.Id, "Custodian.Id", Err);
 
             if (cr.SignataireLegal == null) Err("SignataireLegal", "obligatoire.");
-            else ValidateProfessionnel(cr.SignataireLegal.Professionnel, "SignataireLegal.Professionnel", requireProfession: false, Err);
+            else
+            {
+                if (cr.SignataireLegal.Horodatage == default) Err("SignataireLegal.Horodatage", "date de signature obligatoire.");
+                ValidateProfessionnel(cr.SignataireLegal.Professionnel, "SignataireLegal.Professionnel", requireProfession: false, Err);
+            }
 
             for (var i = 0; i < cr.MedecinsDemandeurs.Count; i++)
-                ValidateProfessionnel(cr.MedecinsDemandeurs[i].Professionnel, $"MedecinsDemandeurs[{i}].Professionnel", requireProfession: false, Err);
+            {
+                var path = $"MedecinsDemandeurs[{i}].Professionnel";
+                ValidateProfessionnel(cr.MedecinsDemandeurs[i].Professionnel, path, requireProfession: false, Err);
+                RequireDisplayName(cr.MedecinsDemandeurs[i].Professionnel?.Profession, path + ".Profession", Err);
+            }
 
             if (cr.Demandes.Count == 0) Err("Demandes", "au moins une demande d'examen est obligatoire (numéro de demande en nullFlavor si non dématérialisée).");
             for (var i = 0; i < cr.Demandes.Count; i++)
@@ -118,6 +133,9 @@ namespace CdaCrImg.Validation
             }
             RequireId(ps.Id, path + ".Id", err);
             if (requireProfession && ps.Profession == null) err(path + ".Profession", "obligatoire.");
+            // Structuration minimale : si l'identité est présente, name/family est obligatoire.
+            if (ps.Nom != null && string.IsNullOrWhiteSpace(ps.Nom.Family))
+                err(path + ".Nom.Family", "nom de famille obligatoire lorsque l'identité du professionnel est renseignée.");
         }
 
         private static void ValidateActe(ActeImagerie acte, string path, Action<string, string> err)
@@ -154,6 +172,8 @@ namespace CdaCrImg.Validation
                     // Structuration minimale : standardIndustryClassCode obligatoire (JDV_J04_XdsPracticeSettingCode_CISIS).
                     if (acte.Executant.Organisation.SecteurActivite == null)
                         err(path + ".Executant.Organisation.SecteurActivite", "secteur d'activité obligatoire (JDV_J04, ex. AMBULATOIRE).");
+                    else
+                        RequireDisplayName(acte.Executant.Organisation.SecteurActivite, path + ".Executant.Organisation.SecteurActivite", err);
                 }
             }
         }
@@ -166,7 +186,16 @@ namespace CdaCrImg.Validation
                 return;
             }
             if (pec.Debut == null) err("PriseEnCharge.Debut", "obligatoire.");
+            RequireDisplayName(pec.Modalite, "PriseEnCharge.Modalite", err);
             if (pec.Lieu?.CadreExercice == null) err("PriseEnCharge.Lieu.CadreExercice", "obligatoire.");
+            else RequireDisplayName(pec.Lieu.CadreExercice, "PriseEnCharge.Lieu.CadreExercice", err);
+        }
+
+        /// <summary>Structuration minimale : @displayName obligatoire sur certains codes de l'en-tête.</summary>
+        private static void RequireDisplayName(Code? code, string path, Action<string, string> err)
+        {
+            if (code != null && string.IsNullOrWhiteSpace(code.DisplayName))
+                err(path, "libellé (displayName) obligatoire pour ce code (structuration minimale).");
         }
 
         private static void RequireId(Identifier? id, string path, Action<string, string> err)

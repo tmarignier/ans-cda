@@ -90,7 +90,7 @@ Facultatifs : autres identifiants (`AutresIdentifiants`, ex. IPP : root = OID de
 | `Auteurs` [1..*] | Imageur (radiologue ou médecin nucléaire) qui réalise le CR. En téléradiologie, ajouter le médecin responsable de la structure d'imagerie qui accueille le patient | Médecin effecteur (radiologue / médecin nucléaire) qui rédige le CR ; + médecin responsable de la structure d'accueil en téléradiologie [SFD 3.2.3.4, STD 3.2] | `author` | STD, SM |
 | `Auteurs[i].Horodatage` | Date de rédaction / validation par l'auteur | LPS du créateur, à la validation du CR [SFD 4.4] | `author/time` | SM |
 | `Auteurs[i].Professionnel.Id` | Identifiant national du PS | LPS du créateur (annuaire des PS / carte CPS) † | `assignedAuthor/id` : root `1.2.250.1.71.4.2.1`, extension `8` + n° RPPS (`Identifier.FromRpps`) | SM |
-| `Auteurs[i].Professionnel.Profession` | Profession / spécialité | LPS du créateur (annuaire des PS) † | `assignedAuthor/code`, TRE_G15/R85 (`1.2.250.1.213.1.1.4.5`), ex. `G15_10/SM44` Radio-diagnostic | SM |
+| `Auteurs[i].Professionnel.Profession` | Profession / spécialité (code **et libellé**) | LPS du créateur (annuaire des PS) † | `assignedAuthor/code`, TRE_G15/R85 (`1.2.250.1.213.1.1.4.5`), `displayName` obligatoire (SM) ; ex. `G15_10/SM44` Radio-diagnostic | SM |
 | `Auteurs[i].Professionnel.Organisation` | Structure d'exercice de l'auteur, avec son identifiant | Structure d'imagerie de l'auteur [STD 3.2] | `representedOrganization` **[1..1] pour le CR d'imagerie**, `id` obligatoire (choix CdaCrImg) ; id `1.2.250.1.71.4.2.2` + `1`+FINESS ou `3`+SIRET | **STD** |
 | `Custodian.Id` | Structure chargée de la conservation du document | Structure d'imagerie qui produit et conserve le CR † | `custodian/.../representedCustodianOrganization/id` (FINESS/SIRET) ; nom recommandé | SM, XSD |
 | `SignataireLegal` | Responsable du document (en téléradiologie : médecin responsable de la structure qui accueille le patient) | Médecin effecteur ; en téléradiologie, médecin responsable de la structure qui accueille le patient [STD 3.2] | `legalAuthenticator` avec `signatureCode@code="S"` (émis automatiquement) | SM, STD |
@@ -98,7 +98,8 @@ Facultatifs : autres identifiants (`AutresIdentifiants`, ex. IPP : root = OID de
 | `SignataireLegal.Professionnel.Id` | Identifiant national du signataire | LPS du signataire (annuaire des PS / carte CPS) † | `assignedEntity/id` (RPPS) | SM |
 
 Facultatif : `MedecinsDemandeurs` (`participant typeCode="REF"`, [0..*]), repris de la demande d'actes d'imagerie [SFD 3.3.1]. S'il est fourni, son
-identifiant (`Professionnel.Id`) est exigé.
+identifiant (`Professionnel.Id`) est exigé, et le libellé de sa profession si le code est renseigné.
+Pour tout professionnel dont l'identité est renseignée, le nom de famille est obligatoire (SM : `name/family`).
 
 ### 1.4 Demande d'examen (`Demandes`, [1..*]) — 3 champs (dont 2 par demande)
 
@@ -122,7 +123,7 @@ Un acte par examen réalisé. Chacun produit un `documentationOf/serviceEvent` e
 | `Debut` | Date et heure de début de réalisation | Structure d'imagerie (RIS / modalité), date et heure de l'acte [SFD 3.2.2.1] † | `serviceEvent/effectiveTime/low` | SM |
 | `Executant.Id` | Radiologue exécutant | Structure d'imagerie : médecin effecteur responsable de l'exécution [SFD 3.2.3.4] | `serviceEvent/performer@typeCode="PRF"/assignedEntity/id` (RPPS) | SM, STD |
 | `Executant.Organisation.Id` | Établissement de rattachement de l'exécutant | Structure d'imagerie (établissement de rattachement, DRIM-Box) [STD 3.2] | `performer/assignedEntity/representedOrganization/id` (extension FR pour la DRIM-Box) | STD |
-| `Executant.Organisation.SecteurActivite` | Secteur d'activité de l'établissement de l'exécutant | Structure d'imagerie † | `performer/assignedEntity/representedOrganization/standardIndustryClassCode`, JDV_J04_XdsPracticeSettingCode_CISIS (`1.2.250.1.213.1.1.5.467`), système `1.2.250.1.213.1.1.4.9`, ex. `AMBULATOIRE`, `ETABLISSEMENT` | SM |
+| `Executant.Organisation.SecteurActivite` | Secteur d'activité de l'établissement de l'exécutant | Structure d'imagerie † | `performer/assignedEntity/representedOrganization/standardIndustryClassCode`, JDV_J04_XdsPracticeSettingCode_CISIS (`1.2.250.1.213.1.1.5.467`), système `1.2.250.1.213.1.1.4.9`, ex. `AMBULATOIRE`, `ETABLISSEMENT` ; `displayName` obligatoire | SM |
 
 Facultatifs : `CodeCcam` (translation CCAM [0..1]), `Fin`, `Depistage` (ajoute un `documentationOf` CIM-10 `Z13.9` ; contexte de la demande fourni par le médecin demandeur [SFD 3.3.1]).
 
@@ -132,9 +133,9 @@ Facultatifs : `CodeCcam` (translation CCAM [0..1]), `Fin`, `Depistage` (ajoute u
 |---|---|---|---|---|
 | `PriseEnCharge` | Contexte de la prise en charge | Structure d'imagerie (lieu de réalisation de l'examen, cf. exemple ANS) ; le contexte de la demande vient du demandeur [SFD 3.3.1] † | `componentOf/encompassingEncounter` | SM |
 | `Debut` | Début de la prise en charge | Structure d'imagerie (début de la prise en charge) † | `encompassingEncounter/effectiveTime/low` | SM |
-| `Lieu.CadreExercice` | Type de lieu de prise en charge | Structure d'imagerie † | `location/healthCareFacility/code`, JDV_J02 (`1.2.250.1.71.4.2.4`), ex. `SA08` Cabinet de groupe | SM |
+| `Lieu.CadreExercice` | Type de lieu de prise en charge | Structure d'imagerie † | `location/healthCareFacility/code`, JDV_J02 (`1.2.250.1.71.4.2.4`), ex. `SA08` Cabinet de groupe ; `displayName` obligatoire | SM |
 
-Facultatifs mais recommandés : `Modalite` (HL7 ActCode : `AMB`, `EMER`, `IMP`…), `Fin`, `Lieu.Id`, `Lieu.Nom`, `Lieu.Adresse`.
+Facultatifs mais recommandés : `Modalite` (JDV_J142 : `AMB`, `EMER`, `IMP`… ; `displayName` obligatoire si renseignée), `Fin`, `Lieu.Id`, `Lieu.Nom`, `Lieu.Adresse`.
 
 ## 2. Corps (PDF) — 1 champ
 
