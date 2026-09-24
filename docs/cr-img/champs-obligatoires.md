@@ -24,9 +24,38 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
 - Les valeurs **fixes** (templateId, code du document…) sont produites automatiquement :
   voir [§ 4](#4-valeurs-produites-automatiquement-par-la-librairie).
 
+## Synthèse : nombre de champs obligatoires par section
+
+Un champ = une ligne des tableaux ci-dessous (les lignes de regroupement comme `Auteurs` ou
+`Demandes` sont comptées). **Conditionnel** : exigé seulement dans un cas précis (INS fourni,
+examen référencé dans le catalogue). **Répétition** : le groupe de champs est à fournir pour
+chaque élément (un par auteur, par demande, par acte).
+
+| Section | Champs | Toujours obligatoires | Conditionnels | Répétition |
+|---|---:|---:|---:|---|
+| [1.1 Document](#11-document--5-champs) | 5 | 5 | 0 | — |
+| [1.2 Patient](#12-patient-patient--7-champs-2-toujours--5-si-ins) | 7 | 2 | 5 (si INS) | — |
+| [1.3 Professionnels et structures](#13-professionnels-et-structures--9-champs-dont-5-par-auteur) | 9 | 9 | 0 | 5 champs par auteur |
+| [1.4 Demande d'examen](#14-demande-dexamen-demandes-1--3-champs-dont-2-par-demande) | 3 | 3 | 0 | 2 champs par demande |
+| [1.5 Acte(s) d'imagerie](#15-actes-dimagerie-documentés-actes-1--7-champs-par-acte) | 7 | 7 | 0 | 7 champs par acte |
+| [1.6 Prise en charge](#16-prise-en-charge-priseencharge--3-champs) | 3 | 3 | 0 | — |
+| **Sous-total en-tête** | **34** | **29** | **5** | |
+| [2. Corps niveau 1 (PDF)](#2-corps-niveau-1-non-structuré-disponible--1-champ) | 1 | 1 | 0 | — |
+| [3. Corps niveau 3 (structuré)](#3-corps-niveau-3-structuré-lot-2-à-venir--12-champs-9-toujours--3-si-examen-référencé) | 12 | 9 | 3 (si examen référencé) | technique et catalogue : par acte ; série et objet : par examen |
+
+Total pour un CR minimal (un auteur, une demande, un acte) :
+
+| Document | Champs | Toujours obligatoires | Conditionnels |
+|---|---:|---:|---:|
+| **Niveau 1** (en-tête + PDF) | **35** | 30 | 5 |
+| **Niveau 3** (en-tête + corps structuré) | **46** | 38 | 8 |
+
+Les 8 valeurs du [§ 4](#4-valeurs-produites-automatiquement-par-la-librairie), produites
+automatiquement par la librairie, ne sont pas comptées.
+
 ## 1. En-tête (communs aux niveaux 1 et 3)
 
-### 1.1 Document
+### 1.1 Document — 5 champs
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
@@ -36,7 +65,7 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
 | `Titre` | Titre du document | Médecin effecteur, via son LPS [SFD 3.2.3.4, 4.3] | `title` ; texte libre, ex. « CR d'imagerie médicale - Scanner thoracique » | STD |
 | `DateCreation` | Date et heure de création du document | LPS du créateur, à la création [SFD 4.3] | `effectiveTime` ; `DateTimeOffset` → `yyyyMMddHHmmss+hhmm` (fuseau obligatoire) | SM |
 
-### 1.2 Patient (`Patient`)
+### 1.2 Patient (`Patient`) — 7 champs (2 toujours + 5 si INS)
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
@@ -50,7 +79,7 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
 
 Facultatifs : nom et prénom utilisés (`qualifier="CL"`), commune de naissance, adresses, télécoms.
 
-### 1.3 Professionnels et structures
+### 1.3 Professionnels et structures — 9 champs (dont 5 par auteur)
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
@@ -67,7 +96,7 @@ Facultatifs : nom et prénom utilisés (`qualifier="CL"`), commune de naissance,
 Facultatif : `MedecinsDemandeurs` (`participant typeCode="REF"`, [0..*]), repris de la demande d'actes d'imagerie [SFD 3.3.1]. S'il est fourni, son
 identifiant (`Professionnel.Id`) est exigé.
 
-### 1.4 Demande d'examen (`Demandes`, [1..*])
+### 1.4 Demande d'examen (`Demandes`, [1..*]) — 3 champs (dont 2 par demande)
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
@@ -75,7 +104,7 @@ identifiant (`Professionnel.Id`) est exigé.
 | `NumeroDemande` | Order Placer Number, numéro attribué par le demandeur | **Médecin demandeur** : « numéro attribué par le demandeur » [STD 3.2, SFD 3.3.1] | `order/id` ; `Identifier.Null()` (nullFlavor) autorisé si pas de demande dématérialisée | STD, SCH |
 | `AccessionNumber` | Accession Number attribué par le RIS | **RIS** : « identifiant de la demande attribué par le RIS » [SFD 3.3.1, STD 3.3.4.5] | `order/ps3-20:accessionNumber` (extension DICOM, `urn:dicom-org:ps3-20`) ; valeur réelle obligatoire | STD, SCH |
 
-### 1.5 Acte(s) d'imagerie documenté(s) (`Actes`, [1..*])
+### 1.5 Acte(s) d'imagerie documenté(s) (`Actes`, [1..*]) — 7 champs par acte
 
 Un acte par examen réalisé. Chacun produit un `documentationOf/serviceEvent` et une
 `translation` du code du document.
@@ -92,7 +121,7 @@ Un acte par examen réalisé. Chacun produit un `documentationOf/serviceEvent` e
 
 Facultatifs : `CodeCcam` (translation CCAM [0..1]), `Fin`, `Depistage` (ajoute un `documentationOf` CIM-10 `Z13.9` ; contexte de la demande fourni par le médecin demandeur [SFD 3.3.1]).
 
-### 1.6 Prise en charge (`PriseEnCharge`)
+### 1.6 Prise en charge (`PriseEnCharge`) — 3 champs
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
@@ -102,13 +131,13 @@ Facultatifs : `CodeCcam` (translation CCAM [0..1]), `Fin`, `Depistage` (ajoute u
 
 Facultatifs mais recommandés : `Modalite` (HL7 ActCode : `AMB`, `EMER`, `IMP`…), `Fin`, `Lieu.Id`, `Lieu.Nom`, `Lieu.Adresse`.
 
-## 2. Corps niveau 1 (non structuré, disponible)
+## 2. Corps niveau 1 (non structuré, disponible) — 1 champ
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
 | `Corps = new CorpsPdf(pdf)` | Le compte rendu au format PDF | Médecin effecteur, qui rédige le CR dans son LPS [SFD 3.2.3.4, 4.4] | `component/nonXMLBody/text` `mediaType="application/pdf"` `representation="B64"` ; le contenu doit être un PDF (signature `%PDF-`) | SM |
 
-## 3. Corps niveau 3 (structuré, lot 2 à venir)
+## 3. Corps niveau 3 (structuré, lot 2 à venir) — 12 champs (9 toujours + 3 si examen référencé)
 
 Sections obligatoires du corps structuré. Chaque section a un `code`, un `title` et un `text`
 (narratif) obligatoires, produits par la librairie à partir des données ci-dessous.
