@@ -13,7 +13,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 
 | Chemin | Rôle |
 |---|---|
-| `dotnet/` | Solution .NET (`CdaCrImg.sln`) : `src/CdaCrImg` (netstandard2.0), `tests/CdaCrImg.Tests` (net8.0, xUnit) |
+| `dotnet/` | Solution .NET (`CdaCrImg.sln`) : `src/CdaCrImg` (netstandard2.0), `tests/CdaCrImg.Tests` (net10.0, xUnit) |
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête, sections, entrées, OID, codes, cardinalités |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
 | `docs/cr-img/roadmap.md` | Lots de développement et critères de fin |
@@ -43,7 +43,7 @@ tools/validate-cda.sh <doc.xml> profils/CI-SIS_ModelesDeContenusCDA
 tools/validate-cda.sh <doc.xml> profils/IHE
 ```
 
-Le SDK .NET 8 est installé par `.claude/hooks/session-start.sh` (via apt ; `dot.net` est bloqué
+Le SDK .NET 10 (épinglé par `global.json`) est installé par `.claude/hooks/session-start.sh` (via apt ; `dot.net` est bloqué
 par le proxy de l'environnement web). Java 21 est disponible pour `tools/validate-cda.sh`.
 
 ## Règles de travail

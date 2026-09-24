@@ -6,12 +6,12 @@ concernés).
 
 ## Lot 0 — Socle ✅
 
-- [x] Solution `dotnet/` : lib netstandard2.0 sans dépendance + tests net8.0 (xUnit)
+- [x] Solution `dotnet/` : lib netstandard2.0 sans dépendance + tests net10.0 (xUnit)
 - [x] Constantes du volet (`TemplateIds`, `Codes`, `CodeSystems`, `IdentifierRoots`, `CdaNamespaces`) vérifiées contre les artefacts ANS
 - [x] Validation XSD CDA en .NET (`CdaXsdValidator`) + tests négatifs
 - [x] Script `tools/validate-cda.sh` (XSD + schématrons, Linux)
 - [x] Documentation : `CLAUDE.md`, `docs/cr-img/{specification,architecture,roadmap}.md`
-- [x] Hook de session (installation SDK .NET 8)
+- [x] Hook de session (installation SDK .NET 10)
 
 ## Lot 1 — Types HL7 et en-tête
 
