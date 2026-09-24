@@ -94,7 +94,7 @@ namespace CdaCrImg.Serialization
 
         /// <summary>Code LOINC 18748-4, avec une translation par acte (code LOINC de l'acte).</summary>
         private static XElement DocumentCode(CompteRenduImagerie cr) => El("code",
-            Attr("code", Codes.DocumentType), Attr("displayName", "CR d'imagerie médicale"),
+            Attr("code", Codes.DocumentType), Attr("displayName", "CR d’imagerie médicale"),
             Attr("codeSystem", CodeSystems.Loinc), Attr("codeSystemName", "LOINC"),
             cr.Actes.Select(a => Cd(Strip(a.Code!), "translation")));
 
@@ -172,7 +172,7 @@ namespace CdaCrImg.Serialization
             foreach (var modalite in a.Modalites)
             {
                 var t = Strip(modalite);
-                t.Qualifiers.Add(new Qualifier(Code.Dcm(Codes.Entries.DcmModality, "Modalité")));
+                t.Qualifiers.Add(new Qualifier(Code.Dcm(Codes.Entries.DcmModality, "Modalité d'imagerie")));
                 code.Translations.Add(t);
             }
             foreach (var region in a.RegionsAnatomiques)

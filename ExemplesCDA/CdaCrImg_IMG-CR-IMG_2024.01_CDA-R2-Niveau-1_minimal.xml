@@ -11,7 +11,7 @@
   <templateId root="1.2.250.1.213.1.1.1.1" />
   <templateId root="1.3.6.1.4.1.19376.1.2.20" />
   <id root="1.2.250.1.213.1.1.1.45.2024.3.1" />
-  <code code="18748-4" displayName="CR d'imagerie médicale" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC">
+  <code code="18748-4" displayName="CR d’imagerie médicale" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC">
     <translation code="24727-0" displayName="CT tête avec contraste IV" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" />
   </code>
   <title>CR d'imagerie médicale</title>
@@ -83,7 +83,7 @@
       <code code="24727-0" displayName="CT tête avec contraste IV" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC">
         <translation code="CT" displayName="Tomodensitométrie" codeSystem="1.2.840.10008.2.16.4" codeSystemName="DCM">
           <qualifier>
-            <name code="121139" displayName="Modalité" codeSystem="1.2.840.10008.2.16.4" codeSystemName="DCM" />
+            <name code="121139" displayName="Modalité d'imagerie" codeSystem="1.2.840.10008.2.16.4" codeSystemName="DCM" />
           </qualifier>
         </translation>
         <translation code="774007" displayName="tête et cou" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
