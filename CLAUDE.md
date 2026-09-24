@@ -33,8 +33,9 @@ Tout le reste (autres volets : BIO, ANEST, CSE…) est hors périmètre : ne pas
 ## Commandes
 
 ```bash
-# Build + tests .NET (depuis la racine)
+# Build + tests .NET (depuis la racine) ; les tests "Schematron" appellent tools/validate-cda.sh (Java)
 dotnet test dotnet/CdaCrImg.sln
+dotnet test dotnet/CdaCrImg.sln --filter "Category!=Schematron"   # sans Java
 
 # Validation de conformité d'un CDA (XSD + schématron du volet ; ~15 s la 1re fois, compilation mise en cache)
 tools/validate-cda.sh ExemplesCDA/IMG_CR_IMG_2024.01.xml
@@ -57,8 +58,9 @@ par le proxy de l'environnement web). Java 21 est disponible pour `tools/validat
 - **Conformité prouvée, pas supposée** : tout document produit par la librairie doit, en test,
   être valide XSD (`CdaXsdValidator` en .NET) et, pour les jalons, passer `tools/validate-cda.sh`
   (schématron du volet + profils transverses) sans `failed-assert`.
-- En cas de doute sur une règle, l'ordre de priorité est : schématron du volet > exemple de
-  référence > `docs/cr-img/specification.md`. Corriger la doc si elle diverge.
+- En cas de doute sur une règle : spécifications ANS (`docs/cr-img/ans/*.pdf`) et schématron du
+  volet font foi (appliquer la contrainte la plus stricte), puis l'exemple de référence, puis
+  `docs/cr-img/specification.md`. Corriger la doc si elle diverge.
 - Ne jamais modifier les artefacts ANS (`schematrons/`, `infrastructure/`, `jeuxDeValeurs/`,
   `ExemplesCDA/`) pour faire passer un test.
 - Constantes (OID, codes) : les ajouter dans `TemplateIds.cs`, `Codes.cs`, `CodeSystems.cs` ;

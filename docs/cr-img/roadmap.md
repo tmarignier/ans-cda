@@ -13,13 +13,15 @@ concernés).
 - [x] Documentation : `CLAUDE.md`, `docs/cr-img/{specification,architecture,roadmap}.md`
 - [x] Hook de session (installation SDK .NET 10)
 
-## Lot 1 — Types HL7 et en-tête
+## Lot 1 — Types HL7 et en-tête ✅
 
-- [ ] Types de base : `Identifier`, `Code` (+ translation/qualifier), `PersonName`, `Address`, `Telecom`, horodatage TS avec fuseau
-- [ ] Modèle : `Patient` (INS + traits), `Professionnel` (RPPS, spécialité), `Organisation`
-- [ ] En-tête complet : templateIds, code 18748-4, recordTarget, author, custodian, legalAuthenticator, `inFulfillmentOf` (accessionNumber ps3-20), `documentationOf/serviceEvent` (Study UID, LOINC, CCAM, modalité, région), `componentOf`
-- [ ] Corps niveau 1 (PDF base64) → premier document complet valide XSD + structuration minimale
-- **Critère** : document N1 produit valide XSD + `profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin`
+- [x] Types de base : `Identifier` (+ nullFlavor, RPPS/FINESS/SIRET), `Code` (+ translation/qualifier), `PersonName`, `Address`, `Telecom`, horodatage TS avec fuseau (`Hl7Format`)
+- [x] Modèle : `Patient` (INS + traits), `Professionnel`, `Organisation`, `Auteur`, `Signature`, `MedecinDemandeur`, `DemandeImagerie`, `ActeImagerie`, `PriseEnCharge`, `CompteRenduImagerie`
+- [x] En-tête complet : templateIds, code 18748-4 (+ translation par acte), recordTarget, author, custodian, legalAuthenticator, participant REF, `inFulfillmentOf` (accessionNumber ps3-20), `documentationOf/serviceEvent` (Study UID, LOINC, CCAM, modalité, région, performer), dépistage Z13.9, `relatedDocument` RPLC, `componentOf`
+- [x] Corps niveau 1 (PDF base64, `CorpsPdf`)
+- [x] `CrImgValidator` : contrôles de complétude avant écriture (`CrImgValidationException`)
+- **Critère atteint** : document N1 produit valide XSD (.NET et Java) + `structurationMinimale`, `CI-SIS_ModelesDeContenusCDA`, `IHE` sans failed-assert (tests `Category=Schematron`)
+- Reporté : `authenticator`, `informant`, `participant INF` (médecin traitant), `informationRecipient`
 
 ## Lot 2 — Corps structuré minimal conforme
 

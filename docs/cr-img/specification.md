@@ -1,8 +1,10 @@
 # Volet IMG-CR-IMG 2024.01 — synthèse pour l'implémentation
 
-> Synthèse de travail établie à partir des artefacts ANS du dépôt. **En cas de divergence, le
-> schématron fait foi** : `schematrons/CI-SIS_IMG-CR-IMG_2024.01.sch` et ses inclusions
-> `schematrons/include/specificationsVolets/IMG-CR-IMG_2024.01/**`. L'exemple de référence
+> Synthèse de travail établie à partir des artefacts ANS du dépôt. Sources normatives : les
+> spécifications ANS `docs/cr-img/ans/*_SFD_*.pdf` (fonctionnelles) et `*_STD_CDA_*.pdf`
+> (techniques), et le schématron `schematrons/CI-SIS_IMG-CR-IMG_2024.01.sch` (+ inclusions
+> `schematrons/include/specificationsVolets/IMG-CR-IMG_2024.01/**`). **Lorsque la STD est plus stricte
+> que le schématron, la librairie applique la STD** (marqué « STD » ci-dessous). L'exemple de référence
 > `ExemplesCDA/IMG_CR_IMG_2024.01.xml` illustre un document complet (scanner tête + cou + rachis).
 >
 > Le document doit **aussi** satisfaire les couches transverses : XSD CDA R2
@@ -11,8 +13,6 @@
 > (`schematrons/profils/CI-SIS_ModelesDeContenusCDA.sch`) et IHE (`schematrons/profils/IHE.sch`).
 > Les règles génériques (INS, auteur, custodian…) viennent de ces couches.
 >
-> Spécification officielle (texte) : volet « Compte rendu d'imagerie médicale » du CI-SIS,
-> publié par l'ANS (esante.gouv.fr) — non présent dans ce dépôt.
 
 Espaces de noms : `urn:hl7-org:v3` (défaut), `xsi`, `ps3-20` = `urn:dicom-org:ps3-20`.
 
@@ -21,7 +21,7 @@ Espaces de noms : `urn:hl7-org:v3` (défaut), `xsi`, `ps3-20` = `urn:dicom-org:p
 | Niveau | Corps | Conformité |
 |---|---|---|
 | **3 (structuré)** — cible principale | `structuredBody` avec sections/entrées DICOM PS3.20 | Schématron IMG-CR-IMG + profils transverses |
-| **1 (non structuré)** | `nonXMLBody/text` PDF base64 (`mediaType="application/pdf" representation="B64"`) | Profils transverses uniquement ; templateId `1.3.6.1.4.1.19376.1.2.20` au lieu de `…1.1.1.45`. Le schématron du volet **n'est pas applicable** (4 failed-assert attendus sur l'exemple N1 : templateIds du volet absents). |
+| **1 (non structuré)** | `nonXMLBody/text` PDF base64 (`mediaType="application/pdf" representation="B64"`) | Profils transverses uniquement. La STD définit IMG-CR-IMG comme un modèle **à corps structuré** ; le niveau 1 est le document CDA non structuré générique du CI-SIS, avec le même en-tête. Structuration minimale : **seuls** les templateId `2.16.840.1.113883.2.8.2.1`, `1.2.250.1.213.1.1.1.1` et `1.3.6.1.4.1.19376.1.2.20` sont autorisés (pas de templateId DICOM ni `…1.1.1.45`). Le schématron du volet **n'est pas applicable** (4 failed-assert attendus sur l'exemple N1). |
 
 ## 2. En-tête (ClinicalDocument)
 
@@ -36,20 +36,21 @@ inFulfillmentOf*, documentationOf+, relatedDocument*, componentOf, component`.
 | `typeId` | 1..1 | root `2.16.840.1.113883.1.3`, extension `POCD_HD000040` |
 | `templateId` | 1..* | **tous requis** : `2.16.840.1.113883.2.8.2.1` (HL7 France), `1.2.250.1.213.1.1.1.1` (CI-SIS), `1.2.840.10008.9.1` (DICOM Imaging Report), `1.2.840.10008.9.20` (General Header), `1.2.840.10008.9.21` (Imaging Header), `1.2.250.1.213.1.1.1.45` extension `2024.01` (IMG-CR-IMG) |
 | `id` | 1..1 | identifiant unique du document (OID/UUID) |
-| `code` | 1..1 | **LOINC `18748-4`** « CR d'imagerie médicale » ; `translation` 0..* issues du `jdv-code-document-imagerie-cisis` (1.2.250.1.213.1.1.5.687, LOINC des examens) |
+| `code` | 1..1 | **LOINC `18748-4`** « CR d'imagerie médicale » ; `translation` **1..* (STD), une par acte**, issues du `jdv-code-document-imagerie-cisis` (1.2.250.1.213.1.1.5.687, LOINC des examens) |
 | `title` | 1..1 | libre |
 | `effectiveTime` | 1..1 | TS avec fuseau (`yyyyMMddHHmmss+zzzz`) |
 | `confidentialityCode` | 1..1 | `N` (2.16.840.1.113883.5.25) par défaut |
 | `languageCode` | 1..1 | `fr-FR` |
 | `setId` + `versionNumber` | 1..1 | gestion des versions ; `relatedDocument typeCode="RPLC"` si remplacement |
 | `recordTarget/patientRole` | 1..1 | INS : `id` root `1.2.250.1.213.1.4.8` (NIR) / `.9` (NIA) / `.10` `.11` (test) + IPP local ; si INS : nom de naissance `family@qualifier=BR`, `given` (tous prénoms), `given@qualifier=BR` (1er prénom), `birthTime`, `birthplace/place/addr/county` (code COG), `administrativeGenderCode` **obligatoires** |
-| `author` | 1..* | `time`, `assignedAuthor/id` (RPPS : root `1.2.250.1.71.4.2.1`, extension `8…`), `code` profession/spécialité (TRE_G15/R85 `1.2.250.1.213.1.1.4.5`, ex. `G15_10/SM44` radio-diagnostic), `assignedPerson/name`, `representedOrganization` |
+| `author` | 1..* | `time`, `assignedAuthor/id` (RPPS : root `1.2.250.1.71.4.2.1`, extension `8…`), `code` profession/spécialité (TRE_G15/R85 `1.2.250.1.213.1.1.4.5`, ex. `G15_10/SM44` radio-diagnostic), `assignedPerson/name`, `representedOrganization` **1..1 (STD)**. En téléradiologie, ajouter un auteur pour le médecin responsable de la structure d'imagerie qui accueille le patient. |
 | `custodian` | 1..1 | organisation (id `1.2.250.1.71.4.2.2` + FINESS/SIRET) |
-| `legalAuthenticator` | 1..1 | `time`, `signatureCode@code=S`, `assignedEntity` (radiologue signataire) |
+| `legalAuthenticator` | 1..1 | `time`, `signatureCode@code=S`, `assignedEntity` (radiologue signataire ; en téléradiologie, médecin responsable de la structure qui accueille le patient) |
 | `authenticator` | 0..* | idem |
+| `participant typeCode=REF` | 0..* | **médecin demandeur** des examens (STD) : `time xsi:type=IVL_TS` (`nullFlavor=UNK` si inconnue), `associatedEntity classCode=PROV` |
 | `participant typeCode=INF` | 0..* | ex. médecin traitant (`functionCode PCP`) |
-| **`inFulfillmentOf/order`** | 0..* | si présent : `order/id` **1..1** (n° de demande) **et `ps3-20:accessionNumber` 1..1** |
-| **`documentationOf/serviceEvent`** | **1..*** | un par acte d'imagerie : `id` = **Study Instance UID** ; `code` **LOINC** de l'examen avec `translation` : CCAM 0..1 (`1.2.250.1.215.300.1`), **modalité 1..*** (DCM `1.2.840.10008.2.16.4`, `qualifier/name@code=121139`, JDV `jdv-modalite-acquisition-cisis` 1.2.250.1.213.1.1.5.618), région anatomique 0..* (SNOMED CT, `qualifier/name@code=39111-0` LOINC, JDV `jdv-region-anatomique-cisis` 1.2.250.1.213.1.1.5.695) ; `effectiveTime low/high` ; `performer typeCode=PRF` (radiologue + `representedOrganization/id` obligatoire pour la DRIM-Box) |
+| **`inFulfillmentOf/order`** | **1..* (STD ; 0..* au schématron)** | `order/id` **1..1** (Order Placer Number ; `nullFlavor` autorisé si pas de demande dématérialisée) **et `ps3-20:accessionNumber` 1..1** |
+| **`documentationOf/serviceEvent`** | **1..*** | un par acte d'imagerie : `id` = **Study Instance UID** (`@root` seul, sans `@extension` — STD) ; `code` **LOINC** de l'examen avec `translation` : CCAM 0..1 (`1.2.250.1.215.300.1`), **modalité 1..*** (DCM `1.2.840.10008.2.16.4`, `qualifier/name@code=121139`, JDV `jdv-modalite-acquisition-cisis` 1.2.250.1.213.1.1.5.618), région anatomique **1..* (STD)** (SNOMED CT, `qualifier/name@code=39111-0` LOINC, JDV `jdv-region-anatomique-cisis` 1.2.250.1.213.1.1.5.695) ; `effectiveTime low/high` (**obligatoire**, structuration minimale) ; `performer typeCode=PRF` (**obligatoire**, structuration minimale) (radiologue + `representedOrganization/id` obligatoire pour la DRIM-Box) |
 | `documentationOf` (dépistage) | 0..* | `serviceEvent/code` CIM-10 (ex. `Z13.9`) |
 | `componentOf/encompassingEncounter` | 1..1 | `code` (ActCode, ex. `AMB`), `effectiveTime`, `location/healthCareFacility` (`code` cadre d'exercice 1.2.250.1.71.4.2.4) |
 
@@ -145,3 +146,11 @@ Arborescence Examen → Série(s) → Instance(s) SOP :
 | `jdv-imagerie-objectif-reference-cisis.xml` | 1.2.250.1.213.1.1.5.672 | objectifs de référence |
 
 Structure SVS : `RetrieveValueSetResponse/ValueSet[@id]/ConceptList/Concept[@code,@codeSystem,@displayName]`.
+
+## 6. Métadonnées XDS (STD §4.1, pour information — hors périmètre de la librairie)
+
+| Métadonnée | Valeur |
+|---|---|
+| `classCode` | `31` Imagerie médicale |
+| `typeCode` | `18748-4` CR d'imagerie médicale |
+| `formatCode` | `urn:ihe:rad:CDA:ImagingReportStructuredHeadings:2013` (niveau 3) |

@@ -51,37 +51,41 @@ Principes :
    La validation XSD .NET est possible par l'appelant ; la validation schématron officielle reste
    externe (tests + `tools/validate-cda.sh`).
 
-## API cible (esquisse, à affiner au lot 1)
+## API (lot 1)
+
+Espaces de noms : `CdaCrImg` (constantes), `CdaCrImg.Model` (+ `.Hl7`), `CdaCrImg.Serialization`,
+`CdaCrImg.Validation`. Exemple complet : `dotnet/tests/CdaCrImg.Tests/SampleReports.cs`.
 
 ```csharp
 var cr = new CompteRenduImagerie
 {
-    Id = new Identifier("1.2.250.1.213.1.1.1.45.2024.1.1"),
-    SetId = new Identifier("1.2.250.1.213.1.1.1.45.2024.1"),
-    Version = 1,
+    Id = new Identifier("1.2.250.1.213.1.1.1.45.2024.2.1"),
+    SetId = new Identifier("1.2.250.1.213.1.1.1.45.2024.2"),
     Titre = "CR d'imagerie médicale - Scanner thoracique",
-    DateCreation = DateTimeOffset.Parse("2021-01-08T11:17:00+01:00"),
-    Patient = patient,                  // INS + traits d'identité
-    Auteur = radiologue,                // RPPS, spécialité, organisation
+    DateCreation = DateTimeOffset.Now,
+    Patient = patient,                                  // INS + traits d'identité
     Custodian = centreImagerie,
-    SignataireLegal = radiologue,
-    Demandes = { new DemandeImagerie(orderId, accessionNumber) },
-    Actes =
-    {
-        new ActeImagerie
-        {
-            StudyInstanceUid = "1.2.250.1.925.994044.27.123.1876360",
-            CodeLoinc = new Code("24727-0", CodeSystems.Loinc, "CT tête avec contraste IV"),
-            CodeCcam = new Code("ACQH004", CodeSystems.Ccam),
-            Modalites = { Modalite.CT },
-            // technique, produits administrés, exposition, catalogue DICOM (séries/instances)…
-        }
-    },
-    Conclusion = "Pas d'anomalie décelée.",
+    SignataireLegal = new Signature(radiologue, date),
+    PriseEnCharge = priseEnCharge,
+    Corps = new CorpsPdf(File.ReadAllBytes("cr.pdf")),  // niveau 1
 };
+cr.Auteurs.Add(new Auteur(radiologue, date));           // radiologue.Organisation obligatoire
+cr.Demandes.Add(new DemandeImagerie(numeroDemande, accessionNumber));
+var acte = new ActeImagerie
+{
+    StudyInstanceUid = "1.2.250.1.925.994044.27.123.1876360",
+    Code = Code.Loinc("24727-0", "CT tête avec contraste IV"),
+    CodeCcam = Code.Ccam("ACQH004"),
+    Debut = debutExamen,
+    Executant = radiologue,
+};
+acte.Modalites.Add(Code.Dcm("CT", "Tomodensitométrie"));
+acte.RegionsAnatomiques.Add(Code.Snomed("774007", "tête et cou"));
+cr.Actes.Add(acte);
 
-XDocument xml = CrImgWriter.Write(cr);         // ou WriteTo(Stream)
-IReadOnlyList<ValidationIssue> issues = cr.Validate();
+IReadOnlyList<ValidationIssue> issues = CrImgValidator.Validate(cr);  // vide si complet
+XDocument xml = CrImgWriter.Write(cr);   // lève CrImgValidationException si incomplet
+CrImgWriter.Write(cr, stream);           // UTF-8 ; ou CrImgWriter.WriteToString(cr)
 ```
 
 ## Organisation du code
