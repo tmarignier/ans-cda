@@ -25,8 +25,8 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `jeuxDeValeurs/*.xml` | Jeux de valeurs (JDV) au format IHE SVS (`urn:ihe:iti:svs:2008`) |
 | `tools/validate-cda.sh` | Validation XSD + schématron d'un document (Java, outillage du kit) |
 | `FeuilleDeStyle/` | Feuilles XSL de rendu (CDA-FO.xsl) — hors périmètre de la librairie |
-| `docs\cr-img\ans\CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf` | Volet CR d’imagerie Spécifications fonctionnelles |
-| `docs\cr-img\ans\CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf` | Volet CR d’imagerie Spécifications techniques |
+| `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf` | Volet CR d’imagerie Spécifications fonctionnelles |
+| `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf` | Volet CR d’imagerie Spécifications techniques |
 
 Tout le reste (autres volets : BIO, ANEST, CSE…) est hors périmètre : ne pas modifier.
 
