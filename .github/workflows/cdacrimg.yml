@@ -4,12 +4,17 @@ name: CdaCrImg
 
 on:
   push:
-    branches: [main, "claude/**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+# Une seule exécution par branche / PR : une exécution devenue obsolète est annulée.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-test:
