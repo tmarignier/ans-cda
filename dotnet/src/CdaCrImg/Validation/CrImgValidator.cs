@@ -40,8 +40,11 @@ namespace CdaCrImg.Validation
             {
                 var path = $"Auteurs[{i}].Professionnel";
                 ValidateProfessionnel(cr.Auteurs[i].Professionnel, path, requireProfession: true, Err);
-                if (cr.Auteurs[i].Professionnel?.Organisation == null)
+                var organisation = cr.Auteurs[i].Professionnel?.Organisation;
+                if (organisation == null)
                     Err(path + ".Organisation", "obligatoire pour l'auteur d'un CR d'imagerie.");
+                else
+                    RequireId(organisation.Id, path + ".Organisation.Id", Err);
             }
 
             if (cr.Custodian == null) Err("Custodian", "obligatoire.");

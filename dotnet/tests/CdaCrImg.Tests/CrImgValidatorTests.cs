@@ -85,6 +85,15 @@ public class CrImgValidatorTests
     }
 
     [Fact]
+    public void Auteur_RequiresOrganisationId()
+    {
+        var cr = SampleReports.Minimal();
+        cr.Auteurs[0].Professionnel.Organisation = new Organisation { Nom = "Centre" };
+
+        Assert.Contains(CrImgValidator.Validate(cr), i => i.Path == "Auteurs[0].Professionnel.Organisation.Id");
+    }
+
+    [Fact]
     public void Auteur_RequiresOrganisation()
     {
         var cr = SampleReports.Level1();
