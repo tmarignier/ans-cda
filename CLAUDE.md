@@ -15,6 +15,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 |---|---|
 | `dotnet/` | Solution .NET (`CdaCrImg.sln`) : `src/CdaCrImg` (netstandard2.0), `tests/CdaCrImg.Tests` (net10.0, xUnit) |
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête, sections, entrées, OID, codes, cardinalités |
+| `docs/cr-img/champs-obligatoires.md` | Champs minimaux obligatoires d'un CR (nom CdaCrImg, description, règles, sources) |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
 | `docs/cr-img/roadmap.md` | Lots de développement et critères de fin |
 | `ExemplesCDA/IMG_CR_IMG_2024.01.xml` | **Exemple de référence ANS** du CR d'imagerie structuré (niveau 3) |

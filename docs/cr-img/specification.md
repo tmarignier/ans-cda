@@ -63,7 +63,7 @@ un `title` et un `text` (narratif) **obligatoire**. Les entrées référencent l
 | Ordre | Section | templateIds | code | Card. |
 |---|---|---|---|---|
 | 1 | FR-DICOM-Addendum | `1.2.840.10008.9.6` + `1.2.250.1.213.1.1.2.210` | LOINC `55107-7` | 0..1 — `author/assignedAuthor/assignedPerson/name` requis |
-| 2 | FR-DICOM-informations-cliniques | `1.2.840.10008.9.2` + `…2.205` | LOINC `55752-0` | 0..1 |
+| 2 | FR-DICOM-informations-cliniques | `1.2.840.10008.9.2` + `…2.205` | LOINC `55752-0` | **1..1 (STD/SFD** ; SCH : 0..1) |
 | 2.1 | ↳ FR-DICOM-Demande-examen | `1.2.840.10008.9.7` + `…2.211` | LOINC `55115-0` | **1..1** si parent présent |
 | 2.2 | ↳ FR-DICOM-Historique-medical | `2.16.840.1.113883.10.20.22.2.39` + `…2.213` | LOINC `11329-0` | **1..1** si parent présent |
 | 3 | **FR-DICOM-Acte-imagerie** (un par acte) | `1.2.840.10008.9.3` + `…2.206` | LOINC `55111-9` | **1..*** |
@@ -93,7 +93,7 @@ contrôle pas l'ordre mais on le reproduit pour la lisibilité.
 ### Section Acte imagerie (3)
 - **FR-DICOM-Technique-imagerie** (`1.2.840.10008.9.14` + `…3.153`), `procedure PROC/EVN` **1..*** :
   `code` LOINC de l'acte 1..1 (+ `translation` CCAM 0..1) ; `methodCode` **1..*** (modalité,
-  `jdv-modalite-acquisition-cisis`) ; `targetSiteCode` 1..* (localisation anatomique ;
+  `jdv-modalite-acquisition-cisis`) ; `targetSiteCode` 0..* (STD ; localisation anatomique ;
   `qualifier` 0..1 avec `name@code=106233006` SNOMED pour le modificateur topographique, latéralité :
   `jdv-lateralite-technique-imagerie-cisis`) ; `effectiveTime` ; commentaire FR-Commentaire-ER 0..1.
 - **FR-DICOM-Administration-produit-de-sante** (`1.2.840.10008.9.13` + `…3.151`),
@@ -113,16 +113,18 @@ contrôle pas l'ordre mais on le reproduit pour la lisibilité.
 - **FR-DICOM-Administration-radiopharmaceutique** (`…3.173`) 0..* : code SNOMED `440252007`.
 
 ### Sous-section Catalogue d'objets DICOM (3.3)
-Arborescence Examen → Série(s) → Instance(s) SOP :
+Arborescence Examen [0..*] → Série générique [1..1] → Objet référencé [1..1] (STD : une seule série
+« générale » par examen, un seul objet par série ; le schématron impose `count = 1`) :
 - **FR-DICOM-Examen-imagerie** (`1.2.840.10008.9.16` + `…3.155`), `act` : code DCM `113014`,
   `id` = **Study Instance UID** (1..1), `effectiveTime` (1..1) ;
   - `entryRelationship typeCode=COMP` → **FR-DICOM-Serie-imagerie** (`1.2.840.10008.9.17` + `…3.156`)
-    **1..*** : `id` = Series Instance UID, code DCM `113015` avec `qualifier` (`name` DCM `121139`,
+    **1..1** : `id` = Series Instance UID, code DCM `113015` avec `qualifier` (`name` DCM `121139`,
     `value` = modalité) ;
     - `entryRelationship typeCode=COMP` → **FR-DICOM-SOP-instance-observation**
-      (`1.2.840.10008.9.18` + `…3.157`) **1..*** : `observation classCode="DGIMG"`, `id` = SOP
+      (`1.2.840.10008.9.18` + `…3.157`) **1..1** : `observation classCode="DGIMG"`, `id` = SOP
       Instance UID, `code` = SOP Class UID (système DCMUID `1.2.840.10008.2.6.1`), `text`
-      optionnel mais si présent `mediaType="application/dicom"` + `reference` (URL WADO).
+      **1..1 (STD)** avec `mediaType="application/dicom"` + `reference` = URL IHE Invoke Image Display
+      (`https://<location>/IHEInvokeImageDisplay?requestType=STUDY&studyUID=…&Accessionnumber=…&idCDA=…`).
 
 ### Section Documents ajoutés (9)
 - FR-Document-attache (`…3.18`, `organizer CLUSTER`) : FR-Type-document-attache (`…3.48.18`) +
