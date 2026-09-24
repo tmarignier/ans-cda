@@ -20,7 +20,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 
 | Chemin | Rôle |
 |---|---|
-| `dotnet/` | Solution .NET (`CdaCrImg.sln`) : `src/CdaCrImg` (netstandard2.0), `tests/CdaCrImg.Tests` (net10.0, xUnit) |
+| `dotnet/` | Solution .NET (`CdaCrImg.sln`) : `src/CdaCrImg` (netstandard2.0), `demo/CdaCrImg.Demo` (application web de démonstration, ASP.NET Core net10.0), `tests/CdaCrImg.Tests` (net10.0, xUnit) |
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête (dans le périmètre) ; sections et entrées du niveau 3 (référence, hors périmètre) |
 | `docs/cr-img/champs-obligatoires.md` | Champs minimaux obligatoires d'un CR (nom CdaCrImg, description, règles, sources) |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
@@ -33,6 +33,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `infrastructure/cda/CDA_extended.xsd` | XSD CDA R2 étendu (DICOM PS3.20, pharmacie, SDTC) |
 | `jeuxDeValeurs/*.xml` | Jeux de valeurs (JDV) au format IHE SVS (`urn:ihe:iti:svs:2008`) |
 | `tools/validate-cda.sh` | Validation XSD + schématron d'un document (Java, outillage du kit) |
+| `tools/generate-demo-jdv.py` | Génère les listes déroulantes de la démo (`Form/JeuxDeValeurs.g.cs`) depuis les JDV ANS |
 | `FeuilleDeStyle/` | Feuilles XSL de rendu (CDA-FO.xsl) — hors périmètre de la librairie |
 | `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf` | Volet CR d’imagerie Spécifications fonctionnelles |
 | `docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf` | Volet CR d’imagerie Spécifications techniques |
@@ -46,6 +47,9 @@ Tout le reste (autres volets : BIO, ANEST, CSE…) est hors périmètre : ne pas
 # directement Java (JAVA_HOME ou PATH) via AnsJavaValidator ; ils sont ignorés si Java est absent.
 dotnet test dotnet/CdaCrImg.sln
 dotnet test dotnet/CdaCrImg.sln --filter "Category!=Schematron"   # exclure la validation Java
+
+# Application web de démonstration (formulaire → CDA XML), http://localhost:5000 par défaut
+dotnet run --project dotnet/demo/CdaCrImg.Demo
 
 # Validation manuelle d'un CDA (bash + Java ; XSD + schématron ; ~15 s la 1re fois, compilation mise en cache)
 tools/validate-cda.sh <doc.xml> profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin
@@ -75,6 +79,9 @@ par le proxy de l'environnement web). Java 21 est disponible pour `tools/validat
   `ExemplesCDA/`) pour faire passer un test.
   Seule exception : les exemples générés par la librairie, préfixés `CdaCrImg_` dans `ExemplesCDA/`
   (ex. `CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1.xml`, écrit par `ExampleFileTests`).
+- **Démo** : tout champ ajouté à la librairie doit être ajouté au catalogue du formulaire
+  (`dotnet/demo/CdaCrImg.Demo/Form/FormCatalog.cs`) et au mapper ; `DemoFormCatalogTests` vérifie que
+  la mention obligatoire / facultatif de chaque champ correspond à `CrImgValidator`.
 - Constantes (OID, codes) : les ajouter dans `TemplateIds.cs`, `Codes.cs`, `CodeSystems.cs` ;
   le test `SpecConstant_IsFoundInAnsArtifacts` vérifie qu'elles existent dans les artefacts ANS.
 - Documentation XML (`///`) en français sur l'API publique ; noms de types/méthodes en anglais

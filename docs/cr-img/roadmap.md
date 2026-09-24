@@ -26,19 +26,26 @@ minimale, modèles de contenus CI-SIS, IHE), via les tests `Category=Schematron`
 - **Critère atteint** : document N1 produit valide XSD (.NET et Java) + `structurationMinimale`, `CI-SIS_ModelesDeContenusCDA`, `IHE` sans failed-assert (tests `Category=Schematron`)
 - Reporté : `authenticator`, `informant`, `participant INF` (médecin traitant), `informationRecipient`
 
-## Lot 2 — Application web de démonstration (en cours)
+## Lot 2 — Application web de démonstration ✅
 
 Application ASP.NET Core (`dotnet/demo/CdaCrImg.Demo`) exposant un formulaire qui montre le bon
-fonctionnement de la librairie.
+fonctionnement de la librairie : `dotnet run --project dotnet/demo/CdaCrImg.Demo`.
 
-- [ ] Un champ de formulaire pour chaque donnée gérée par la librairie (en-tête complet + PDF)
-- [ ] Pour chaque champ : mention **obligatoire / facultatif**, **valeur d'exemple** pré-remplie et **description**
-- [ ] À la validation : le CDA XML est renvoyé à l'utilisateur (affichage ou téléchargement) ;
-      en cas de données incomplètes, le formulaire est réaffiché avec les erreurs de `CrImgValidator`
-- [ ] Tests : la mention obligatoire/facultatif de chaque champ est vérifiée contre `CrImgValidator` ;
+- [x] Un champ de formulaire pour chaque donnée gérée par la librairie (en-tête complet + PDF), décrit
+      dans un catalogue unique (`Form/FormCatalog.cs`) ; listes déroulantes générées depuis les JDV ANS
+      (`tools/generate-demo-jdv.py`)
+- [x] Pour chaque champ : mention **obligatoire / facultatif / obligatoire si le groupe est renseigné**,
+      **valeur d'exemple** pré-remplie, **description** et propriété CdaCrImg correspondante
+- [x] À la validation : le CDA XML est renvoyé (affichage ou téléchargement) ; en cas de données
+      incomplètes, le formulaire est réaffiché avec les erreurs par champ et celles de `CrImgValidator`
+- [x] Tests : la mention de chaque champ est vérifiée contre `CrImgValidator` ; tests HTTP de bout en bout ;
       le CDA produit avec les valeurs d'exemple est valide XSD et passe les trois profils transverses
-- **Critère** : `dotnet run --project dotnet/demo/CdaCrImg.Demo`, soumission du formulaire pré-rempli →
-  CDA XML conforme (XSD + structuration minimale, modèles de contenus, IHE)
+- [x] Librairie complétée grâce au formulaire : identifiant de l'organisation de l'auteur, dates de l'auteur
+      et du signataire, nom de famille d'un PS identifié, `displayName` des codes contraints par la
+      structuration minimale
+- **Critère atteint** : formulaire pré-rempli soumis → CDA XML conforme (XSD + structuration minimale,
+  modèles de contenus, IHE)
+- Limites : un auteur, une demande, un acte, une modalité et une région (la librairie en accepte plusieurs)
 
 ## Lot 3 — Robustesse et diffusion
 

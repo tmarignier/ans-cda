@@ -16,3 +16,6 @@ Le répertoire testContenuCDA contient :
 
 Librairie .NET Standard 2.0 autonome de production du compte rendu d'imagerie au format CDA R2
 non structuré (niveau 1, PDF encapsulé), en-tête conforme au volet CI-SIS IMG-CR-IMG 2024.01 : voir `dotnet/`, `CLAUDE.md` et `docs/cr-img/`.
+
+Démonstration : `dotnet run --project dotnet/demo/CdaCrImg.Demo` puis ouvrir l'URL affichée : un
+formulaire pré-rempli produit le CDA XML du compte rendu.

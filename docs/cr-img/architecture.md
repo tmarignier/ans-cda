@@ -89,6 +89,16 @@ XDocument xml = CrImgWriter.Write(cr);   // lève CrImgValidationException si in
 CrImgWriter.Write(cr, stream);           // UTF-8 ; ou CrImgWriter.WriteToString(cr)
 ```
 
+## Application de démonstration
+
+`dotnet/demo/CdaCrImg.Demo` (ASP.NET Core Razor Pages, net10.0) : un formulaire généré depuis un
+catalogue de champs (`Form/FormCatalog.cs` : libellé, obligatoire / facultatif / obligatoire si le groupe
+est renseigné, description, valeur d'exemple, propriété CdaCrImg). À la soumission, `ReportFormMapper`
+construit le `CompteRenduImagerie`, `CrImgValidator` le contrôle et `CrImgWriter` renvoie le CDA XML
+(affiché ou téléchargé). Les listes déroulantes sont générées depuis les JDV ANS
+(`tools/generate-demo-jdv.py` → `Form/JeuxDeValeurs.g.cs`). Sans fichier transmis, le PDF d'exemple
+de l'ANS (`wwwroot/exemple-cr.pdf`) est encapsulé.
+
 ## Organisation du code
 
 ```
@@ -100,12 +110,14 @@ dotnet/
 │   ├── Model/            (POCO métier + Hl7/ : types HL7)
 │   ├── Serialization/    (CrImgWriter, CdaXml, Hl7Format)
 │   └── Validation/       (CrImgValidator, ValidationIssue, CrImgValidationException)
+├── demo/CdaCrImg.Demo/            # application web de démonstration (formulaire → CDA)
 └── tests/CdaCrImg.Tests/           # net10.0, xUnit
     ├── RepoPaths.cs                # accès ExemplesCDA/, infrastructure/, schematrons/
     ├── SampleReports.cs            # CR de test : complet (Level1) et minimal (Minimal)
     ├── CdaXsdValidator.cs          # XSD CDA en .NET (adaptations documentées)
     ├── AnsJavaValidator.cs         # XSD Java + schématrons ANS (Saxon), multiplateforme
     ├── ExampleFileTests.cs         # génère ExemplesCDA/CdaCrImg_*.xml
+    ├── Demo/                       # catalogue du formulaire vs CrImgValidator, tests HTTP de la démo
     └── …Tests.cs                   # writer, validateur, formats, schématrons, constantes
 ```
 
