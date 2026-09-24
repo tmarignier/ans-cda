@@ -11,3 +11,8 @@ Le répertoire testContenuCDA contient :
 
 - Un visualiseur de documents CDA est fourni par l'ANS, il est publié comme Release sous le nom ANS_Viewer-CDA_2023.01
 - Un document Lisez-Moi y est associé pour expliquer le fonctionnement du Viewer
+
+# Librairie .NET CdaCrImg (branche de travail)
+
+Librairie .NET Standard 2.0 autonome de production du compte rendu d'imagerie (volet CI-SIS
+IMG-CR-IMG 2024.01) au format CDA R2 : voir `dotnet/`, `CLAUDE.md` et `docs/cr-img/`.
