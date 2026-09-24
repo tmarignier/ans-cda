@@ -26,7 +26,21 @@ minimale, modèles de contenus CI-SIS, IHE), via les tests `Category=Schematron`
 - **Critère atteint** : document N1 produit valide XSD (.NET et Java) + `structurationMinimale`, `CI-SIS_ModelesDeContenusCDA`, `IHE` sans failed-assert (tests `Category=Schematron`)
 - Reporté : `authenticator`, `informant`, `participant INF` (médecin traitant), `informationRecipient`
 
-## Lot 2 — Robustesse et diffusion
+## Lot 2 — Application web de démonstration (en cours)
+
+Application ASP.NET Core (`dotnet/demo/CdaCrImg.Demo`) exposant un formulaire qui montre le bon
+fonctionnement de la librairie.
+
+- [ ] Un champ de formulaire pour chaque donnée gérée par la librairie (en-tête complet + PDF)
+- [ ] Pour chaque champ : mention **obligatoire / facultatif**, **valeur d'exemple** pré-remplie et **description**
+- [ ] À la validation : le CDA XML est renvoyé à l'utilisateur (affichage ou téléchargement) ;
+      en cas de données incomplètes, le formulaire est réaffiché avec les erreurs de `CrImgValidator`
+- [ ] Tests : la mention obligatoire/facultatif de chaque champ est vérifiée contre `CrImgValidator` ;
+      le CDA produit avec les valeurs d'exemple est valide XSD et passe les trois profils transverses
+- **Critère** : `dotnet run --project dotnet/demo/CdaCrImg.Demo`, soumission du formulaire pré-rempli →
+  CDA XML conforme (XSD + structuration minimale, modèles de contenus, IHE)
+
+## Lot 3 — Robustesse et diffusion
 
 - [ ] Règles métier complémentaires en C# (messages alignés sur la structuration minimale)
 - [ ] Lecture des JDV SVS (embarqués ou fournis par l'appelant) pour contrôler les codes (modalités, régions, secteur d'activité…)
