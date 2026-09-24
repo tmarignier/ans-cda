@@ -1,17 +1,16 @@
-using System.Diagnostics;
 using CdaCrImg.Serialization;
 using Xunit.Abstractions;
 
 namespace CdaCrImg.Tests;
 
 /// <summary>
-/// Validation par les schématrons officiels du kit ANS via tools/validate-cda.sh (Java requis).
-/// Exclure avec : dotnet test --filter Category!=Schematron
+/// Validation par l'outillage officiel du kit ANS (XSD Java + schématrons), via <see cref="AnsJavaValidator"/>.
+/// Ignorés si Java est absent ; exclure explicitement avec : dotnet test --filter Category!=Schematron
 /// </summary>
 [Trait("Category", "Schematron")]
 public class SchematronTests(ITestOutputHelper output)
 {
-    [Theory]
+    [JavaTheory]
     [InlineData("profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin")]
     [InlineData("profils/CI-SIS_ModelesDeContenusCDA")]
     [InlineData("profils/IHE")]
@@ -21,9 +20,9 @@ public class SchematronTests(ITestOutputHelper output)
         File.WriteAllText(file, CrImgWriter.WriteToString(SampleReports.Level1()));
         try
         {
-            var (exitCode, log) = RunValidation(file, schematron);
-            output.WriteLine(log);
-            Assert.True(exitCode == 0, log);
+            var errors = AnsJavaValidator.ValidateXsd(file).Concat(AnsJavaValidator.ValidateSchematron(file, schematron)).ToList();
+            errors.ForEach(output.WriteLine);
+            Assert.Empty(errors);
         }
         finally
         {
@@ -31,18 +30,23 @@ public class SchematronTests(ITestOutputHelper output)
         }
     }
 
-    private static (int ExitCode, string Log) RunValidation(string file, string schematron)
+    [JavaTheory]
+    [InlineData("profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin")]
+    public void Harness_ReportsFailedAsserts(string schematron)
     {
-        var psi = new ProcessStartInfo("bash")
+        // Garde-fou : un document non conforme doit bien produire des failed-assert.
+        var doc = CrImgWriter.Write(SampleReports.Level1());
+        doc.Root!.Element(CdaNamespaces.Hl7 + "code")!.Remove();
+        var file = Path.Combine(Path.GetTempPath(), $"cdacrimg-invalid-{Guid.NewGuid():N}.xml");
+        doc.Save(file);
+        try
         {
-            ArgumentList = { Path.Combine(RepoPaths.Root, "tools", "validate-cda.sh"), file, schematron },
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        };
-        using var process = Process.Start(psi)!;
-        var stdout = process.StandardOutput.ReadToEndAsync();
-        var stderr = process.StandardError.ReadToEndAsync();
-        process.WaitForExit();
-        return (process.ExitCode, stdout.Result + stderr.Result);
+            Assert.NotEmpty(AnsJavaValidator.ValidateXsd(file));
+            Assert.NotEmpty(AnsJavaValidator.ValidateSchematron(file, schematron));
+        }
+        finally
+        {
+            File.Delete(file);
+        }
     }
 }

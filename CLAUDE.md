@@ -33,11 +33,12 @@ Tout le reste (autres volets : BIO, ANEST, CSE…) est hors périmètre : ne pas
 ## Commandes
 
 ```bash
-# Build + tests .NET (depuis la racine) ; les tests "Schematron" appellent tools/validate-cda.sh (Java)
+# Build + tests .NET (depuis la racine, Windows ou Linux). Les tests "Schematron" appellent
+# directement Java (JAVA_HOME ou PATH) via AnsJavaValidator ; ils sont ignorés si Java est absent.
 dotnet test dotnet/CdaCrImg.sln
-dotnet test dotnet/CdaCrImg.sln --filter "Category!=Schematron"   # sans Java
+dotnet test dotnet/CdaCrImg.sln --filter "Category!=Schematron"   # exclure la validation Java
 
-# Validation de conformité d'un CDA (XSD + schématron du volet ; ~15 s la 1re fois, compilation mise en cache)
+# Validation manuelle d'un CDA (bash + Java ; XSD + schématron du volet ; ~15 s la 1re fois, compilation mise en cache)
 tools/validate-cda.sh ExemplesCDA/IMG_CR_IMG_2024.01.xml
 tools/validate-cda.sh <doc.xml> profils/structurationMinimale/ASIP-STRUCT-MIN-StrucMin
 tools/validate-cda.sh <doc.xml> profils/CI-SIS_ModelesDeContenusCDA
