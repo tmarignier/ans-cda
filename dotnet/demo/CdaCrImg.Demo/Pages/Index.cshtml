@@ -1,0 +1,126 @@
+@page
+@model IndexModel
+@{
+    var fields = FormCatalog.Fields;
+    var requiredCount = fields.Count(f => f.Requirement == Requirement.Required);
+    var conditionalCount = fields.Count(f => f.Requirement == Requirement.RequiredIfGroup);
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CdaCrImg — démonstration</title>
+    <link rel="stylesheet" href="~/site.css" asp-append-version="true" />
+</head>
+<body>
+<header class="page-header">
+    <h1>CdaCrImg — compte rendu d'imagerie CDA</h1>
+    <p>
+        Démonstration de la librairie <strong>CdaCrImg</strong> : saisissez les données du compte rendu
+        puis générez le document <strong>HL7 CDA R2 non structuré (niveau 1)</strong>, en-tête conforme au volet
+        CI-SIS IMG-CR-IMG 2024.01, PDF encapsulé. Chaque champ est pré-rempli avec une valeur d'exemple.
+    </p>
+    <p class="legend">
+        <span class="badge required">Obligatoire</span> @requiredCount champs
+        <span class="badge conditional">Obligatoire si le groupe est renseigné</span> @conditionalCount champs
+        <span class="badge optional">Facultatif</span> @(fields.Count - requiredCount - conditionalCount) champs
+    </p>
+</header>
+
+<main>
+    @if (Model.FieldErrors.Count > 0 || Model.Issues.Count > 0)
+    {
+        <section class="error-summary" role="alert" aria-labelledby="error-title">
+            <h2 id="error-title">Le compte rendu n'a pas pu être généré</h2>
+            <p>Corrigez les champs signalés ci-dessous.</p>
+            @if (Model.Issues.Count > 0)
+            {
+                <p>Non-conformités détectées par la librairie (<code>CrImgValidator</code>) :</p>
+                <ul>
+                    @foreach (var issue in Model.Issues)
+                    {
+                        <li><code>@issue.Path</code> : @issue.Message</li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        @foreach (var sectionName in FormCatalog.Sections)
+        {
+            <fieldset class="section">
+                <legend>@sectionName</legend>
+                <div class="grid">
+                    @foreach (var field in fields.Where(f => f.Section == sectionName))
+                    {
+                        var value = Model.Values.GetValueOrDefault(field.Key) ?? "";
+                        var hasError = Model.FieldErrors.TryGetValue(field.Key, out var errors);
+                        var badgeClass = field.Requirement switch
+                        {
+                            Requirement.Required => "required",
+                            Requirement.Optional => "optional",
+                            _ => "conditional",
+                        };
+                        var descriptionId = field.Key + "-description";
+                        <div class="field @(hasError ? "has-error" : "")" data-field="@field.Key" data-requirement="@field.Requirement">
+                            <label for="@field.Key">
+                                <span class="label-text">@field.Label</span>
+                                <span class="badge @badgeClass">@field.RequirementLabel</span>
+                            </label>
+                            @switch (field.Kind)
+                            {
+                                case FieldKind.Select:
+                                    <select id="@field.Key" name="@field.Key" aria-describedby="@descriptionId">
+                                        <option value="">— non renseigné —</option>
+                                        @foreach (var option in field.Options!)
+                                        {
+                                            <option value="@option.Code" selected="@(option.Code == value)">@option.Code — @option.Label</option>
+                                        }
+                                    </select>
+                                    break;
+                                case FieldKind.Checkbox:
+                                    <input type="checkbox" id="@field.Key" name="@field.Key" value="true" checked="@(value == "true")" aria-describedby="@descriptionId" />
+                                    break;
+                                case FieldKind.File:
+                                    <input type="file" id="@field.Key" name="pdf" accept="application/pdf" aria-describedby="@descriptionId" />
+                                    <a class="example-link" href="~/exemple-cr.pdf" target="_blank">Voir le PDF d'exemple</a>
+                                    break;
+                                default:
+                                    var type = field.Kind switch
+                                    {
+                                        FieldKind.Number => "number",
+                                        FieldKind.Date => "date",
+                                        FieldKind.DateTime => "datetime-local",
+                                        _ => "text",
+                                    };
+                                    <input type="@type" id="@field.Key" name="@field.Key" value="@value" placeholder="@field.Example" aria-describedby="@descriptionId" />
+                                    break;
+                            }
+                            <p class="description" id="@descriptionId">
+                                @field.Description
+                                <span class="meta">Exemple : <code>@field.Example</code> · Propriété : <code>@field.ModelPath</code></span>
+                            </p>
+                            @if (hasError)
+                            {
+                                foreach (var error in errors!)
+                                {
+                                    <p class="error">@error</p>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </fieldset>
+        }
+
+        <div class="actions">
+            <button type="submit" name="action" value="afficher">Générer le CDA</button>
+            <button type="submit" name="action" value="telecharger" class="secondary">Télécharger le CDA</button>
+            <a href="/" class="reset">Réinitialiser avec les valeurs d'exemple</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>
