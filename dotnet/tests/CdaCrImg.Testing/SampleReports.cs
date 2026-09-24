@@ -2,10 +2,10 @@ using System.Xml.Linq;
 using CdaCrImg.Model;
 using CdaCrImg.Model.Hl7;
 
-namespace CdaCrImg.Tests;
+namespace CdaCrImg.Testing;
 
 /// <summary>Comptes rendus de test, repris des données de l'exemple ANS IMG_CR_IMG_2024.01 (niveau 1).</summary>
-internal static class SampleReports
+public static class SampleReports
 {
     private static readonly TimeSpan ParisHiver = TimeSpan.FromHours(1);
 

@@ -118,14 +118,12 @@ dotnet/
 │   ├── Terminologies/    (JeuDeValeurs, JeuxDeValeursCisis + JDV du kit ANS en ressources)
 │   └── Validation/       (CrImgValidator [complétude, formats, terminologies], options, ModelPaths)
 ├── demo/CdaCrImg.Demo/            # application web de démonstration (formulaire → CDA)
-└── tests/CdaCrImg.Tests/           # net10.0, xUnit
-    ├── RepoPaths.cs                # accès ExemplesCDA/, infrastructure/, schematrons/
-    ├── SampleReports.cs            # CR de test : complet (Level1) et minimal (Minimal)
-    ├── CdaXsdValidator.cs          # XSD CDA en .NET (adaptations documentées)
-    ├── AnsJavaValidator.cs         # XSD Java + schématrons ANS (Saxon), multiplateforme
-    ├── ExampleFileTests.cs         # génère ExemplesCDA/CdaCrImg_*.xml
-    ├── Demo/                       # catalogue du formulaire vs CrImgValidator, tests HTTP de la démo
-    └── …Tests.cs                   # writer, validateur, formats, schématrons, constantes
+└── tests/
+    ├── CdaCrImg.Testing/           # utilitaires partagés (pas de tests) : RepoPaths, SampleReports,
+    │                               #   CdaXsdValidator (XSD .NET), AnsJavaValidator (XSD Java + schématrons)
+    ├── CdaCrImg.Tests/             # tests de la librairie (sans dépendance à la démo) : writer, validateur,
+    │                               #   formats, terminologies, schématrons, non-régression, exemples générés
+    └── CdaCrImg.Demo.Tests/        # tests de la démo : catalogue du formulaire vs CrImgValidator, tests HTTP
 ```
 
 ## Stratégie de test

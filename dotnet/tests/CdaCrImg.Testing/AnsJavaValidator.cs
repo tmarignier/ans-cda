@@ -1,14 +1,14 @@
 using System.Diagnostics;
 using System.Xml.Linq;
 
-namespace CdaCrImg.Tests;
+namespace CdaCrImg.Testing;
 
 /// <summary>
 /// Validation par l'outillage Java du kit ANS (schematrons/moteur) : XSD via xsdvalidator-1.3.jar et
 /// schématrons ISO compilés en XSLT 2 avec Saxon HE. Équivalent multiplateforme (Windows, Linux, macOS)
 /// de tools/validate-cda.sh : ne dépend que de Java (JAVA_HOME ou java dans le PATH).
 /// </summary>
-internal static class AnsJavaValidator
+public static class AnsJavaValidator
 {
     private static readonly XNamespace Svrl = "http://purl.oclc.org/dsdl/svrl";
     private static readonly object CompileLock = new();
@@ -53,7 +53,7 @@ internal static class AnsJavaValidator
     /// <summary>
     /// Compile le schématron en XSLT (include → abstract → svrl), mis en cache à côté du .sch :
     /// les chemins relatifs des jeux de valeurs y sont résolus depuis le répertoire du .sch.
-    /// Même cache que tools/validate-cda.sh (fichiers .compiled_*.xsl ignorés par git).
+    /// Même cache que tools/validate-cda.sh (fichiers .compiled_*.xsl ignorés par git), écrit de façon atomique.
     /// </summary>
     private static string CompiledSchematron(string schematron)
     {
@@ -65,23 +65,30 @@ internal static class AnsJavaValidator
             {
                 return xsl;
             }
+            // Plusieurs processus (projets de tests exécutés en parallèle) peuvent compiler en même temps :
+            // compilation dans un fichier temporaire du même répertoire, puis renommage atomique.
             var step1 = Path.GetTempFileName();
             var step2 = Path.GetTempFileName();
+            var compiled = $"{xsl}.{Guid.NewGuid():N}.tmp";
             try
             {
                 Saxon(sch, Path.Combine(Moteur, "iso_dsdl_include.xsl"), step1);
                 Saxon(step1, Path.Combine(Moteur, "iso_abstract_expand.xsl"), step2);
-                Saxon(step2, Path.Combine(Moteur, "iso_svrl_for_xslt2.xsl"), xsl);
-            }
-            catch
-            {
-                File.Delete(xsl);
-                throw;
+                Saxon(step2, Path.Combine(Moteur, "iso_svrl_for_xslt2.xsl"), compiled);
+                try
+                {
+                    File.Move(compiled, xsl, overwrite: true);
+                }
+                catch (IOException) when (File.Exists(xsl))
+                {
+                    // Un autre processus vient d'écrire le même cache (fichier ouvert en lecture sous Windows) : on l'utilise.
+                }
             }
             finally
             {
                 File.Delete(step1);
                 File.Delete(step2);
+                File.Delete(compiled);
             }
             return xsl;
         }

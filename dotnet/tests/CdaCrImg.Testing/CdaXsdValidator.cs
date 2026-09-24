@@ -3,7 +3,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 
-namespace CdaCrImg.Tests;
+namespace CdaCrImg.Testing;
 
 /// <summary>
 /// Validation XSD CDA R2 (schémas du kit ANS, infrastructure/cda) en .NET.
@@ -13,7 +13,7 @@ namespace CdaCrImg.Tests;
 ///     la contrainte UPA : Xerces (Java) le tolère, System.Xml refuse alors de compiler le schéma.
 /// La référence reste tools/validate-cda.sh (validateur Java du kit).
 /// </summary>
-internal static class CdaXsdValidator
+public static class CdaXsdValidator
 {
     private static readonly Lazy<XmlSchemaSet> Schemas = new(() =>
     {

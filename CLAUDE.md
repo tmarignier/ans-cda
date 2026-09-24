@@ -20,7 +20,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 
 | Chemin | Rôle |
 |---|---|
-| `dotnet/` | Solution .NET (`CdaCrImg.sln`) : `src/CdaCrImg` (netstandard2.0), `demo/CdaCrImg.Demo` (application web de démonstration, ASP.NET Core net10.0), `tests/CdaCrImg.Tests` (net10.0, xUnit) |
+| `dotnet/` | Solution .NET (`CdaCrImg.sln`) : `src/CdaCrImg` (netstandard2.0), `demo/CdaCrImg.Demo` (application web de démonstration, ASP.NET Core net10.0), `tests/CdaCrImg.Tests` (tests de la librairie), `tests/CdaCrImg.Demo.Tests` (tests de la démo), `tests/CdaCrImg.Testing` (utilitaires de test partagés) — net10.0, xUnit |
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête (dans le périmètre) ; sections et entrées du niveau 3 (référence, hors périmètre) |
 | `docs/cr-img/champs-obligatoires.md` | Champs minimaux obligatoires d'un CR (nom CdaCrImg, description, règles, sources) |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
@@ -45,7 +45,9 @@ Tout le reste (autres volets : BIO, ANEST, CSE…) est hors périmètre : ne pas
 ```bash
 # Build + tests .NET (depuis la racine, Windows ou Linux). Les tests "Schematron" appellent
 # directement Java (JAVA_HOME ou PATH) via AnsJavaValidator ; ils sont ignorés si Java est absent.
-dotnet test dotnet/CdaCrImg.sln
+dotnet test dotnet/CdaCrImg.sln                                   # librairie + démo
+dotnet test dotnet/tests/CdaCrImg.Tests                           # librairie seule
+dotnet test dotnet/tests/CdaCrImg.Demo.Tests                      # application de démonstration seule
 dotnet test dotnet/CdaCrImg.sln --filter "Category!=Schematron"   # exclure la validation Java
 
 # Application web de démonstration (formulaire → CDA XML), http://localhost:5000 par défaut

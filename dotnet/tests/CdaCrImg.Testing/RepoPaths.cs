@@ -1,7 +1,7 @@
-namespace CdaCrImg.Tests;
+namespace CdaCrImg.Testing;
 
 /// <summary>Accès aux ressources du kit ANS (exemples, XSD, schématrons) présentes à la racine du dépôt.</summary>
-internal static class RepoPaths
+public static class RepoPaths
 {
     public static string Root { get; } = FindRoot();
 

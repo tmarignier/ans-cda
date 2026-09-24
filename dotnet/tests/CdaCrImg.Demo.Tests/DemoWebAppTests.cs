@@ -6,7 +6,7 @@ using CdaCrImg.Demo.Form;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit.Abstractions;
 
-namespace CdaCrImg.Tests.Demo;
+namespace CdaCrImg.Demo.Tests;
 
 /// <summary>Tests de bout en bout de l'application web de démonstration (formulaire → CDA XML).</summary>
 public class DemoWebAppTests(WebApplicationFactory<Program> factory, ITestOutputHelper output)

@@ -2,7 +2,7 @@ using CdaCrImg.Demo.Form;
 using CdaCrImg.Serialization;
 using CdaCrImg.Validation;
 
-namespace CdaCrImg.Tests.Demo;
+namespace CdaCrImg.Demo.Tests;
 
 /// <summary>
 /// Vérifie que le formulaire de démonstration dit vrai : la mention obligatoire / facultatif de chaque

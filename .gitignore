@@ -7,3 +7,6 @@ schematrons/**/.compiled_*.xsl
 dotnet/**/TestResults/
 *.user
 .vs/
+
+# Compilations de schématron en cours (AnsJavaValidator)
+schematrons/**/.compiled_*.xsl.*.tmp
