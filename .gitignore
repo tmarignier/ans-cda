@@ -2,8 +2,8 @@
 schematrons/**/.compiled_*.xsl
 
 # .NET
-dotnet/**/bin/
-dotnet/**/obj/
+**/bin/**
+**/obj/**
 dotnet/**/TestResults/
 *.user
 .vs/

@@ -95,7 +95,7 @@ dotnet/
 │   ├── Model/            (POCO métier + types HL7)
 │   ├── Serialization/    (CrImgWriter, builders par section/entrée, NarrativeBuilder)
 │   └── Validation/       (règles métier du volet)
-└── tests/CdaCrImg.Tests/           # net8.0, xUnit
+└── tests/CdaCrImg.Tests/           # net10.0, xUnit
     ├── RepoPaths.cs                # accès ExemplesCDA/, infrastructure/, schematrons/
     ├── CdaXsdValidator.cs          # XSD CDA en .NET (adaptations documentées)
     └── ReferenceExampleTests.cs    # garde-fous sur les constantes et le harnais

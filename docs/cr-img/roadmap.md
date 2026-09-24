@@ -29,7 +29,14 @@ concernés).
 - [ ] Section Conclusion
 - **Critère** : CR minimal (1 acte, catalogue, conclusion) sans failed-assert sur `CI-SIS_IMG-CR-IMG_2024.01`, `profils/CI-SIS_ModelesDeContenusCDA`, `profils/IHE`
 
-## Lot 3 — Sections et entrées optionnelles
+## Lot 3 — Robustesse et diffusion
+
+- [ ] `Validate()` : règles métier du volet en C# (messages alignés sur le schématron)
+- [ ] Lecture des JDV SVS (embarqués ou fournis par l'appelant) pour contrôler les codes
+- [ ] Test de non-régression : reconstruire l'exemple ANS de référence depuis le modèle
+- [ ] Packaging NuGet (métadonnées, README, SourceLink), CI GitHub Actions (build + tests + validation Java)
+
+## Lot 4 — Sections et entrées optionnelles
 
 - [ ] Informations cliniques (Demande d'examen, Historique médical + observations)
 - [ ] Administration de produits de santé, commentaires (FR-Commentaire-ER)
@@ -37,17 +44,10 @@ concernés).
 - [ ] Résultats, Résultats d'examens non codés, Examen comparatif, Commentaire non codé
 - [ ] Addendum, Documents ajoutés (PDF), Dispositifs médicaux, Éducation du patient
 
-## Lot 4 — Robustesse et diffusion
+## Points d'attention
 
-- [ ] `Validate()` : règles métier du volet en C# (messages alignés sur le schématron)
-- [ ] Lecture des JDV SVS (embarqués ou fournis par l'appelant) pour contrôler les codes
-- [ ] Test de non-régression : reconstruire l'exemple ANS de référence depuis le modèle
-- [ ] Packaging NuGet (métadonnées, README, SourceLink), CI GitHub Actions (build + tests + validation Java)
-
-## Questions ouvertes (à trancher avec le porteur du projet)
-
-- Nom définitif du package / espace de noms (`CdaCrImg` provisoire).
-- Périmètre du niveau 1 (PDF seul) vs niveau 3 : priorité d'implémentation.
-- Lecture/parsing d'un CR existant (CDA → modèle) : dans le périmètre ou non ?
-- Génération d'une archive IHE XDM / métadonnées XDS (DMP) : hors périmètre a priori.
-- Signature / horodatage : hors périmètre a priori.
+- Nom définitif du package / espace de noms : `CdaCrImg`
+- Périmètre du niveau 1 (PDF seul) vs niveau 3 : La priorité est le niveau 1
+- Lecture/parsing d'un CR existant (CDA → modèle) : Pas dans le périmètre
+- Génération d'une archive IHE XDM / métadonnées XDS (DMP) : hors périmètre pour le moment
+- Signature / horodatage : hors périmètre pour le moment
