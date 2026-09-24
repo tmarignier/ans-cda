@@ -1,5 +1,9 @@
 # Champs minimaux obligatoires d'un compte rendu d'imagerie (IMG-CR-IMG 2024.01)
 
+> **Périmètre CdaCrImg** : CR d'imagerie **non structuré (CDA R2 niveau 1)**, le compte rendu étant un
+> PDF encapsulé, pour des patients identifiés par leur **INS**. Le corps structuré (niveau 3) est hors
+> périmètre du projet.
+
 Liste des données **à fournir obligatoirement** pour produire un CR d'imagerie conforme, avec pour
 chacune : son nom dans la librairie CdaCrImg, sa description métier et les informations utiles
 (élément CDA, format, terminologie, source de la règle).
@@ -7,7 +11,7 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
 - **Sources** : spécifications ANS SFD et STD (`docs/cr-img/ans/*.pdf`), schématron du volet
   (`schematrons/CI-SIS_IMG-CR-IMG_2024.01.sch`), structuration minimale CI-SIS
   (`schematrons/profils/structurationMinimale`), XSD CDA R2. Quand les sources divergent, la règle la
-  plus stricte est retenue (voir [§ 5](#5-écarts-entre-les-sources)).
+  plus stricte est retenue (voir [§ 4](#4-écarts-entre-les-sources)).
 - **Contrôle** : les champs des § 1 et 2 sont vérifiés par `CrImgValidator` avant l'écriture ; un
   champ manquant lève `CrImgValidationException` avec son chemin (ex. `Actes[0].Modalites`).
 - **Colonne « Source »** : STD = spécification technique, SFD = spécification fonctionnelle,
@@ -20,37 +24,29 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
   - **Médecin effecteur** (radiologue ou médecin nucléaire) : décide du protocole, réalise l'acte,
     rédige et valide le CR. C'est le **créateur** du CR, dans son **LPS** (logiciel de professionnel de santé).
   - **Structure d'imagerie** : RIS (accession number, Study Instance UID), PACS / DRIM-Box source (images, URL d'accès).
-  - La **librairie CdaCrImg** reçoit ces données du LPS : elle ne les invente pas, sauf les valeurs fixes du § 4.
+  - La **librairie CdaCrImg** reçoit ces données du LPS : elle ne les invente pas, sauf les valeurs fixes du § 3.
 - Les valeurs **fixes** (templateId, code du document…) sont produites automatiquement :
-  voir [§ 4](#4-valeurs-produites-automatiquement-par-la-librairie).
+  voir [§ 3](#3-valeurs-produites-automatiquement-par-la-librairie).
 
 ## Synthèse : nombre de champs obligatoires par section
 
 Un champ = une ligne des tableaux ci-dessous (les lignes de regroupement comme `Auteurs` ou
-`Demandes` sont comptées). **Conditionnel** : exigé seulement dans un cas précis (examen
-référencé dans le catalogue). **Répétition** : le groupe de champs est à fournir pour
-chaque élément (un par auteur, par demande, par acte).
+`Demandes` sont comptées). Tous ces champs sont toujours obligatoires. **Répétition** : le groupe de
+champs est à fournir pour chaque élément (un par auteur, par demande, par acte).
 
-| Section | Champs | Toujours obligatoires | Conditionnels | Répétition |
-|---|---:|---:|---:|---|
-| [1.1 Document](#11-document--5-champs) | 5 | 5 | 0 | — |
-| [1.2 Patient](#12-patient-patient--7-champs) | 7 | 7 | 0 | — |
-| [1.3 Professionnels et structures](#13-professionnels-et-structures--9-champs-dont-5-par-auteur) | 9 | 9 | 0 | 5 champs par auteur |
-| [1.4 Demande d'examen](#14-demande-dexamen-demandes-1--3-champs-dont-2-par-demande) | 3 | 3 | 0 | 2 champs par demande |
-| [1.5 Acte(s) d'imagerie](#15-actes-dimagerie-documentés-actes-1--8-champs-par-acte) | 8 | 8 | 0 | 8 champs par acte |
-| [1.6 Prise en charge](#16-prise-en-charge-priseencharge--3-champs) | 3 | 3 | 0 | — |
-| **Sous-total en-tête** | **35** | **35** | **0** | |
-| [2. Corps niveau 1 (PDF)](#2-corps-niveau-1-non-structuré-disponible--1-champ) | 1 | 1 | 0 | — |
-| [3. Corps niveau 3 (structuré)](#3-corps-niveau-3-structuré-lot-2-à-venir--12-champs-9-toujours--3-si-examen-référencé) | 12 | 9 | 3 (si examen référencé) | technique et catalogue : par acte ; série et objet : par examen |
+| Section | Champs | Répétition |
+|---|---:|---|
+| [1.1 Document](#11-document--5-champs) | 5 | — |
+| [1.2 Patient](#12-patient-patient--7-champs) | 7 | — |
+| [1.3 Professionnels et structures](#13-professionnels-et-structures--9-champs-dont-5-par-auteur) | 9 | 5 champs par auteur |
+| [1.4 Demande d'examen](#14-demande-dexamen-demandes-1--3-champs-dont-2-par-demande) | 3 | 2 champs par demande |
+| [1.5 Acte(s) d'imagerie](#15-actes-dimagerie-documentés-actes-1--8-champs-par-acte) | 8 | 8 champs par acte |
+| [1.6 Prise en charge](#16-prise-en-charge-priseencharge--3-champs) | 3 | — |
+| **Sous-total en-tête** | **35** | |
+| [2. Corps (PDF)](#2-corps-pdf--1-champ) | 1 | — |
+| **Total d'un CR minimal** (un auteur, une demande, un acte) | **36** | |
 
-Total pour un CR minimal (un auteur, une demande, un acte) :
-
-| Document | Champs | Toujours obligatoires | Conditionnels |
-|---|---:|---:|---:|
-| **Niveau 1** (en-tête + PDF) | **36** | 36 | 0 |
-| **Niveau 3** (en-tête + corps structuré) | **47** | 44 | 3 |
-
-Les 8 valeurs du [§ 4](#4-valeurs-produites-automatiquement-par-la-librairie), produites
+Les 8 valeurs du [§ 3](#3-valeurs-produites-automatiquement-par-la-librairie), produites
 automatiquement par la librairie, ne sont pas comptées.
 
 Exemple de CR niveau 1 ne contenant **que** ces champs obligatoires, validé par le XSD et les trois
@@ -58,7 +54,7 @@ profils transverses (structuration minimale, modèles de contenus, IHE) :
 [`ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_minimal.xml`](../../ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_minimal.xml)
 (généré par le test `ExampleFileTests.GeneratesMinimalExampleInExemplesCda`).
 
-## 1. En-tête (communs aux niveaux 1 et 3)
+## 1. En-tête
 
 ### 1.1 Document — 5 champs
 
@@ -140,37 +136,13 @@ Facultatifs : `CodeCcam` (translation CCAM [0..1]), `Fin`, `Depistage` (ajoute u
 
 Facultatifs mais recommandés : `Modalite` (HL7 ActCode : `AMB`, `EMER`, `IMP`…), `Fin`, `Lieu.Id`, `Lieu.Nom`, `Lieu.Adresse`.
 
-## 2. Corps niveau 1 (non structuré, disponible) — 1 champ
+## 2. Corps (PDF) — 1 champ
 
 | Nom (CdaCrImg) | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
 |---|---|---|---|---|
 | `Corps = new CorpsPdf(pdf)` | Le compte rendu au format PDF | Médecin effecteur, qui rédige le CR dans son LPS [SFD 3.2.3.4, 4.4] | `component/nonXMLBody/text` `mediaType="application/pdf"` `representation="B64"` ; le contenu doit être un PDF (signature `%PDF-`) | SM |
 
-## 3. Corps niveau 3 (structuré, lot 2 à venir) — 12 champs (9 toujours + 3 si examen référencé)
-
-Sections obligatoires du corps structuré. Chaque section a un `code`, un `title` et un `text`
-(narratif) obligatoires, produits par la librairie à partir des données ci-dessous.
-
-| Donnée métier | Description | Qui fournit la donnée (selon l'ANS) | Informations utiles | Source |
-|---|---|---|---|---|
-| **Informations cliniques** | Contexte clinique de l'examen | Médecin demandeur, repris et vérifié par le médecin effecteur [SFD 3.2.2.1, 3.3.2] | Section FR-DICOM-Informations-cliniques `1.2.250.1.213.1.1.2.205`, LOINC `55752-0` | **STD/SFD [1..1]** (SCH : 0..1) |
-| ↳ Justification de la demande | Indications, symptômes, signes cliniques motivant l'examen (texte) | **Médecin demandeur** : il transmet « toutes les informations utiles » avec la demande ; l'imageur valide l'indication [SFD 3.2.2.1] | Sous-section FR-DICOM-Demande-examen `…2.211`, LOINC `55115-0` ; la finalité de l'examen y est facultative | STD, SCH |
-| ↳ Antécédents médicaux | Antécédents significatifs et pertinents pour l'examen ; si aucun, l'indiquer (texte) | Médecin demandeur : « peuvent être reprises automatiquement de la demande d'acte d'imagerie et modifiées » par le médecin effecteur [STD 3.3.3.2.1] | Sous-section FR-DICOM-Historique-medical `…2.213` (LOINC `11329-0`), entrée FR-DICOM-Observation `…3.150` code LOINC `11348-0` | STD, SCH |
-| ↳ Antécédents chirurgicaux | Idem pour les antécédents chirurgicaux (texte) | Médecin demandeur, repris de la demande et modifiable par le médecin effecteur [STD 3.3.3.2.1] | Même sous-section, entrée `…3.150` code LOINC `47519-4` | STD, SCH |
-| **Technique d'imagerie** (une par acte) | Description de l'acte réalisé | Médecin effecteur (décide du protocole, supervise l'acte) [SFD 3.2.3.4] | Section FR-DICOM-Acte-imagerie `…2.206`, LOINC `55111-9`, titre « Technique d'imagerie » | STD, SCH |
-| ↳ Acte d'imagerie | Acte réalisé | Médecin effecteur (acte réalisé) [SFD 3.2.3.4] | Entrée FR-DICOM-Technique-imagerie `…3.153` : `procedure/code` LOINC (jdv `…5.687`) | STD, SCH |
-| ↳ Modalité(s) d'acquisition [1..*] | Modalité(s) de l'acte | Médecin effecteur / modalité d'acquisition [SFD 3.2.3.4] † | `procedure/methodCode` DCM (jdv `…5.618`) | STD, SCH |
-| **Catalogue d'objets DICOM** (un par acte) | Lien vers les images | **PACS / DRIM-Box source** (lien vers les images) [STD 3.3.4.5] | Sous-section FR-DICOM-Object-Catalog `…2.217`, code DCM `121181`, titre « Catalogue d'objets DICOM » ; examens [0..*] | STD, SCH |
-| ↳ Examen (si présent) | Study Instance UID et date/heure de l'examen | **RIS** (Study Instance UID) ; date et heure de l'examen : RIS / modalité [STD 3.3.4.5] | Entrée FR-DICOM-Examen-imagerie `…3.155` : `act/id`, code DCM `113014`, `effectiveTime` | STD, SCH |
-| ↳ Série générique [1..1] | Série unique portant le lien vers les images | PACS / DRIM-Box source (série « générale » portant le lien) [STD 3.3.4.5] | Entrée FR-DICOM-Serie-imagerie `…3.156` : `id`, code DCM `113015` + qualifier modalité (DCM `121139`) | STD, SCH |
-| ↳ Objet référencé [1..1] | Classe SOP et URL d'accès aux images (DRIM-Box source) | **PACS / DRIM-Box source** (racine `<location>`), RIS (Study UID, accession number), LPS (`idCDA`) [STD 3.3.4.5] | Entrée FR-DICOM-SOP-instance-observation `…3.157`, `classCode="DGIMG"` : `code` classe SOP (jdv-sop-class-cisis `…5.689`), `text@mediaType="application/dicom"` + `reference` = URL IHE Invoke Image Display (`https://<location>/IHEInvokeImageDisplay?requestType=STUDY&studyUID=…&Accessionnumber=…&idCDA=…`) | STD |
-| **Conclusion** | Réponse à la question posée : diagnostics, recommandations (texte) | **Médecin effecteur** (interprétation, réponse à la question posée) [SFD 3.3.2, 4.4] | Section FR-DICOM-Conclusion `…2.209`, LOINC `19005-8`, titre « Conclusions » | STD, SFD, SCH |
-
-(`…` = `1.2.250.1.213.1.1`.) Toutes les autres sections (Addendum, Résultats, Examen comparatif,
-Complications, Exposition aux rayonnements, Dispositifs médicaux, Documents ajoutés, Information
-au patient…) sont facultatives.
-
-## 4. Valeurs produites automatiquement par la librairie
+## 3. Valeurs produites automatiquement par la librairie
 
 Ces éléments sont obligatoires dans le document mais **ne sont pas à fournir** :
 
@@ -178,14 +150,14 @@ Ces éléments sont obligatoires dans le document mais **ne sont pas à fournir*
 |---|---|
 | `realmCode` | `FR` |
 | `typeId` | `2.16.840.1.113883.1.3` / `POCD_HD000040` |
-| `templateId` | Niveau 1 : `2.16.840.1.113883.2.8.2.1`, `1.2.250.1.213.1.1.1.1`, `1.3.6.1.4.1.19376.1.2.20`. Niveau 3 : les deux premiers + `1.2.840.10008.9.1`, `.9.20`, `.9.21`, `1.2.250.1.213.1.1.1.45` ext. `2024.01` |
+| `templateId` | `2.16.840.1.113883.2.8.2.1` (HL7 France), `1.2.250.1.213.1.1.1.1` (CI-SIS), `1.3.6.1.4.1.19376.1.2.20` (document non structuré, IHE XDS-SD) : seuls templateId autorisés par la structuration minimale en non structuré |
 | `code` | LOINC `18748-4` « CR d'imagerie médicale » + une `translation` par acte (code LOINC de l'acte, [1..*] STD) |
 | `confidentialityCode` | `N` Normal (modifiable : `Confidentialite`) |
 | `languageCode` | `fr-FR` (modifiable : `Langue`) |
 | `legalAuthenticator/signatureCode` | `S` |
 | Qualifiers du `serviceEvent` | `121139` (modalité), `39111-0` (localisation anatomique) |
 
-## 5. Écarts entre les sources
+## 4. Écarts entre les sources
 
 La librairie applique la règle la plus stricte :
 
@@ -195,5 +167,3 @@ La librairie applique la règle la plus stricte :
 | Organisation de l'auteur | non contrôlée | 1..1 | 1..1 |
 | Région anatomique du `serviceEvent` | 0..* | 1..* | 1..* |
 | Translation du code document | non contrôlée | 1..* (une par acte) | une par acte |
-| Section Informations cliniques | 0..1 | 1..1 | 1..1 (lot 2) |
-| Localisation anatomique de la technique (`targetSiteCode`) | non contrôlée | 0..* | 0..* |

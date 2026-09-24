@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>CdaCrImg</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Description>Production d'un compte rendu d'imagerie médicale (volet CI-SIS IMG-CR-IMG 2024.01) au format HL7 CDA R2.</Description>
+    <Description>Production d'un compte rendu d'imagerie médicale au format HL7 CDA R2 non structuré (niveau 1, PDF encapsulé), en-tête conforme au volet CI-SIS IMG-CR-IMG 2024.01.</Description>
   </PropertyGroup>
 
   <!--

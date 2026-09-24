@@ -14,5 +14,5 @@ Le répertoire testContenuCDA contient :
 
 # Librairie .NET CdaCrImg (branche de travail)
 
-Librairie .NET Standard 2.0 autonome de production du compte rendu d'imagerie (volet CI-SIS
-IMG-CR-IMG 2024.01) au format CDA R2 : voir `dotnet/`, `CLAUDE.md` et `docs/cr-img/`.
+Librairie .NET Standard 2.0 autonome de production du compte rendu d'imagerie au format CDA R2
+non structuré (niveau 1, PDF encapsulé), en-tête conforme au volet CI-SIS IMG-CR-IMG 2024.01 : voir `dotnet/`, `CLAUDE.md` et `docs/cr-img/`.

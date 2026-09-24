@@ -1,5 +1,9 @@
 # Volet IMG-CR-IMG 2024.01 — synthèse pour l'implémentation
 
+> **Périmètre CdaCrImg : niveau 1 (PDF encapsulé) uniquement**, patients avec INS. Seuls le § 1
+> (niveaux), le § 2 (en-tête) et le § 5 (jeux de valeurs) s'appliquent à la librairie. Les § 3 et 4
+> (corps structuré, niveau 3) sont **hors périmètre** et conservés à titre de référence.
+
 > Synthèse de travail établie à partir des artefacts ANS du dépôt. Sources normatives : les
 > spécifications ANS `docs/cr-img/ans/*_SFD_*.pdf` (fonctionnelles) et `*_STD_CDA_*.pdf`
 > (techniques), et le schématron `schematrons/CI-SIS_IMG-CR-IMG_2024.01.sch` (+ inclusions
@@ -20,8 +24,8 @@ Espaces de noms : `urn:hl7-org:v3` (défaut), `xsi`, `ps3-20` = `urn:dicom-org:p
 
 | Niveau | Corps | Conformité |
 |---|---|---|
-| **3 (structuré)** — cible principale | `structuredBody` avec sections/entrées DICOM PS3.20 | Schématron IMG-CR-IMG + profils transverses |
-| **1 (non structuré)** | `nonXMLBody/text` PDF base64 (`mediaType="application/pdf" representation="B64"`) | Profils transverses uniquement. La STD définit IMG-CR-IMG comme un modèle **à corps structuré** ; le niveau 1 est le document CDA non structuré générique du CI-SIS, avec le même en-tête. Structuration minimale : **seuls** les templateId `2.16.840.1.113883.2.8.2.1`, `1.2.250.1.213.1.1.1.1` et `1.3.6.1.4.1.19376.1.2.20` sont autorisés (pas de templateId DICOM ni `…1.1.1.45`). Le schématron du volet **n'est pas applicable** (4 failed-assert attendus sur l'exemple N1). |
+| **3 (structuré)** — hors périmètre CdaCrImg | `structuredBody` avec sections/entrées DICOM PS3.20 | Schématron IMG-CR-IMG + profils transverses |
+| **1 (non structuré)** — **périmètre CdaCrImg** | `nonXMLBody/text` PDF base64 (`mediaType="application/pdf" representation="B64"`) | Profils transverses uniquement. La STD définit IMG-CR-IMG comme un modèle **à corps structuré** ; le niveau 1 est le document CDA non structuré générique du CI-SIS, avec le même en-tête. Structuration minimale : **seuls** les templateId `2.16.840.1.113883.2.8.2.1`, `1.2.250.1.213.1.1.1.1` et `1.3.6.1.4.1.19376.1.2.20` sont autorisés (pas de templateId DICOM ni `…1.1.1.45`). Le schématron du volet **n'est pas applicable** (4 failed-assert attendus sur l'exemple N1). |
 
 ## 2. En-tête (ClinicalDocument)
 
@@ -34,7 +38,7 @@ inFulfillmentOf*, documentationOf+, relatedDocument*, componentOf, component`.
 |---|---|---|
 | `realmCode/@code` | 1..1 | `FR` |
 | `typeId` | 1..1 | root `2.16.840.1.113883.1.3`, extension `POCD_HD000040` |
-| `templateId` | 1..* | **tous requis** : `2.16.840.1.113883.2.8.2.1` (HL7 France), `1.2.250.1.213.1.1.1.1` (CI-SIS), `1.2.840.10008.9.1` (DICOM Imaging Report), `1.2.840.10008.9.20` (General Header), `1.2.840.10008.9.21` (Imaging Header), `1.2.250.1.213.1.1.1.45` extension `2024.01` (IMG-CR-IMG) |
+| `templateId` | 1..* | **Niveau 1 (CdaCrImg)** : `2.16.840.1.113883.2.8.2.1`, `1.2.250.1.213.1.1.1.1`, `1.3.6.1.4.1.19376.1.2.20` uniquement. **Niveau 3** (hors périmètre), tous requis : `2.16.840.1.113883.2.8.2.1` (HL7 France), `1.2.250.1.213.1.1.1.1` (CI-SIS), `1.2.840.10008.9.1` (DICOM Imaging Report), `1.2.840.10008.9.20` (General Header), `1.2.840.10008.9.21` (Imaging Header), `1.2.250.1.213.1.1.1.45` extension `2024.01` (IMG-CR-IMG) |
 | `id` | 1..1 | identifiant unique du document (OID/UUID) |
 | `code` | 1..1 | **LOINC `18748-4`** « CR d'imagerie médicale » ; `translation` **1..* (STD), une par acte**, issues du `jdv-code-document-imagerie-cisis` (1.2.250.1.213.1.1.5.687, LOINC des examens) |
 | `title` | 1..1 | libre |
@@ -54,7 +58,7 @@ inFulfillmentOf*, documentationOf+, relatedDocument*, componentOf, component`.
 | `documentationOf` (dépistage) | 0..* | `serviceEvent/code` CIM-10 (ex. `Z13.9`) |
 | `componentOf/encompassingEncounter` | 1..1 | `code` (ActCode, ex. `AMB`), `effectiveTime`, `location/healthCareFacility` (`code` cadre d'exercice 1.2.250.1.71.4.2.4) |
 
-## 3. Corps structuré (niveau 3)
+## 3. Corps structuré (niveau 3) — hors périmètre CdaCrImg
 
 Chaque section porte le templateId du standard **puis** le templateId CI-SIS, un `id`, un `code`,
 un `title` et un `text` (narratif) **obligatoire**. Les entrées référencent le narratif via
@@ -82,7 +86,7 @@ un `title` et un `text` (narratif) **obligatoire**. Les entrées référencent l
 (`…` = `1.2.250.1.213.1.1`.) L'ordre est celui de l'exemple de référence ; le schématron ne
 contrôle pas l'ordre mais on le reproduit pour la lisibilité.
 
-## 4. Entrées
+## 4. Entrées (niveau 3) — hors périmètre CdaCrImg
 
 ### Section Historique médical (2.2)
 - **FR-DICOM-Observation** (`2.16.840.1.113883.10.20.6.2.13` + `…3.150`), `observation OBS/EVN` :
