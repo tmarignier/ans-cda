@@ -170,7 +170,11 @@ Au-delà de leur présence, `CrImgValidator` contrôle la forme des valeurs :
 | `Patient.Ins` | 15 caractères (13 + clé ; Corse 2A/2B) ; clé contrôlée pour l'INS-NIR de production | INS |
 | `Patient.LieuNaissanceCog` | 5 caractères (ex. `51215`, `2A004`, `99xxx`) | INS |
 | `Langue` | code de langue (ex. `fr-FR`) | SM |
-| Dates | fin d'acte et de prise en charge après le début ; naissance avant la date du document | cohérence |
+| Identifiants nationaux (idNat, roots `1.2.250.1.71.4.2.1` et `.2`) | extension obligatoire ; `8` + RPPS (11 chiffres), `1` + FINESS (9 caractères, Corse 2A/2B), `3` + SIRET (14 chiffres) ; autres préfixes (ADELI…) non contrôlés | idNat (annuaire santé) |
+| `Demandes[i].AccessionNumber` | valeur (`extension`) attribuée par le RIS obligatoire | STD 3.3.4.5 |
+| `NumeroVersion` | ≥ 2 si `DocumentRemplace` est renseigné | cohérence |
+| `Actes[i].StudyInstanceUid` | unique parmi les actes du compte rendu | cohérence |
+| Dates | fin d'acte et de prise en charge après le début ; actes et naissance avant la date du document | cohérence |
 | Professions (`Profession`) | JDV_J01_XdsAuthorSpecialty_CISIS (1.2.250.1.213.1.1.5.461) | SM |
 | Secteurs d'activité | JDV_J04_XdsPracticeSettingCode_CISIS (1.2.250.1.213.1.1.5.467) | SM |
 | `PriseEnCharge.Lieu.CadreExercice` | JDV_J02_XdsHealthcareFacilityTypeCode_CISIS (1.2.250.1.213.1.1.5.466) | SM |

@@ -228,8 +228,8 @@ public static class FormCatalog
         new("demande.accessionRoot", Demande, "Accession Number : OID du RIS", Required,
             "Accession Number attribué par le RIS : OID (ps3-20:accessionNumber/@root).",
             "1.2.250.1.925.994044785528.27", "Demandes[0].AccessionNumber"),
-        new("demande.accessionValeur", Demande, "Accession Number : valeur", Optional,
-            "Valeur de l'Accession Number (extension) ; en pratique toujours renseignée.",
+        new("demande.accessionValeur", Demande, "Accession Number : valeur", Required,
+            "Valeur de l'Accession Number attribuée par le RIS (ps3-20:accessionNumber/@extension).",
             "105234751", "Demandes[0].AccessionNumber"),
 
         // Acte

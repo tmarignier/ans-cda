@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CdaCrImg.Model;
@@ -19,6 +20,13 @@ namespace CdaCrImg.Validation
         private static readonly Regex LanguagePattern = new Regex(@"^[a-z]{2,3}(-[A-Z]{2})?$", RegexOptions.CultureInvariant);
         private static readonly Regex TelecomPattern = new Regex(@"^(tel|fax|mailto|http|https|ftp|mllp):\S+$", RegexOptions.CultureInvariant);
 
+        /// <summary>idNat d'un PS enregistré au RPPS : 8 + n° RPPS (11 chiffres).</summary>
+        private static readonly Regex IdNatRppsPattern = new Regex(@"^8[0-9]{11}$", RegexOptions.CultureInvariant);
+
+        /// <summary>idNat d'une structure : 1 + n° FINESS (9 caractères, Corse 2A/2B) ou 3 + n° SIRET (14 chiffres).</summary>
+        private static readonly Regex IdNatFinessPattern = new Regex(@"^1([0-9]{9}|2[AB][0-9]{7})$", RegexOptions.CultureInvariant);
+        private static readonly Regex IdNatSiretPattern = new Regex(@"^3[0-9]{14}$", RegexOptions.CultureInvariant);
+
         private static void ValidateFormats(CompteRenduImagerie cr, Action<string, string> err)
         {
             // Structuration minimale : « Attribute @root SHALL be of data type 'uid' » (OID ou UUID).
@@ -26,6 +34,7 @@ namespace CdaCrImg.Validation
             {
                 if (id?.Root != null && !IsUid(id.Root))
                     err(path, $"root « {id.Root} » invalide : un OID ou un UUID est attendu (type uid).");
+                else if (id != null) ValidateIdNat(path, id, err);
             }
 
             // Structuration minimale : « Attribute @code SHALL be of data type 'cs' » (sans espace).
@@ -46,11 +55,26 @@ namespace CdaCrImg.Validation
 
             ValidatePatientFormats(cr, err);
 
+            var studyUids = new Dictionary<string, int>(StringComparer.Ordinal);
             for (var i = 0; i < cr.Actes.Count; i++)
             {
                 var acte = cr.Actes[i];
                 if (acte.Debut != null && acte.Fin != null && acte.Fin < acte.Debut)
                     err($"Actes[{i}].Fin", "la fin de l'acte précède son début.");
+                // Le compte rendu est rédigé après la réalisation des actes qu'il documente.
+                if (cr.DateCreation != default)
+                {
+                    if (acte.Debut > cr.DateCreation) err($"Actes[{i}].Debut", "le début de l'acte est postérieur à la date du document.");
+                    if (acte.Fin > cr.DateCreation) err($"Actes[{i}].Fin", "la fin de l'acte est postérieure à la date du document.");
+                }
+                // Un examen (Study Instance UID) n'est documenté que par un seul acte.
+                if (!string.IsNullOrEmpty(acte.StudyInstanceUid))
+                {
+                    if (studyUids.TryGetValue(acte.StudyInstanceUid, out var first))
+                        err($"Actes[{i}].StudyInstanceUid", $"Study Instance UID déjà utilisé par Actes[{first}].");
+                    else
+                        studyUids.Add(acte.StudyInstanceUid, i);
+                }
             }
 
             var pec = cr.PriseEnCharge;
@@ -78,6 +102,27 @@ namespace CdaCrImg.Validation
 
             if (patient.DateNaissance != null && cr.DateCreation != default && patient.DateNaissance.Value.Date > cr.DateCreation.Date)
                 err("Patient.DateNaissance", "la date de naissance est postérieure à la date du document.");
+        }
+
+        /// <summary>
+        /// Identifiants nationaux (idNat) : format contrôlé pour les préfixes RPPS (8), FINESS (1) et SIRET (3) ;
+        /// les autres préfixes (ADELI, identifiants internes…) ne sont pas contrôlés.
+        /// </summary>
+        private static void ValidateIdNat(string path, Identifier id, Action<string, string> err)
+        {
+            if (id.Root != IdentifierRoots.IdNatPs && id.Root != IdentifierRoots.IdNatStruct) return;
+            var extension = id.Extension;
+            if (string.IsNullOrWhiteSpace(extension))
+            {
+                err(path, "identifiant national (idNat) sans valeur : extension obligatoire.");
+                return;
+            }
+            if (id.Root == IdentifierRoots.IdNatPs && extension![0] == '8' && !IdNatRppsPattern.IsMatch(extension))
+                err(path, $"idNat « {extension} » invalide : 8 + n° RPPS (11 chiffres) attendu.");
+            else if (id.Root == IdentifierRoots.IdNatStruct && extension![0] == '1' && !IdNatFinessPattern.IsMatch(extension))
+                err(path, $"idNat « {extension} » invalide : 1 + n° FINESS (9 caractères) attendu.");
+            else if (id.Root == IdentifierRoots.IdNatStruct && extension![0] == '3' && !IdNatSiretPattern.IsMatch(extension))
+                err(path, $"idNat « {extension} » invalide : 3 + n° SIRET (14 chiffres) attendu.");
         }
 
         private static bool IsUid(string root) => OidPattern.IsMatch(root) || UuidPattern.IsMatch(root);

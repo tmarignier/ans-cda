@@ -34,6 +34,8 @@ namespace CdaCrImg.Validation
             RequireId(cr.Id, "Id", Err);
             RequireId(cr.SetId, "SetId", Err);
             if (cr.NumeroVersion < 1) Err("NumeroVersion", "doit être supérieur ou égal à 1.");
+            else if (cr.DocumentRemplace != null && cr.NumeroVersion == 1)
+                Err("NumeroVersion", "un document qui en remplace un autre (DocumentRemplace) a un numéro de version supérieur ou égal à 2.");
             if (string.IsNullOrWhiteSpace(cr.Titre)) Err("Titre", "obligatoire.");
             if (cr.DateCreation == default) Err("DateCreation", "obligatoire.");
 
@@ -79,7 +81,11 @@ namespace CdaCrImg.Validation
             for (var i = 0; i < cr.Demandes.Count; i++)
             {
                 if (cr.Demandes[i].NumeroDemande == null) Err($"Demandes[{i}].NumeroDemande", "obligatoire (Identifier.Null() si absent).");
-                RequireId(cr.Demandes[i].AccessionNumber, $"Demandes[{i}].AccessionNumber", Err);
+                var accessionNumber = cr.Demandes[i].AccessionNumber;
+                RequireId(accessionNumber, $"Demandes[{i}].AccessionNumber", Err);
+                // STD 3.3.4.5 : l'Accession Number est la valeur (extension) attribuée par le RIS dans l'espace de noms root.
+                if (accessionNumber?.Root != null && string.IsNullOrWhiteSpace(accessionNumber.Extension))
+                    Err($"Demandes[{i}].AccessionNumber", "valeur (extension) attribuée par le RIS obligatoire.");
             }
 
             if (cr.Actes.Count == 0) Err("Actes", "au moins un acte d'imagerie est obligatoire.");
