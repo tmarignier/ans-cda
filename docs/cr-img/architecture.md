@@ -49,9 +49,9 @@ Principes :
    CI-SIS, IHE XDS-SD `1.3.6.1.4.1.19376.1.2.20`). Pas de `structuredBody`.
 6. **Validation intégrée** : la librairie ne peut pas embarquer Saxon/XSLT2 ; `CrImgValidator`
    réimplémente en C# les règles utiles, en trois familles : complétude (`CrImgValidator.cs`), formats
-   et cohérence (`CrImgValidator.Formats.cs` : uid, cs, télécoms, INS, COG, dates) et terminologies
+   et cohérence (`CrImgValidator.Formats.cs` : uid, cs, idNat, télécoms, adresses, INS, COG, dates, unicité des examens) et terminologies
    (`CrImgValidator.Terminologies.cs`). Chaque non-conformité porte le chemin de la propriété
-   (`ModelPaths` énumère identifiants, codes, télécoms, professionnels). La validation schématron
+   (`ModelPaths` énumère identifiants, codes, télécoms, adresses, professionnels). La validation schématron
    officielle reste externe (tests `Category=Schematron`, `tools/validate-cda.sh`).
 7. **Jeux de valeurs embarqués** (`CdaCrImg.Terminologies`) : les JDV du CI-SIS contrôlés par la
    structuration minimale et ceux du volet sont des ressources liées aux fichiers du kit ANS (source

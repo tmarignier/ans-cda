@@ -6,7 +6,7 @@ using CdaCrImg.Model.Hl7;
 namespace CdaCrImg.Validation
 {
     /// <summary>
-    /// Parcours du modèle : énumère les professionnels, organisations, identifiants, codes et télécoms
+    /// Parcours du modèle : énumère les professionnels, organisations, identifiants, codes, télécoms et adresses
     /// du compte rendu avec leur chemin (même convention que <see cref="ValidationIssue.Path"/>).
     /// </summary>
     internal static class ModelPaths
@@ -78,6 +78,18 @@ namespace CdaCrImg.Validation
             foreach (var (path, telecoms) in owners)
                 for (var i = 0; i < telecoms.Count; i++)
                     yield return ($"{path}.Telecoms[{i}]", telecoms[i]);
+        }
+
+        public static IEnumerable<(string Path, Address Address)> Addresses(CompteRenduImagerie cr)
+        {
+            var owners = new List<(string Path, IList<Address> Addresses)>();
+            if (cr.Patient != null) owners.Add(("Patient", cr.Patient.Adresses));
+            owners.AddRange(Professionnels(cr).Select(p => (p.Path, p.Ps.Adresses)));
+            owners.AddRange(Organisations(cr).Select(o => (o.Path, o.Organisation.Adresses)));
+            foreach (var (path, addresses) in owners)
+                for (var i = 0; i < addresses.Count; i++)
+                    yield return ($"{path}.Adresses[{i}]", addresses[i]);
+            if (cr.PriseEnCharge?.Lieu?.Adresse != null) yield return ("PriseEnCharge.Lieu.Adresse", cr.PriseEnCharge.Lieu.Adresse);
         }
     }
 }

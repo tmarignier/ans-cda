@@ -50,6 +50,11 @@ namespace CdaCrImg.Validation
                     err(path, $"« {telecom.Value} » invalide : une URL de type tel:, fax:, mailto: ou http(s): est attendue.");
             }
 
+            foreach (var (path, address) in ModelPaths.Addresses(cr))
+            {
+                if (IsEmpty(address)) err(path, "adresse vide : renseigner au moins un élément (voie, code postal, commune…) ou retirer l'adresse.");
+            }
+
             if (!LanguagePattern.IsMatch(cr.Langue ?? ""))
                 err("Langue", "code de langue invalide (ex. fr-FR).");
 
@@ -124,6 +129,10 @@ namespace CdaCrImg.Validation
             else if (id.Root == IdentifierRoots.IdNatStruct && extension![0] == '3' && !IdNatSiretPattern.IsMatch(extension))
                 err(path, $"idNat « {extension} » invalide : 3 + n° SIRET (14 chiffres) attendu.");
         }
+
+        private static bool IsEmpty(Address a) =>
+            new[] { a.HouseNumber, a.StreetName, a.AdditionalLocator, a.UnitId, a.PostBox, a.PostalCode, a.City, a.County, a.Country }
+                .All(string.IsNullOrWhiteSpace);
 
         private static bool IsUid(string root) => OidPattern.IsMatch(root) || UuidPattern.IsMatch(root);
 

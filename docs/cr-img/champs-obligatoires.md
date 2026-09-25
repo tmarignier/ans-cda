@@ -167,6 +167,7 @@ Au-delà de leur présence, `CrImgValidator` contrôle la forme des valeurs :
 | Tout identifiant (`@root`) | OID ou UUID (type `uid`) | SM |
 | Tout code (`@code`) | sans espace (type `cs`) | SM |
 | Télécoms | URL `tel:`, `fax:`, `mailto:`, `http(s):` | SM (type TEL) |
+| Adresses | au moins un élément renseigné (pas de `<addr/>` vide) | cohérence |
 | `Patient.Ins` | 15 caractères (13 + clé ; Corse 2A/2B) ; clé contrôlée pour l'INS-NIR de production | INS |
 | `Patient.LieuNaissanceCog` | 5 caractères (ex. `51215`, `2A004`, `99xxx`) | INS |
 | `Langue` | code de langue (ex. `fr-FR`) | SM |

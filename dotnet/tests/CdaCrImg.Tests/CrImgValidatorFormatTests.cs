@@ -210,4 +210,28 @@ public class CrImgValidatorFormatTests
         Assert.Contains("Auteurs[0].Professionnel.Organisation.Id", paths);
         Assert.Contains("PriseEnCharge.Lieu.Id", paths);
     }
+
+    [Fact]
+    public void Address_MustNotBeEmpty()
+    {
+        var cr = SampleReports.Level1();
+        cr.Patient!.Adresses.Add(new Address { Use = "H" });
+        cr.Custodian!.Adresses.Add(new Address { City = " " });
+        cr.PriseEnCharge!.Lieu!.Adresse = new Address();
+
+        var paths = Paths(cr).ToList();
+        Assert.Contains("Patient.Adresses[1]", paths);
+        Assert.Contains("Custodian.Adresses[1]", paths);
+        Assert.Contains("PriseEnCharge.Lieu.Adresse", paths);
+        Assert.DoesNotContain("Patient.Adresses[0]", paths);
+    }
+
+    [Fact]
+    public void Address_WithOnlyCity_IsAccepted()
+    {
+        var cr = SampleReports.Minimal();
+        cr.Patient!.Adresses.Add(new Address { City = "PARIS" });
+
+        Assert.Empty(Paths(cr));
+    }
 }
