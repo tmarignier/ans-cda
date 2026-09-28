@@ -110,7 +110,8 @@ une liste « Pré-remplir avec un exemple » (`/?exemple=<nom du fichier>`). `Fo
 l'en-tête du CDA (en-tête limité aux champs du formulaire : RPPS et FINESS sans leur préfixe d'identifiant
 national, horodatages convertis en heure de Paris, médecin demandeur = `participant` `REF`) et le PDF
 encapsulé, utilisé si aucun fichier n'est transmis. Le CDA de l'exemple sélectionné peut être téléchargé sans ses
-commentaires (`/?exemple=<nom>&handler=Cda`, XML ré-indenté) pour le comparer au CDA généré ; le fichier
+commentaires (`/?exemple=<nom>&handler=Cda`, XML ré-indenté, attributs triés dans l'ordre d'écriture de
+la librairie) pour le comparer ligne à ligne au CDA généré ; le fichier
 d'exemple n'est jamais modifié. Ajouter un exemple = déposer son CDA dans
 `Resources/` ; `DemoExemplesTests` vérifie que chaque exemple ne remplit que des champs connus avec des
 valeurs sélectionnables, et que le formulaire ainsi pré-rempli produit un CDA valide XSD et conforme aux

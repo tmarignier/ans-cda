@@ -39,8 +39,21 @@ public static class ExemplesCda
         string.IsNullOrEmpty(id) ? null : All.FirstOrDefault(e => e.Id == id);
 
     /// <summary>
-    /// CDA de l'exemple <paramref name="id"/> sans ses commentaires (UTF-8, indenté), pour le comparer au CDA
-    /// produit par la librairie ; <c>null</c> si l'exemple n'existe pas. Le fichier d'exemple n'est pas modifié.
+    /// Ordre d'écriture des attributs par la librairie (<c>CrImgWriter</c>), appliqué au CDA d'exemple
+    /// téléchargé ; les attributs absents de la liste suivent, dans leur ordre d'origine.
+    /// </summary>
+    private static readonly string[] AttributeOrder =
+    {
+        "xmlns", "xmlns:xsi", "xmlns:ps3-20", "xsi:type", "xsi:schemaLocation",
+        "typeCode", "classCode", "determinerCode", "moodCode",
+        "root", "extension", "code", "displayName", "codeSystem", "codeSystemName",
+        "value", "use", "qualifier", "mediaType", "representation", "nullFlavor",
+    };
+
+    /// <summary>
+    /// CDA de l'exemple <paramref name="id"/> sans ses commentaires, attributs triés dans l'ordre d'écriture de
+    /// la librairie (UTF-8, indenté), pour le comparer ligne à ligne au CDA produit par la librairie ;
+    /// <c>null</c> si l'exemple n'existe pas. Le fichier d'exemple n'est pas modifié.
     /// </summary>
     public static byte[]? CdaSansCommentaires(string? id)
     {
@@ -53,11 +66,31 @@ public static class ExemplesCda
         using (var stream = assembly.GetManifestResourceStream(resource)!)
             cda = XDocument.Load(stream);
         cda.DescendantNodes().OfType<XComment>().ToList().ForEach(c => c.Remove());
+        foreach (var element in cda.Descendants()) SortAttributes(element);
 
         using var output = new MemoryStream();
         using (var writer = XmlWriter.Create(output, new XmlWriterSettings { Encoding = new UTF8Encoding(false), Indent = true }))
             cda.Save(writer);
         return output.ToArray();
+    }
+
+    /// <summary>Trie les attributs de <paramref name="element"/> selon <see cref="AttributeOrder"/> (tri stable).</summary>
+    public static void SortAttributes(XElement element)
+    {
+        var sorted = element.Attributes().OrderBy(a => Rank(element, a)).ToList();
+        element.ReplaceAttributes(sorted);
+    }
+
+    private static int Rank(XElement element, XAttribute attribute)
+    {
+        var ns = attribute.Name.Namespace;
+        var prefix = ns == XNamespace.None ? null
+            : ns == XNamespace.Xmlns ? "xmlns"
+            : ns == CdaNamespaces.Xsi ? "xsi"
+            : element.GetPrefixOfNamespace(ns);
+        var name = prefix == null ? attribute.Name.LocalName : $"{prefix}:{attribute.Name.LocalName}";
+        var rank = Array.IndexOf(AttributeOrder, name);
+        return rank < 0 ? AttributeOrder.Length : rank;
     }
 
     private static IReadOnlyList<ExempleCda> Load()

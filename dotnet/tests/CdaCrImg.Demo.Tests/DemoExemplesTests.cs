@@ -108,13 +108,41 @@ public class DemoExemplesTests(WebApplicationFactory<Program> factory, ITestOutp
         Assert.Equal($"{id}_sans-commentaires.xml", response.Content.Headers.ContentDisposition.FileName?.Trim('"'));
         var cda = XDocument.Parse(await response.Content.ReadAsStringAsync());
         Assert.Empty(cda.DescendantNodes().OfType<XComment>());
+        Assert.All(cda.Descendants(), AssertSorted);
 
-        // Seuls les commentaires sont retirés ; le fichier d'exemple est inchangé.
+        // Seuls les commentaires sont retirés et les attributs triés ; le fichier d'exemple est inchangé.
         var original = XDocument.Load(source);
         Assert.NotEmpty(original.DescendantNodes().OfType<XComment>());
         original.DescendantNodes().OfType<XComment>().ToList().ForEach(c => c.Remove());
         Assert.True(XNode.DeepEquals(Normalize(original), Normalize(cda)));
         Assert.Equal(before, await File.ReadAllBytesAsync(source));
+    }
+
+    [Theory]
+    [MemberData(nameof(Exemples))]
+    public async Task ExempleCda_KeepsCdaNamespaces(string id)
+    {
+        var response = await factory.CreateClient().GetAsync($"/?handler=Cda&exemple={id}");
+
+        var xml = await response.Content.ReadAsStringAsync();
+        Assert.Contains("<ClinicalDocument xmlns=\"urn:hl7-org:v3\"", xml);
+        Assert.Equal(CdaNamespaces.Hl7 + "ClinicalDocument", XDocument.Parse(xml).Root!.Name);
+    }
+
+    [Fact]
+    public void AttributeOrder_IsTheLibraryWritingOrder()
+    {
+        // Le tri appliqué au CDA d'exemple ne doit rien changer au CDA produit par la librairie.
+        foreach (var report in new[] { SampleReports.Level1(), SampleReports.Minimal() })
+            Assert.All(CdaCrImg.Serialization.CrImgWriter.Write(report).Descendants(), AssertSorted);
+    }
+
+    private static void AssertSorted(XElement element)
+    {
+        var before = element.Attributes().Select(a => a.Name).ToList();
+        var copy = new XElement(element.Name, element.Attributes());
+        ExemplesCda.SortAttributes(copy);
+        Assert.Equal(before, copy.Attributes().Select(a => a.Name).ToList());
     }
 
     [Fact]
@@ -125,11 +153,13 @@ public class DemoExemplesTests(WebApplicationFactory<Program> factory, ITestOutp
         Assert.Contains("href=\"/?exemple=CR_C&handler=Cda\"", html);
     }
 
-    /// <summary>Document sans les nœuds texte d'indentation, pour comparer le contenu XML.</summary>
+    /// <summary>Document sans les nœuds texte d'indentation, attributs dans un ordre fixe, pour comparer le contenu XML.</summary>
     private static XElement Normalize(XDocument document)
     {
         var root = new XElement(document.Root!);
         root.DescendantNodes().OfType<XText>().Where(t => string.IsNullOrWhiteSpace(t.Value)).ToList().ForEach(t => t.Remove());
+        foreach (var element in root.DescendantsAndSelf())
+            element.ReplaceAttributes(element.Attributes().OrderBy(a => a.Name.ToString(), StringComparer.Ordinal).ToList());
         return root;
     }
 
