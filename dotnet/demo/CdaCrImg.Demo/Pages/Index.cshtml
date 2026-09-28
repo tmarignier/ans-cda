@@ -19,8 +19,20 @@
     <p>
         Démonstration de la librairie <strong>CdaCrImg</strong> : saisissez les données du compte rendu
         puis générez le document <strong>HL7 CDA R2 non structuré (niveau 1)</strong>, en-tête conforme au volet
-        CI-SIS IMG-CR-IMG 2024.01, PDF encapsulé. Chaque champ est pré-rempli avec une valeur d'exemple.
+        CI-SIS IMG-CR-IMG 2024.01, PDF encapsulé. Chaque champ est pré-rempli avec une valeur d'exemple ;
+        choisissez un autre exemple de CDA pour pré-remplir le formulaire avec ses données.
     </p>
+    <form method="get" class="example-picker">
+        <label for="exemple">Pré-remplir avec un exemple</label>
+        <select id="exemple" name="exemple" onchange="this.form.submit()">
+            <option value="">Exemple ANS niveau 1 (valeurs par défaut)</option>
+            @foreach (var exemple in ExemplesCda.All)
+            {
+                <option value="@exemple.Id" selected="@(exemple.Id == Model.Exemple?.Id)">@exemple.Libelle</option>
+            }
+        </select>
+        <button type="submit" class="secondary">Pré-remplir</button>
+    </form>
     <p class="legend">
         <span class="badge required">Obligatoire</span> @requiredCount champs
         <span class="badge conditional">Obligatoire si le groupe est renseigné</span> @conditionalCount champs
@@ -48,6 +60,7 @@
     }
 
     <form method="post" enctype="multipart/form-data" novalidate>
+        <input type="hidden" name="exemple" value="@Model.Exemple?.Id" />
         @foreach (var sectionName in FormCatalog.Sections)
         {
             <fieldset class="section">
@@ -85,7 +98,14 @@
                                     break;
                                 case FieldKind.File:
                                     <input type="file" id="@field.Key" name="pdf" accept="application/pdf" aria-describedby="@descriptionId" />
-                                    <a class="example-link" href="~/exemple-cr.pdf" target="_blank">Voir le PDF d'exemple</a>
+                                    if (Model.Exemple?.Pdf != null)
+                                    {
+                                        <a class="example-link" asp-page-handler="Pdf" asp-route-exemple="@Model.Exemple.Id" target="_blank">Voir le PDF de l'exemple @Model.Exemple.Id</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="example-link" href="~/exemple-cr.pdf" target="_blank">Voir le PDF d'exemple</a>
+                                    }
                                     break;
                                 default:
                                     var type = field.Kind switch
@@ -118,7 +138,7 @@
         <div class="actions">
             <button type="submit" name="action" value="afficher">Générer le CDA</button>
             <button type="submit" name="action" value="telecharger" class="secondary">Télécharger le CDA</button>
-            <a href="/" class="reset">Réinitialiser avec les valeurs d'exemple</a>
+            <a href="/@(Model.Exemple == null ? "" : "?exemple=" + Uri.EscapeDataString(Model.Exemple.Id))" class="reset">Réinitialiser avec les valeurs d'exemple</a>
         </div>
     </form>
 </main>

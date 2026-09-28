@@ -7,6 +7,11 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <!-- Exemples de CDA proposés pour pré-remplir le formulaire : déposer un fichier dans Resources/ suffit. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\*.xml" LogicalName="CdaCrImg.Demo.Exemples.%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\CdaCrImg\CdaCrImg.csproj" />
   </ItemGroup>

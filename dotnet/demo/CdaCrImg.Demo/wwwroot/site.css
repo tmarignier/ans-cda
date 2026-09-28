@@ -38,6 +38,9 @@ body {
 .page-header, main { max-width: 1200px; margin: 0 auto; padding: 16px 24px; }
 .page-header h1 { margin: 8px 0; font-size: 1.6rem; }
 .page-header p { color: var(--muted); max-width: 80ch; }
+.example-picker { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 12px 0; }
+.example-picker label { font-weight: 600; }
+.example-picker select { font: inherit; padding: 6px 8px; max-width: 100%; }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 
 .section {

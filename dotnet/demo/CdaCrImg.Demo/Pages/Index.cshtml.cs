@@ -17,25 +17,41 @@ public class IndexModel(IWebHostEnvironment environment) : PageModel
     /// <summary>Valeurs affichées (exemples à l'ouverture, saisie de l'utilisateur ensuite).</summary>
     public Dictionary<string, string?> Values { get; private set; } = FormCatalog.Examples();
 
+    /// <summary>Exemple de CDA ayant pré-rempli le formulaire (<c>null</c> : valeurs d'exemple du catalogue).</summary>
+    public ExempleCda? Exemple { get; private set; }
+
     /// <summary>Erreurs par champ (clé du champ → message).</summary>
     public Dictionary<string, List<string>> FieldErrors { get; } = new();
 
     /// <summary>Non-conformités renvoyées par la librairie (<see cref="CrImgValidator"/>).</summary>
     public IReadOnlyList<ValidationIssue> Issues { get; private set; } = Array.Empty<ValidationIssue>();
 
-    public void OnGet()
+    /// <summary>Affiche le formulaire, pré-rempli avec l'exemple <paramref name="exemple"/> s'il est demandé.</summary>
+    public IActionResult OnGet(string? exemple)
     {
+        if (string.IsNullOrEmpty(exemple)) return Page();
+        Exemple = ExemplesCda.Find(exemple);
+        if (Exemple == null) return NotFound();
+        Values = Exemple.FormValues();
+        return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync(IFormFile? pdf, string? action)
+    /// <summary>PDF encapsulé dans un exemple de CDA.</summary>
+    public IActionResult OnGetPdf(string? exemple) =>
+        ExemplesCda.Find(exemple)?.Pdf is { } pdf ? File(pdf, "application/pdf") : NotFound();
+
+    public async Task<IActionResult> OnPostAsync(IFormFile? pdf, string? action, string? exemple)
     {
         Values = FormCatalog.Fields
             .Where(f => f.Kind != FieldKind.File)
             .ToDictionary(f => f.Key, f => (string?)Request.Form[f.Key].ToString());
+        Exemple = ExemplesCda.Find(exemple);
 
         CheckRequiredFields();
 
-        var pdfBytes = pdf is { Length: > 0 } ? await ReadAsync(pdf) : await System.IO.File.ReadAllBytesAsync(ExamplePdfPath);
+        // Sans fichier transmis : PDF de l'exemple sélectionné, sinon PDF d'exemple par défaut.
+        var pdfBytes = pdf is { Length: > 0 } ? await ReadAsync(pdf)
+            : Exemple?.Pdf ?? await System.IO.File.ReadAllBytesAsync(ExamplePdfPath);
         var (report, inputErrors) = ReportFormMapper.Map(Values, pdfBytes);
         foreach (var (key, message) in inputErrors) AddError(key, message);
 

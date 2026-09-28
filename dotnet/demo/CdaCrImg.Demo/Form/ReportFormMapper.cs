@@ -12,7 +12,8 @@ namespace CdaCrImg.Demo.Form;
 /// </summary>
 public static class ReportFormMapper
 {
-    private static readonly TimeZoneInfo Paris = FindParis();
+    /// <summary>Fuseau horaire des saisies de date et heure (heure de Paris).</summary>
+    internal static readonly TimeZoneInfo Paris = FindParis();
 
     /// <summary>Résultat de la transformation.</summary>
     public sealed record Result(CompteRenduImagerie Report, IReadOnlyDictionary<string, string> InputErrors);

@@ -107,8 +107,12 @@ public class DemoWebAppTests(WebApplicationFactory<Program> factory, ITestOutput
         }
     }
 
+    private Task<HttpResponseMessage> PostAsync(Dictionary<string, string?> values, string action = "afficher", byte[]? pdf = null) =>
+        PostAsync(factory, values, action, pdf);
+
     /// <summary>Envoie le formulaire comme un navigateur (jeton antiforgery et cookie compris).</summary>
-    private async Task<HttpResponseMessage> PostAsync(Dictionary<string, string?> values, string action = "afficher", byte[]? pdf = null)
+    internal static async Task<HttpResponseMessage> PostAsync(WebApplicationFactory<Program> factory, Dictionary<string, string?> values,
+        string action = "afficher", byte[]? pdf = null, string? exemple = null)
     {
         var client = factory.CreateClient();
         var page = await client.GetStringAsync("/");
@@ -119,6 +123,7 @@ public class DemoWebAppTests(WebApplicationFactory<Program> factory, ITestOutput
             { new StringContent(token), "__RequestVerificationToken" },
             { new StringContent(action), "action" },
         };
+        if (exemple != null) content.Add(new StringContent(exemple), "exemple");
         foreach (var (key, value) in values)
         {
             if (FormCatalog.Fields.Single(f => f.Key == key).Kind == FieldKind.Checkbox && value != "true") continue;
@@ -134,7 +139,7 @@ public class DemoWebAppTests(WebApplicationFactory<Program> factory, ITestOutput
     }
 
     /// <summary>Extrait le bloc HTML d'un champ (div data-field).</summary>
-    private static string FieldBlock(string html, string key)
+    internal static string FieldBlock(string html, string key)
     {
         var start = html.IndexOf($"data-field=\"{key}\"", StringComparison.Ordinal);
         Assert.True(start >= 0, $"Champ {key} absent du formulaire.");

@@ -105,6 +105,15 @@ construit le `CompteRenduImagerie`, `CrImgValidator` le contrôle et `CrImgWrite
 librairie (`JeuxDeValeursCisis`). Sans fichier transmis, le PDF d'exemple
 de l'ANS (`wwwroot/exemple-cr.pdf`) est encapsulé.
 
+**Exemples de CDA** : chaque fichier `Resources/*.xml` de la démo (ressource embarquée) est proposé dans
+une liste « Pré-remplir avec un exemple » (`/?exemple=<nom du fichier>`). `Form/ExemplesCda.cs` relit
+l'en-tête du CDA (en-tête limité aux champs du formulaire : RPPS et FINESS sans leur préfixe d'identifiant
+national, horodatages convertis en heure de Paris, médecin demandeur = `participant` `REF`) et le PDF
+encapsulé, utilisé si aucun fichier n'est transmis. Ajouter un exemple = déposer son CDA dans
+`Resources/` ; `DemoExemplesTests` vérifie que chaque exemple ne remplit que des champs connus avec des
+valeurs sélectionnables, et que le formulaire ainsi pré-rempli produit un CDA valide XSD et conforme aux
+trois profils transverses. Cette relecture est propre à la démo : la librairie ne lit pas de CDA.
+
 ## Organisation du code
 
 ```
