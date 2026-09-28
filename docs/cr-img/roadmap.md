@@ -45,6 +45,7 @@ fonctionnement de la librairie : `dotnet run --project dotnet/demo/CdaCrImg.Demo
       structuration minimale
 - [x] Sélection d'un exemple de CDA (`Resources/*.xml`, ex. `CR_C.xml`) pour pré-remplir le formulaire,
       PDF de l'exemple compris ; chaque exemple est testé de bout en bout (XSD + trois profils)
+- [x] Téléchargement du CDA d'exemple sans commentaires, pour le comparer au CDA généré
 - **Critère atteint** : formulaire pré-rempli soumis → CDA XML conforme (XSD + structuration minimale,
   modèles de contenus, IHE)
 - Limites : un auteur, une demande, un acte, une modalité et une région (la librairie en accepte plusieurs)

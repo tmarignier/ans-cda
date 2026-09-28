@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Reflection;
+using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace CdaCrImg.Demo.Form;
@@ -35,6 +37,28 @@ public static class ExemplesCda
     /// <summary>Exemple d'identifiant <paramref name="id"/>, ou <c>null</c>.</summary>
     public static ExempleCda? Find(string? id) =>
         string.IsNullOrEmpty(id) ? null : All.FirstOrDefault(e => e.Id == id);
+
+    /// <summary>
+    /// CDA de l'exemple <paramref name="id"/> sans ses commentaires (UTF-8, indenté), pour le comparer au CDA
+    /// produit par la librairie ; <c>null</c> si l'exemple n'existe pas. Le fichier d'exemple n'est pas modifié.
+    /// </summary>
+    public static byte[]? CdaSansCommentaires(string? id)
+    {
+        var assembly = typeof(ExemplesCda).Assembly;
+        var resource = Find(id) == null ? null : assembly.GetManifestResourceNames()
+            .FirstOrDefault(n => n.Equals(ResourcePrefix + id + ".xml", StringComparison.OrdinalIgnoreCase));
+        if (resource == null) return null;
+
+        XDocument cda;
+        using (var stream = assembly.GetManifestResourceStream(resource)!)
+            cda = XDocument.Load(stream);
+        cda.DescendantNodes().OfType<XComment>().ToList().ForEach(c => c.Remove());
+
+        using var output = new MemoryStream();
+        using (var writer = XmlWriter.Create(output, new XmlWriterSettings { Encoding = new UTF8Encoding(false), Indent = true }))
+            cda.Save(writer);
+        return output.ToArray();
+    }
 
     private static IReadOnlyList<ExempleCda> Load()
     {

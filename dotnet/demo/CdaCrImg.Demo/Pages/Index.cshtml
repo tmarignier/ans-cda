@@ -32,6 +32,10 @@
             }
         </select>
         <button type="submit" class="secondary">Pré-remplir</button>
+        @if (Model.Exemple != null)
+        {
+            <a class="example-link" asp-page-handler="Cda" asp-route-exemple="@Model.Exemple.Id">Télécharger le CDA d'exemple @Model.Exemple.Id (sans commentaires)</a>
+        }
     </form>
     <p class="legend">
         <span class="badge required">Obligatoire</span> @requiredCount champs

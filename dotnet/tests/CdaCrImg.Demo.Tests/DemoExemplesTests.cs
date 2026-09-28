@@ -94,6 +94,45 @@ public class DemoExemplesTests(WebApplicationFactory<Program> factory, ITestOutp
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Theory]
+    [MemberData(nameof(Exemples))]
+    public async Task ExempleCda_IsDownloadedWithoutComments(string id)
+    {
+        var source = Path.Combine(RepoPaths.Root, "dotnet", "demo", "CdaCrImg.Demo", "Resources", id + ".xml");
+        var before = await File.ReadAllBytesAsync(source);
+
+        var response = await factory.CreateClient().GetAsync($"/?handler=Cda&exemple={id}");
+
+        Assert.Equal("application/xml", response.Content.Headers.ContentType!.MediaType);
+        Assert.Equal("attachment", response.Content.Headers.ContentDisposition!.DispositionType);
+        Assert.Equal($"{id}_sans-commentaires.xml", response.Content.Headers.ContentDisposition.FileName?.Trim('"'));
+        var cda = XDocument.Parse(await response.Content.ReadAsStringAsync());
+        Assert.Empty(cda.DescendantNodes().OfType<XComment>());
+
+        // Seuls les commentaires sont retirés ; le fichier d'exemple est inchangé.
+        var original = XDocument.Load(source);
+        Assert.NotEmpty(original.DescendantNodes().OfType<XComment>());
+        original.DescendantNodes().OfType<XComment>().ToList().ForEach(c => c.Remove());
+        Assert.True(XNode.DeepEquals(Normalize(original), Normalize(cda)));
+        Assert.Equal(before, await File.ReadAllBytesAsync(source));
+    }
+
+    [Fact]
+    public async Task Form_OffersExempleCdaDownload()
+    {
+        var html = WebUtility.HtmlDecode(await factory.CreateClient().GetStringAsync("/?exemple=CR_C"));
+
+        Assert.Contains("href=\"/?exemple=CR_C&handler=Cda\"", html);
+    }
+
+    /// <summary>Document sans les nœuds texte d'indentation, pour comparer le contenu XML.</summary>
+    private static XElement Normalize(XDocument document)
+    {
+        var root = new XElement(document.Root!);
+        root.DescendantNodes().OfType<XText>().Where(t => string.IsNullOrWhiteSpace(t.Value)).ToList().ForEach(t => t.Remove());
+        return root;
+    }
+
     [Fact]
     public async Task ExemplePdf_IsServed()
     {

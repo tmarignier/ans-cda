@@ -40,6 +40,12 @@ public class IndexModel(IWebHostEnvironment environment) : PageModel
     public IActionResult OnGetPdf(string? exemple) =>
         ExemplesCda.Find(exemple)?.Pdf is { } pdf ? File(pdf, "application/pdf") : NotFound();
 
+    /// <summary>CDA d'exemple sans ses commentaires, à télécharger pour le comparer au CDA généré.</summary>
+    public IActionResult OnGetCda(string? exemple) =>
+        ExemplesCda.CdaSansCommentaires(exemple) is { } cda
+            ? File(cda, "application/xml", $"{exemple}_sans-commentaires.xml")
+            : NotFound();
+
     public async Task<IActionResult> OnPostAsync(IFormFile? pdf, string? action, string? exemple)
     {
         Values = FormCatalog.Fields
