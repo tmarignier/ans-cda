@@ -194,6 +194,9 @@ public static class FormCatalog
         new("signataire.nom", Signataire, "Nom", RequiredIfGroup,
             "Nom de famille du signataire, exigé dès que son identité est renseignée.",
             "BIDEAULT", "SignataireLegal.Professionnel.Nom", Group: "signataire.identite", GroupLabel: "Identité du signataire"),
+        new("signataire.titre", Signataire, "Titre", Optional,
+            "Titre (name/suffix, JDV_J246).",
+            "DR", "SignataireLegal.Professionnel.Nom", FieldKind.Select, JeuxDeValeurs.Titre, "signataire.identite", "Identité du signataire"),
 
         // Médecin demandeur
         new("demandeur.rpps", Demandeur, "N° RPPS", RequiredIfGroup,
