@@ -1,0 +1,12 @@
+# Schématrons compilés en XSLT par tools/validate-cda.sh (cache local)
+schematrons/**/.compiled_*.xsl
+
+# .NET
+**/bin/**
+**/obj/**
+dotnet/**/TestResults/
+*.user
+.vs/
+
+# Compilations de schématron en cours (AnsJavaValidator)
+schematrons/**/.compiled_*.xsl.*.tmp
