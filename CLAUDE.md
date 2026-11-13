@@ -25,6 +25,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `dotnet/demo/CdaCrImg.Demo/Resources/*.xml` | Exemples de CDA proposés pour pré-remplir le formulaire de la démo (relus par `Form/ExemplesCda.cs`) |
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête (dans le périmètre) ; sections et entrées du niveau 3 (référence, hors périmètre) |
 | `docs/cr-img/champs-obligatoires.md` | Champs minimaux obligatoires d'un CR (nom CdaCrImg, description, règles, sources) |
+| `docs/cr-img/champs.xlsx`, `champs.csv` | Liste de tous les champs pour Excel, exportée du référentiel (CSV régénéré par `ReferentielExportTests`, classeur par `tools/champs-xlsx.py`) |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
 | `docs/cr-img/roadmap.md` | Lots de développement et critères de fin |
 | `ExemplesCDA/IMG_CR_IMG_2024.01_CDA-R2-Niveau-1.xml` | **Exemple de référence ANS** du CR non structuré (PDF base64, `nonXMLBody`) |

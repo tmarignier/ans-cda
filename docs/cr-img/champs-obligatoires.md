@@ -28,7 +28,10 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
 - **Référentiel des champs** : la librairie expose ces informations par programme
   (`CdaCrImg.Referentiel.ReferentielChamps` : chemin, XPath, cardinalité, caractère obligatoire, source),
   pour tous les champs, obligatoires et facultatifs ; les tests vérifient sa cohérence avec ce document,
-  `CrImgValidator` et les documents produits.
+  `CrImgValidator` et les documents produits. La liste complète des champs (obligatoires et facultatifs)
+  est exportée pour Excel dans [`champs.xlsx`](champs.xlsx) (mis en forme, avec légende) et
+  [`champs.csv`](champs.csv) (régénéré par le test `ReferentielExportTests` ;
+  `python3 tools/champs-xlsx.py` reproduit le classeur à partir du CSV).
 - Les valeurs **fixes** (templateId, code du document…) sont produites automatiquement :
   voir [§ 3](#3-valeurs-produites-automatiquement-par-la-librairie).
 

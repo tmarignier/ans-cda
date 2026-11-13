@@ -80,6 +80,23 @@ namespace CdaCrImg.Referentiel
         /// <summary>Libellé court.</summary>
         public string Libelle { get; }
 
+        /// <summary>
+        /// Nom complet du champ : section puis libellés des champs qui le contiennent, ex.
+        /// « Auteur › Structure d'exercice › Identifiant de la structure ».
+        /// </summary>
+        public string NomComplet
+        {
+            get
+            {
+                var libelles = new List<string>();
+                // Les libellés égaux à la section, et « Professionnel » chez les ancêtres, n'apportent rien au nom.
+                for (var champ = this; champ != null; champ = champ.Parent)
+                    if (champ.Libelle != Section && (champ == this || champ.Libelle != "Professionnel")) libelles.Insert(0, champ.Libelle);
+                libelles.Insert(0, Section);
+                return string.Join(" › ", libelles);
+            }
+        }
+
         /// <summary>Description métier.</summary>
         public string Description { get; }
 
