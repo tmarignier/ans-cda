@@ -15,6 +15,7 @@
 </head>
 <body>
 <header class="page-header">
+    <nav class="nav"><strong>Générer un CDA</strong> · <a href="/Analyser">Analyser un CDA</a></nav>
     <h1>CdaCrImg — compte rendu d'imagerie CDA</h1>
     <p>
         Démonstration de la librairie <strong>CdaCrImg</strong> : saisissez les données du compte rendu
@@ -35,6 +36,7 @@
         @if (Model.Exemple != null)
         {
             <a class="example-link" asp-page-handler="Cda" asp-route-exemple="@Model.Exemple.Id">Télécharger le CDA d'exemple @Model.Exemple.Id (sans commentaires)</a>
+            <a class="example-link" asp-page="/Analyser" asp-route-exemple="@Model.Exemple.Id">Analyser cet exemple</a>
         }
     </form>
     <p class="legend">

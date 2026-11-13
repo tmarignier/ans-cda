@@ -71,7 +71,7 @@ fonctionnement de la librairie : `dotnet run --project dotnet/demo/CdaCrImg.Demo
 - **Critère atteint** : tests verts (266), document produit conforme XSD + trois profils transverses
 - À décider : licence du paquet (aucune licence de projet dans le dépôt) et publication sur nuget.org
 
-## Lot 4 — Analyse d'un CDA existant
+## Lot 4 — Analyse d'un CDA existant ✅
 
 Objectif : à partir d'un fichier CDA fourni en entrée, présenter la **liste précise des champs
 renseignés** dans le document, avec le **caractère obligatoire ou facultatif** de chaque champ.
@@ -93,12 +93,14 @@ renseignés** dans le document, avec le **caractère obligatoire ou facultatif**
 - [x] Documents acceptés : CR d'imagerie CDA R2 niveau 1 (`nonXMLBody`) ; un CDA niveau 3 est analysé
       pour son en-tête, le corps structuré étant signalé hors périmètre ; un document qui n'est pas un CR
       d'imagerie (code 18748-4) ou pas un CDA est refusé avec un message explicite
-- [ ] Démo : page « Analyser un CDA » (dépôt d'un fichier ou choix d'un exemple de `Resources/`) affichant
-      le tableau des champs (libellé, valeur, emplacement, obligatoire / facultatif, statut), filtrable
+- [x] Démo : page « Analyser un CDA » (`/Analyser` : dépôt d'un fichier ou choix d'un exemple de
+      `Resources/`) affichant le récapitulatif, le tableau des champs par section (libellé, chemin, valeur,
+      obligatoire / facultatif, cardinalité, statut, emplacement et ligne), filtrable (statut, obligation,
+      valeurs fixes, recherche), et les éléments non gérés
 - [x] Tests : analyse de l'exemple ANS niveau 1, des exemples de la démo et des CDA produits par la
       librairie (tous les champs obligatoires présents, aucun champ manquant entre écriture et analyse) ;
       cas négatifs (champ obligatoire absent, document qui n'est pas un CR d'imagerie)
-- **Critère de fin** : pour tout CDA d'exemple du dépôt, la liste des champs est produite, chaque champ
+- **Critère atteint** : pour tout CDA d'exemple du dépôt, la liste des champs est produite, chaque champ
   y porte son caractère obligatoire / facultatif conforme au référentiel, et les champs obligatoires
   absents sont signalés
 - Hors lot : reconstruction complète du modèle `CompteRenduImagerie` depuis un CDA (CDA → modèle → CDA)

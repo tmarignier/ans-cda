@@ -38,6 +38,15 @@ public static class ExemplesCda
     public static ExempleCda? Find(string? id) =>
         string.IsNullOrEmpty(id) ? null : All.FirstOrDefault(e => e.Id == id);
 
+    /// <summary>Fichier CDA d'origine de l'exemple <paramref name="id"/>, ou <c>null</c> si l'exemple n'existe pas.</summary>
+    public static Stream? Ouvrir(string? id)
+    {
+        var assembly = typeof(ExemplesCda).Assembly;
+        var resource = Find(id) == null ? null : assembly.GetManifestResourceNames()
+            .FirstOrDefault(n => n.Equals(ResourcePrefix + id + ".xml", StringComparison.OrdinalIgnoreCase));
+        return resource == null ? null : assembly.GetManifestResourceStream(resource);
+    }
+
     /// <summary>
     /// Ordre d'écriture des attributs par la librairie (<c>CrImgWriter</c>), appliqué au CDA d'exemple
     /// téléchargé ; les attributs absents de la liste suivent, dans leur ordre d'origine.
@@ -57,14 +66,12 @@ public static class ExemplesCda
     /// </summary>
     public static byte[]? CdaSansCommentaires(string? id)
     {
-        var assembly = typeof(ExemplesCda).Assembly;
-        var resource = Find(id) == null ? null : assembly.GetManifestResourceNames()
-            .FirstOrDefault(n => n.Equals(ResourcePrefix + id + ".xml", StringComparison.OrdinalIgnoreCase));
-        if (resource == null) return null;
-
         XDocument cda;
-        using (var stream = assembly.GetManifestResourceStream(resource)!)
+        using (var stream = Ouvrir(id))
+        {
+            if (stream == null) return null;
             cda = XDocument.Load(stream);
+        }
         cda.DescendantNodes().OfType<XComment>().ToList().ForEach(c => c.Remove());
         foreach (var element in cda.Descendants()) SortAttributes(element);
 

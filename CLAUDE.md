@@ -52,7 +52,7 @@ dotnet test dotnet/tests/CdaCrImg.Tests                           # librairie se
 dotnet test dotnet/tests/CdaCrImg.Demo.Tests                      # application de démonstration seule
 dotnet test dotnet/CdaCrImg.sln --filter "Category!=Schematron"   # exclure la validation Java
 
-# Application web de démonstration (formulaire → CDA XML), http://localhost:5000 par défaut
+# Application web de démonstration (formulaire → CDA XML ; /Analyser : analyse d'un CDA), http://localhost:5000 par défaut
 dotnet run --project dotnet/demo/CdaCrImg.Demo
 
 # Paquet NuGet (CdaCrImg.nupkg + symboles .snupkg)

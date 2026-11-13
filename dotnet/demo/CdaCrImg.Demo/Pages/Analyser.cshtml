@@ -1,0 +1,216 @@
+@page
+@using CdaCrImg.Analyse
+@using CdaCrImg.Referentiel
+@model AnalyserModel
+@{
+    static string StatutLibelle(StatutChamp statut) => statut switch
+    {
+        StatutChamp.Present => "Présent",
+        StatutChamp.ObligatoireAbsent => "Obligatoire absent",
+        StatutChamp.FacultatifAbsent => "Facultatif absent",
+        StatutChamp.EnTrop => "En trop",
+        _ => "Hors périmètre",
+    };
+    static string BadgeObligation(Obligation obligation) => obligation switch
+    {
+        Obligation.Obligatoire => "required",
+        Obligation.Facultatif => "optional",
+        _ => "conditional",
+    };
+    var analyse = Model.Analyse;
+    int Compte(StatutChamp statut) => analyse!.Champs.Count(c => c.Statut == statut);
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CdaCrImg — analyser un CDA</title>
+    <link rel="stylesheet" href="~/site.css" asp-append-version="true" />
+</head>
+<body>
+<header class="page-header">
+    <nav class="nav"><a href="/">Générer un CDA</a> · <strong>Analyser un CDA</strong></nav>
+    <h1>Analyser un compte rendu d'imagerie CDA</h1>
+    <p>
+        Déposez un CR d'imagerie <strong>HL7 CDA R2</strong> (ou choisissez un exemple) : la librairie
+        <strong>CdaCrImg</strong> liste chaque champ de son référentiel avec la valeur lue, son caractère
+        <strong>obligatoire ou facultatif</strong> et son statut, puis les éléments du document qu'elle ne gère pas.
+        Cette analyse ne remplace pas la validation XSD et schématron.
+    </p>
+
+    <div class="analyse-sources">
+        <form method="post" enctype="multipart/form-data" class="example-picker">
+            <label for="cda">Fichier CDA</label>
+            <input type="file" id="cda" name="cda" accept=".xml,application/xml,text/xml" />
+            <button type="submit">Analyser</button>
+        </form>
+        <form method="get" class="example-picker">
+            <label for="exemple">ou un exemple</label>
+            <select id="exemple" name="exemple" onchange="this.form.submit()">
+                <option value="">— choisir —</option>
+                @foreach (var exemple in ExemplesCda.All)
+                {
+                    <option value="@exemple.Id" selected="@(exemple.Id == Model.Exemple?.Id)">@exemple.Libelle</option>
+                }
+            </select>
+            <button type="submit" class="secondary">Analyser l'exemple</button>
+        </form>
+    </div>
+</header>
+
+<main>
+    @if (Model.Erreur != null)
+    {
+        <section class="error-summary" role="alert">
+            <h2>Le document n'a pas pu être analysé</h2>
+            <p>@Model.Erreur</p>
+        </section>
+    }
+
+    @if (analyse != null)
+    {
+        <section class="section resume" aria-labelledby="resume-titre">
+            <h2 id="resume-titre">@Model.Document</h2>
+            <p class="verdict @(analyse.EstComplet ? "ok" : "ko")">
+                @(analyse.EstComplet
+                    ? "Tous les champs obligatoires du référentiel sont présents."
+                    : $"{analyse.Anomalies.Count()} anomalie(s) : champ obligatoire absent ou cardinalité dépassée.")
+            </p>
+            <ul class="compteurs">
+                <li><strong>@Compte(StatutChamp.Present)</strong> présents</li>
+                <li><strong>@Compte(StatutChamp.ObligatoireAbsent)</strong> obligatoires absents</li>
+                <li><strong>@Compte(StatutChamp.FacultatifAbsent)</strong> facultatifs absents</li>
+                <li><strong>@Compte(StatutChamp.EnTrop)</strong> en trop</li>
+                <li><strong>@analyse.NonGeres.Count</strong> éléments non gérés</li>
+            </ul>
+            @if (analyse.CorpsStructure)
+            {
+                <p>Corps structuré (CDA niveau 3) : hors périmètre de la librairie, seul l'en-tête est analysé.</p>
+            }
+            @if (Model.Exemple != null)
+            {
+                <p>
+                    <a class="example-link" href="/?exemple=@Uri.EscapeDataString(Model.Exemple.Id)">Pré-remplir le formulaire avec cet exemple</a>
+                    · <a class="example-link" href="/?exemple=@Uri.EscapeDataString(Model.Exemple.Id)&amp;handler=Cda">Télécharger le CDA sans commentaires</a>
+                </p>
+            }
+        </section>
+
+        <div class="filtres" role="group" aria-label="Filtres">
+            <label>Statut
+                <select id="filtre-statut">
+                    <option value="">Tous</option>
+                    <option value="Present">Présents</option>
+                    <option value="absent">Absents</option>
+                    <option value="anomalie">Anomalies</option>
+                </select>
+            </label>
+            <label>Obligation
+                <select id="filtre-obligation">
+                    <option value="">Toutes</option>
+                    <option value="Obligatoire">Obligatoires</option>
+                    <option value="ObligatoireSiGroupe">Obligatoires si le groupe est renseigné</option>
+                    <option value="Facultatif">Facultatifs</option>
+                </select>
+            </label>
+            <label><input type="checkbox" id="filtre-fixes" /> Masquer les valeurs fixes de la librairie</label>
+            <label>Recherche <input type="search" id="filtre-texte" placeholder="libellé, chemin, valeur…" /></label>
+        </div>
+
+        @foreach (var nomSection in ReferentielChamps.Sections.Toutes)
+        {
+            var lignes = analyse.Champs.Where(c => c.Champ.Section == nomSection).ToList();
+            if (lignes.Count == 0) continue;
+            <section class="section analyse" data-section>
+                <h2>@nomSection</h2>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr><th>Champ</th><th>Valeur</th><th>Obligation</th><th>Statut</th><th>Emplacement</th></tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var ligne in lignes)
+                        {
+                            var anomalie = ligne.Statut is StatutChamp.ObligatoireAbsent or StatutChamp.EnTrop;
+                            <tr data-statut="@ligne.Statut" data-anomalie="@(anomalie ? "true" : "false")"
+                                data-obligation="@ligne.Champ.Obligation" data-origine="@ligne.Champ.Origine"
+                                data-chemin="@ligne.Chemin" class="@(anomalie ? "anomalie" : "")">
+                                <td>
+                                    <span class="label-text">@ligne.Champ.Libelle</span>
+                                    <code class="chemin">@ligne.Chemin</code>
+                                </td>
+                                <td class="valeur">@ligne.Valeur</td>
+                                <td>
+                                    <span class="badge @BadgeObligation(ligne.Champ.Obligation)">@ligne.Champ.MentionObligation</span>
+                                    <span class="meta">@ligne.Champ.Cardinalite · @ligne.Champ.Source</span>
+                                </td>
+                                <td><span class="statut statut-@ligne.Statut">@StatutLibelle(ligne.Statut)</span></td>
+                                <td>
+                                    @if (ligne.Emplacement != null)
+                                    {
+                                        <code>@ligne.Emplacement</code>
+                                        @if (ligne.Ligne != null) { <span class="meta">ligne @ligne.Ligne</span> }
+                                    }
+                                    else
+                                    {
+                                        <code class="meta">@ligne.Champ.XPathComplet</code>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+
+        <section class="section" aria-labelledby="non-geres-titre">
+            <h2 id="non-geres-titre">Éléments non gérés par la librairie (@analyse.NonGeres.Count)</h2>
+            @if (analyse.NonGeres.Count == 0)
+            {
+                <p>Aucun : tous les éléments du document correspondent à un champ du référentiel.</p>
+            }
+            else
+            {
+                <p class="description">Éléments présents dans le document mais absents du référentiel CdaCrImg : ils ne seraient pas reproduits par la librairie.</p>
+                <ul class="non-geres">
+                    @foreach (var element in analyse.NonGeres)
+                    {
+                        <li><code>@element.Emplacement</code>@if (element.Ligne != null) {<span class="meta"> ligne @element.Ligne</span>}</li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+</main>
+
+<script>
+    (function () {
+        const statut = document.getElementById('filtre-statut');
+        if (!statut) return;
+        const obligation = document.getElementById('filtre-obligation');
+        const fixes = document.getElementById('filtre-fixes');
+        const texte = document.getElementById('filtre-texte');
+        function filtrer() {
+            const s = statut.value, o = obligation.value, q = texte.value.trim().toLowerCase();
+            document.querySelectorAll('[data-section]').forEach(section => {
+                let visibles = 0;
+                section.querySelectorAll('tbody tr').forEach(tr => {
+                    const d = tr.dataset;
+                    const ok = (!s || (s === 'absent' ? d.statut.endsWith('Absent') : s === 'anomalie' ? d.anomalie === 'true' : d.statut === s))
+                        && (!o || d.obligation === o)
+                        && !(fixes.checked && d.origine === 'Librairie')
+                        && (!q || tr.textContent.toLowerCase().includes(q));
+                    tr.hidden = !ok;
+                    if (ok) visibles++;
+                });
+                section.hidden = visibles === 0;
+            });
+        }
+        [statut, obligation, fixes].forEach(e => e.addEventListener('change', filtrer));
+        texte.addEventListener('input', filtrer);
+    })();
+</script>
+</body>
+</html>

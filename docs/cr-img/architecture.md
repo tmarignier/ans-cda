@@ -118,7 +118,12 @@ CrImgWriter.Write(cr, stream);           // UTF-8 ; ou CrImgWriter.WriteToString
 catalogue de champs (`Form/FormCatalog.cs` : libellé, obligatoire / facultatif / obligatoire si le groupe
 est renseigné, description, valeur d'exemple, propriété CdaCrImg). Chaque champ du formulaire est
 relié au référentiel des champs de la librairie (`FieldDefinition.Champ`) : l'élément CDA et la
-cardinalité sont affichés, et un champ affiché obligatoire doit l'être dans le référentiel. À la soumission, `ReportFormMapper`
+cardinalité sont affichés, et un champ affiché obligatoire doit l'être dans le référentiel.
+
+**Analyse d'un CDA** (`Pages/Analyser`, `/Analyser`) : un fichier déposé ou un exemple de `Resources/`
+(fichier d'origine, pour des numéros de ligne exacts) est analysé par `CdaAnalyseur` ; la page affiche
+le récapitulatif (complet ou anomalies, compteurs), un tableau par section du référentiel, filtrable
+côté navigateur, et les éléments non gérés. Les deux pages se renvoient l'une à l'autre. À la soumission, `ReportFormMapper`
 construit le `CompteRenduImagerie`, `CrImgValidator` le contrôle et `CrImgWriter` renvoie le CDA XML
 (affiché ou téléchargé). Les listes déroulantes viennent des jeux de valeurs embarqués dans la
 librairie (`JeuxDeValeursCisis`). Sans fichier transmis, le PDF d'exemple
