@@ -4,6 +4,5 @@
 # Exemples générés par CdaCrImg (ExampleFileTests) : toujours en LF pour rester stables sous Windows
 ExemplesCDA/CdaCrImg_*.xml text eol=lf
 
-# Liste des champs générée par ReferentielExportTests : LF pour rester stable sous Windows
-docs/cr-img/champs.csv text eol=lf
+# Liste des champs générée par ReferentielExportTests
 docs/cr-img/champs.xlsx binary

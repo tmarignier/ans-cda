@@ -91,6 +91,52 @@ namespace CdaCrImg.Referentiel
             return manager;
         }
 
+        private const string SourceLibrairie = "Librairie CdaCrImg (valeur fixe)";
+        private const string LogicielAuteur = "Logiciel du radiologue auteur (en téléradiologie : logiciel du téléradiologue)";
+        private const string StructureAccueil = "Structure d'imagerie qui accueille le patient (site de réalisation de l'examen)";
+        private const string Annuaire = "Annuaire santé / carte CPS du professionnel, via le logiciel du radiologue";
+
+        /// <summary>
+        /// Source de la donnée d'un champ fourni par l'appelant, d'après les rôles décrits par l'ANS (SFD 3.2.2 et
+        /// 3.2.3, STD 3.2) ; en téléradiologie, l'examen est réalisé dans la structure qui accueille le patient et
+        /// interprété à distance par le téléradiologue.
+        /// </summary>
+        private static string SourceDonnee(string chemin)
+        {
+            bool Est(string prefixe) => chemin == prefixe || chemin.StartsWith(prefixe + ".", StringComparison.Ordinal);
+            bool Fin(string suffixe) => chemin.EndsWith(suffixe, StringComparison.Ordinal);
+
+            if (Est("Patient"))
+                return StructureAccueil + " : identité du patient (RIS), qualifiée par le téléservice INSi";
+            if (Est("Auteurs[]"))
+            {
+                if (Fin(".Horodatage")) return LogicielAuteur + ", à la validation du CR";
+                if (Fin(".Fonction")) return LogicielAuteur;
+                if (Est("Auteurs[].Professionnel.Organisation")) return "Structure d'exercice de l'auteur (en téléradiologie : structure de téléradiologie, ou structure d'accueil pour son médecin responsable)";
+                return "Auteur : radiologue qui rédige le CR (téléradiologue) ; en téléradiologie, auteur supplémentaire : médecin responsable de la structure d'accueil (STD 3.2). " + Annuaire;
+            }
+            if (Est("Custodian")) return "Structure qui produit et conserve le CR (en téléradiologie : selon la convention entre structures)";
+            if (Est("SignataireLegal"))
+            {
+                if (Fin(".Horodatage")) return "Logiciel du signataire, à la signature";
+                return "Responsable du document : radiologue signataire ; en téléradiologie, médecin responsable de la structure qui accueille le patient (STD 3.2). " + Annuaire;
+            }
+            if (Est("MedecinsDemandeurs[]")) return "Demande d'examen : médecin demandeur (SFD 3.3.1)";
+            if (Est("Demandes[].NumeroDemande")) return "Médecin demandeur : numéro attribué à sa demande (STD 3.2)";
+            if (Est("Demandes[].AccessionNumber")) return "RIS de la structure d'imagerie qui accueille le patient (STD 3.3.4.5)";
+            if (Est("Demandes[]")) return "Demande d'examen du médecin demandeur (SFD 3.3.1)";
+            if (Est("Actes[].StudyInstanceUid")) return "RIS / PACS de la structure d'imagerie qui accueille le patient (STD 3.3.4.5)";
+            if (Est("Actes[].Debut") || Est("Actes[].Fin")) return StructureAccueil + " : RIS ou modalité d'acquisition";
+            if (Est("Actes[].Executant.Organisation")) return "Établissement de rattachement de l'exécutant (STD 3.2, DRIM-Box)";
+            if (Est("Actes[].Executant")) return "Imageur qui supervise la réalisation de l'acte (en téléradiologie : à distance, SFD 3.2.2.1). " + Annuaire;
+            if (Est("Actes[].CodeCcam")) return LogicielAuteur + " ou RIS (cotation de l'acte)";
+            if (Est("Actes[]") || Est("Depistage")) return "Demande d'examen (acte, modalité, région, dépistage), protocole validé par l'imageur (SFD 3.2.3.4, 3.3.1)";
+            if (Est("PriseEnCharge")) return StructureAccueil + " : contexte et lieu de la prise en charge";
+            if (Est("Corps")) return "Radiologue auteur (téléradiologue) : CR rédigé et validé dans son logiciel, au format PDF";
+            if (Est("Titre")) return "Radiologue auteur (téléradiologue), via son logiciel";
+            return LogicielAuteur + " (métadonnées du document)";
+        }
+
         private static IReadOnlyList<ChampCda> Construire()
         {
             var champs = new List<ChampCda>();
@@ -101,7 +147,8 @@ namespace CdaCrImg.Referentiel
             ChampCda C(string chemin, ChampCda? parent, string section, string libelle, string description, string xPath,
                 int min, int? max, string source, OrigineValeur origine = Appelant, string? valeur = null)
             {
-                var champ = new ChampCda(chemin, parent, section, libelle, description, xPath, min, max, source, origine, valeur);
+                var champ = new ChampCda(chemin, parent, section, libelle, description, xPath, min, max, source, origine, valeur,
+                    origine == Librairie ? SourceLibrairie : SourceDonnee(chemin));
                 champs.Add(champ);
                 return champ;
             }

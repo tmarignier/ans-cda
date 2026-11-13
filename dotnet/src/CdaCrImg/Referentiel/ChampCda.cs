@@ -40,7 +40,7 @@ namespace CdaCrImg.Referentiel
         private readonly List<ChampCda> _enfants = new List<ChampCda>();
 
         internal ChampCda(string chemin, ChampCda? parent, string section, string libelle, string description,
-            string xPath, int min, int? max, string source, OrigineValeur origine, string? valeurParDefaut)
+            string xPath, int min, int? max, string source, OrigineValeur origine, string? valeurParDefaut, string sourceDonnee)
         {
             Chemin = chemin;
             Parent = parent;
@@ -53,6 +53,7 @@ namespace CdaCrImg.Referentiel
             Source = source;
             Origine = origine;
             ValeurParDefaut = valeurParDefaut;
+            SourceDonnee = sourceDonnee;
             parent?._enfants.Add(this);
 
             var groupe = parent;
@@ -136,6 +137,13 @@ namespace CdaCrImg.Referentiel
 
         /// <summary>Valeur produite par la librairie (valeur fixe ou valeur par défaut), sinon <c>null</c>.</summary>
         public string? ValeurParDefaut { get; }
+
+        /// <summary>
+        /// Source de la donnée : acteur ou système qui la fournit (logiciel du radiologue, RIS de la structure
+        /// d'imagerie, médecin demandeur…), y compris en téléradiologie, d'après les rôles décrits par l'ANS
+        /// (SFD 3.2, STD 3.2) ; « Librairie CdaCrImg » pour une valeur fixe.
+        /// </summary>
+        public string SourceDonnee { get; }
 
         /// <summary>Mention affichable du caractère obligatoire, ex. « Obligatoire si « Identité » est renseigné ».</summary>
         public string MentionObligation => Obligation switch

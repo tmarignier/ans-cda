@@ -1,21 +1,23 @@
-using System.Text;
+using System.IO.Compression;
+using System.Xml.Linq;
 using CdaCrImg.Referentiel;
 
 namespace CdaCrImg.Tests;
 
 /// <summary>
-/// Exporte le référentiel des champs dans <c>docs/cr-img/champs.csv</c> (UTF-8 avec BOM, séparateur « ; »,
-/// ouvert tel quel par Excel). Le fichier n'est réécrit que si son contenu change : il reste à jour avec
-/// <see cref="ReferentielChamps"/>. <c>tools/champs-xlsx.py</c> en produit la version Excel mise en forme.
+/// Exporte le référentiel des champs dans le classeur Excel <c>docs/cr-img/champs.xlsx</c> (feuilles
+/// « Champs » et « Légende »). Le fichier n'est réécrit que si son contenu change : il reste à jour avec
+/// <see cref="ReferentielChamps"/>.
 /// </summary>
 public class ReferentielExportTests
 {
-    public static string CsvPath => Path.Combine(RepoPaths.Root, "docs", "cr-img", "champs.csv");
+    public static string XlsxPath => Path.Combine(RepoPaths.Root, "docs", "cr-img", "champs.xlsx");
 
-    /// <summary>En-têtes des colonnes.</summary>
+    /// <summary>En-têtes des colonnes de la feuille « Champs ».</summary>
     public static readonly string[] Colonnes =
     {
         "Nom du champ", "Identifiant technique", "Obligatoire ?", "Description", "Référence à la documentation",
+        "Source de la donnée",
     };
 
     private static readonly Dictionary<string, string> Sources = new()
@@ -24,6 +26,22 @@ public class ReferentielExportTests
         ["SM"] = "SM : structuration minimale CI-SIS",
         ["XSD"] = "XSD : schéma CDA R2",
         ["INS"] = "INS : traits d'identité INS",
+    };
+
+    private static readonly (string, string)[] Legende =
+    {
+        ("Nom du champ", "Section du compte rendu, puis libellés des champs qui le contiennent."),
+        ("Identifiant technique", "Chemin de la propriété dans la librairie CdaCrImg ([] = liste), identique au chemin des erreurs de CrImgValidator (sans les index)."),
+        ("Obligatoire ?", "Oui / Non, ou « Oui si … est renseigné » : obligatoire dès que le groupe facultatif qui le contient est présent."),
+        ("Description", "Description métier, cardinalité dans le CDA, valeur fixe ou par défaut produite par la librairie, et élément CDA (XPath ; préfixe cda = urn:hl7-org:v3)."),
+        ("Référence à la documentation", "Paragraphe de docs/cr-img/champs-obligatoires.md et sources de la règle."),
+        ("Source de la donnée", "Acteur ou système qui fournit la donnée, d'après les rôles décrits par l'ANS (SFD 3.2.2 et 3.2.3, STD 3.2), téléradiologie comprise : l'examen est réalisé dans la structure d'imagerie qui accueille le patient et interprété à distance par le téléradiologue. « Librairie CdaCrImg » : valeur fixe produite par la librairie."),
+        ("STD", "Volet CI-SIS IMG-CR-IMG 2024.01, spécifications techniques (docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf)."),
+        ("SFD", "Volet CI-SIS IMG-CR-IMG 2024.01, spécifications fonctionnelles (docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf)."),
+        ("SM", "Structuration minimale des documents de santé CI-SIS (schematrons/profils/structurationMinimale)."),
+        ("XSD", "Schéma CDA R2 (infrastructure/cda/CDA_extended.xsd)."),
+        ("INS", "Identité nationale de santé : matricule et traits d'identité."),
+        ("Source des données du classeur", "Référentiel des champs de la librairie CdaCrImg (dotnet/src/CdaCrImg/Referentiel/ReferentielChamps.cs), vérifié par les tests contre CrImgValidator, CrImgWriter et l'exemple ANS niveau 1 ; classeur régénéré par le test ReferentielExportTests."),
     };
 
     /// <summary>Paragraphe de docs/cr-img/champs-obligatoires.md qui décrit le champ.</summary>
@@ -38,17 +56,15 @@ public class ReferentielExportTests
         _ => "§ 1.3",
     };
 
-    public static IEnumerable<string[]> Lignes() => ReferentielChamps.Champs.Select(c => new[]
+    private static (string, StyleCellule)[] Ligne(ChampCda c)
     {
-        c.NomComplet,
-        c.Chemin,
-        c.Obligation switch
+        var (obligatoire, style) = c.Obligation switch
         {
-            Obligation.Obligatoire => "Oui",
-            Obligation.Facultatif => "Non",
-            _ => $"Oui si « {c.Groupe!.NomComplet} » est renseigné",
-        },
-        c.Description
+            Obligation.Obligatoire => ("Oui", StyleCellule.Oui),
+            Obligation.Facultatif => ("Non", StyleCellule.Non),
+            _ => ($"Oui si « {c.Groupe!.NomComplet} » est renseigné", StyleCellule.Conditionnel),
+        };
+        var description = c.Description
             + $" Cardinalité {c.Cardinalite}."
             + c.Origine switch
             {
@@ -56,28 +72,52 @@ public class ReferentielExportTests
                 OrigineValeur.ValeurParDefaut => $" Valeur par défaut : {c.ValeurParDefaut}.",
                 _ => "",
             }
-            + $" Élément CDA : {c.XPathComplet}",
-        $"docs/cr-img/champs-obligatoires.md {Paragraphe(c)} ; "
-            + string.Join(" ; ", c.Source.Split(',').Select(s => Sources[s.Trim()])),
-    });
-
-    [Fact]
-    public void GeneratesFieldListForExcel()
-    {
-        var csv = new StringBuilder();
-        foreach (var ligne in Lignes().Prepend(Colonnes))
-            csv.Append(string.Join(";", ligne.Select(Echapper))).Append('\n');
-        var contenu = new UTF8Encoding(true).GetPreamble().Concat(new UTF8Encoding(false).GetBytes(csv.ToString())).ToArray();
-
-        if (!File.Exists(CsvPath) || !File.ReadAllBytes(CsvPath).SequenceEqual(contenu))
-            File.WriteAllBytes(CsvPath, contenu);
-
-        Assert.Equal(ReferentielChamps.Champs.Count + 1, File.ReadAllLines(CsvPath).Length);
-        Assert.Equal(ReferentielChamps.Champs.Count, Lignes().Select(l => l[1]).Distinct().Count());
-        Assert.Equal(ReferentielChamps.Champs.Count, Lignes().Select(l => l[0]).Distinct().Count());
+            + $" Élément CDA : {c.XPathComplet}";
+        var reference = $"docs/cr-img/champs-obligatoires.md {Paragraphe(c)} ; "
+            + string.Join(" ; ", c.Source.Split(',').Select(s => Sources[s.Trim()]));
+        return new[]
+        {
+            (c.NomComplet, c.Enfants.Count > 0 ? StyleCellule.TexteGras : StyleCellule.Texte),
+            (c.Chemin, StyleCellule.Code),
+            (obligatoire, style),
+            (description, StyleCellule.Texte),
+            (reference, StyleCellule.Texte),
+            (c.SourceDonnee, StyleCellule.Texte),
+        };
     }
 
-    /// <summary>Champ CSV : entre guillemets s'il contient « ; », un guillemet ou un saut de ligne.</summary>
-    private static string Echapper(string valeur) =>
-        valeur.IndexOfAny(new[] { ';', '"', '\n', '\r' }) < 0 ? valeur : "\"" + valeur.Replace("\"", "\"\"") + "\"";
+    internal static IReadOnlyList<FeuilleXlsx> Feuilles() => new[]
+    {
+        new FeuilleXlsx("Champs", new[] { 50.0, 44, 22, 80, 55, 60 },
+            ReferentielChamps.Champs.Select(Ligne).Prepend(Colonnes.Select(c => (c, StyleCellule.Entete)).ToArray()).ToList()),
+        new FeuilleXlsx("Légende", new[] { 30.0, 120 },
+            Legende.Select(l => new[] { (l.Item1, StyleCellule.TexteGras), (l.Item2, StyleCellule.Texte) })
+                .Prepend(new[] { ("Colonne / abréviation", StyleCellule.Entete), ("Signification", StyleCellule.Entete) }).ToList()),
+    };
+
+    [Fact]
+    public void GeneratesFieldListWorkbook()
+    {
+        XlsxWriter.Ecrire(XlsxPath, Feuilles());
+
+        // Relecture : une ligne par champ, colonnes attendues, identifiants et noms uniques.
+        using var zip = ZipFile.OpenRead(XlsxPath);
+        XNamespace main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+        var lignes = XDocument.Load(zip.GetEntry("xl/worksheets/sheet1.xml")!.Open()).Descendants(main + "row")
+            .Select(r => r.Elements(main + "c").Select(c => c.Value).ToArray()).ToList();
+        Assert.Equal(Colonnes, lignes[0]);
+        Assert.Equal(ReferentielChamps.Champs.Count, lignes.Count - 1);
+        Assert.All(lignes, l => Assert.Equal(Colonnes.Length, l.Length));
+        Assert.All(lignes.Skip(1), l => Assert.All(l, v => Assert.False(string.IsNullOrWhiteSpace(v))));
+        Assert.Equal(lignes.Count - 1, lignes.Skip(1).Select(l => l[0]).Distinct().Count());
+        Assert.Equal(lignes.Count - 1, lignes.Skip(1).Select(l => l[1]).Distinct().Count());
+    }
+
+    [Fact]
+    public void WorkbookIsRewrittenOnlyWhenContentChanges()
+    {
+        XlsxWriter.Ecrire(XlsxPath, Feuilles());
+
+        Assert.False(XlsxWriter.Ecrire(XlsxPath, Feuilles()));
+    }
 }
