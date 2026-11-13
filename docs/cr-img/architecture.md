@@ -65,8 +65,15 @@ Principes :
    facultatif / obligatoire si le groupe est renseigné** (déduit de la cardinalité et des champs parents
    facultatifs). C'est la source unique du caractère obligatoire ; `ReferentielChampsTests` prouve qu'il
    décrit fidèlement `CrImgValidator` (vider chaque champ sur un CR complet), le modèle (chaque chemin
-   est une propriété), `CrImgWriter` et l'exemple ANS niveau 1 (XPath et cardinalités). Il servira à
-   l'analyse d'un CDA existant (lot 4).
+   est une propriété), `CrImgWriter` et l'exemple ANS niveau 1 (XPath et cardinalités).
+9. **Analyse d'un CDA existant** (`CdaCrImg.Analyse`) : `CdaAnalyseur.Analyser` parcourt le référentiel
+   sur le document (chaque XPath évalué dans chaque occurrence de son parent) et renvoie `AnalyseCda` :
+   une entrée par occurrence (chemin indexé, valeur affichable, emplacement, ligne) ou par champ absent,
+   avec un statut (présent, obligatoire absent, facultatif absent, en trop, hors périmètre), et les
+   éléments non gérés (le plus haut élément du document qui n'est ni un champ ni l'ancêtre d'un champ).
+   Un document qui n'est pas un CDA ou pas un CR d'imagerie (code 18748-4) est refusé
+   (`CdaAnalyseException`) ; un niveau 3 est analysé pour son en-tête (`CorpsStructure`). L'analyse ne
+   reconstruit pas de modèle et ne remplace pas la validation XSD / schématron.
 
 ## API
 
@@ -127,7 +134,8 @@ la librairie) pour le comparer ligne à ligne au CDA généré ; le fichier
 d'exemple n'est jamais modifié. Ajouter un exemple = déposer son CDA dans
 `Resources/` ; `DemoExemplesTests` vérifie que chaque exemple ne remplit que des champs connus avec des
 valeurs sélectionnables, et que le formulaire ainsi pré-rempli produit un CDA valide XSD et conforme aux
-trois profils transverses. Cette relecture est propre à la démo : la librairie ne lit pas de CDA.
+trois profils transverses. Cette relecture, qui reconstruit les valeurs du formulaire, est propre à la
+démo ; la librairie n'analyse un CDA que pour en lister les champs (`CdaAnalyseur`).
 
 ## Organisation du code
 
@@ -139,6 +147,7 @@ dotnet/
 │   ├── CdaNamespaces.cs  CodeSystems.cs  Codes.cs  TemplateIds.cs
 │   ├── Model/            (POCO métier + Hl7/ : types HL7)
 │   ├── Referentiel/      (ReferentielChamps, ChampCda : emplacement, cardinalité, obligation de chaque champ)
+│   ├── Analyse/          (CdaAnalyseur, AnalyseCda : champs présents / absents / non gérés d'un CDA)
 │   ├── Serialization/    (CrImgWriter, CdaXml, Hl7Format)
 │   ├── Terminologies/    (JeuDeValeurs, JeuxDeValeursCisis + JDV du kit ANS en ressources)
 │   └── Validation/       (CrImgValidator [complétude, formats, terminologies], options, ModelPaths)

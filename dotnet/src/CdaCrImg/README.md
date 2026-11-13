@@ -60,5 +60,18 @@ foreach (var champ in ReferentielChamps.Champs)
     Console.WriteLine($"{champ.Chemin} {champ.Cardinalite} {champ.MentionObligation} : {champ.XPathComplet}");
 ```
 
+## Analyse d'un CDA existant
+
+`CdaAnalyseur.Analyser` (`CdaCrImg.Analyse`) liste les champs d'un compte rendu d'imagerie CDA : valeur
+de chaque champ présent, champs absents avec leur caractère obligatoire ou facultatif, éléments que la
+librairie ne gère pas.
+
+```csharp
+AnalyseCda analyse = CdaAnalyseur.Analyser("cr.xml");   // ou un Stream, ou un XDocument
+foreach (var champ in analyse.Champs)
+    Console.WriteLine($"{champ.Chemin} [{champ.Champ.MentionObligation}] {champ.Statut} {champ.Valeur}");
+bool complet = analyse.EstComplet;                       // aucun champ obligatoire absent
+```
+
 Documentation complète, liste des champs obligatoires et application de démonstration :
 <https://github.com/tmarignier/ans-cda>.

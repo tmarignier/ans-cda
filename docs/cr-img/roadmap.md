@@ -82,18 +82,20 @@ renseignés** dans le document, avec le **caractère obligatoire ou facultatif**
       de la règle, origine de la valeur (appelant, valeur par défaut, valeur fixe) ; vérifié par les tests
       contre `CrImgValidator`, le modèle, `CrImgWriter` et l'exemple ANS niveau 1 ; le `FormCatalog` de la
       démo y est relié (élément CDA affiché, mention obligatoire cohérente)
-- [ ] API d'analyse (`CdaCrImg.Analyse`, zéro dépendance, `System.Xml.Linq`) : entrée `XDocument`,
-      `Stream` ou chemin ; sortie : liste ordonnée des champs avec, pour chacun, la valeur lue (ou les
-      valeurs pour un champ répété), son emplacement et son caractère obligatoire / facultatif
-- [ ] Statut de chaque champ : **présent**, **obligatoire absent**, **facultatif absent** ; les éléments
+- [x] API d'analyse (`CdaCrImg.Analyse.CdaAnalyseur`, zéro dépendance, `System.Xml.Linq` + XPath) :
+      entrée `XDocument`, `Stream` ou chemin de fichier ; sortie (`AnalyseCda`) : liste ordonnée des champs,
+      une entrée par occurrence (chemin indexé, ex. `Actes[1].StudyInstanceUid`) avec la valeur lue,
+      l'emplacement, le numéro de ligne et le champ du référentiel (caractère obligatoire / facultatif)
+- [x] Statut de chaque champ : **présent**, **obligatoire absent**, **facultatif absent**, **en trop**
+      (cardinalité dépassée) ; les champs d'un groupe facultatif absent ne sont pas listés ; les éléments
       présents dans le CDA mais non gérés par la librairie (ex. `informant`, `authenticator`,
       `participant` INF, `guardian`) sont listés à part comme **non gérés**
-- [ ] Documents acceptés : CR d'imagerie CDA R2 niveau 1 (`nonXMLBody`) ; un CDA niveau 3 est analysé
+- [x] Documents acceptés : CR d'imagerie CDA R2 niveau 1 (`nonXMLBody`) ; un CDA niveau 3 est analysé
       pour son en-tête, le corps structuré étant signalé hors périmètre ; un document qui n'est pas un CR
       d'imagerie (code 18748-4) ou pas un CDA est refusé avec un message explicite
 - [ ] Démo : page « Analyser un CDA » (dépôt d'un fichier ou choix d'un exemple de `Resources/`) affichant
       le tableau des champs (libellé, valeur, emplacement, obligatoire / facultatif, statut), filtrable
-- [ ] Tests : analyse de l'exemple ANS niveau 1, des exemples de la démo et des CDA produits par la
+- [x] Tests : analyse de l'exemple ANS niveau 1, des exemples de la démo et des CDA produits par la
       librairie (tous les champs obligatoires présents, aucun champ manquant entre écriture et analyse) ;
       cas négatifs (champ obligatoire absent, document qui n'est pas un CR d'imagerie)
 - **Critère de fin** : pour tout CDA d'exemple du dépôt, la liste des champs est produite, chaque champ

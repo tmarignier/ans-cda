@@ -166,6 +166,53 @@ public static class SampleReports
         return cr;
     }
 
+    /// <summary>
+    /// CR où chaque champ du référentiel des champs est renseigné (au moins une fois), sans objet partagé
+    /// entre deux rôles : vider un champ n'en vide pas un autre.
+    /// </summary>
+    public static CompteRenduImagerie Complete()
+    {
+        var cr = SampleReports.Level1();
+        var radiologue = cr.Auteurs[0].Professionnel;
+        radiologue.Adresses.Add(Adresse());
+        cr.Auteurs[0].Professionnel = Copie(radiologue);
+        cr.SignataireLegal!.Professionnel = Copie(radiologue);
+        cr.Custodian = Copie(radiologue.Organisation!);
+        foreach (var acte in cr.Actes) acte.Executant = Copie(radiologue);
+        cr.PriseEnCharge!.Lieu!.Adresse = Adresse();
+
+        var demandeur = Copie(cr.MedecinsDemandeurs[0].Professionnel);
+        demandeur.Adresses.Add(Adresse());
+        demandeur.Telecoms.Add(Telecom.Phone("0147150000", "WP"));
+        demandeur.Organisation = Copie(radiologue.Organisation!);
+        cr.MedecinsDemandeurs[0] = new MedecinDemandeur(demandeur, cr.DateCreation.AddDays(-7));
+        return cr;
+    }
+
+    private static Address Adresse() => new() { HouseNumber = "12", StreetName = "Rue Ambroise", PostalCode = "75010", City = "PARIS" };
+
+    private static Professionnel Copie(Professionnel ps)
+    {
+        var copie = new Professionnel
+        {
+            Id = ps.Id,
+            Profession = ps.Profession,
+            Nom = ps.Nom == null ? null : new PersonName(ps.Nom.Family, ps.Nom.Given, ps.Nom.Prefix, ps.Nom.Suffix),
+            Organisation = ps.Organisation == null ? null : Copie(ps.Organisation),
+        };
+        foreach (var a in ps.Adresses) copie.Adresses.Add(a);
+        foreach (var t in ps.Telecoms) copie.Telecoms.Add(t);
+        return copie;
+    }
+
+    private static Organisation Copie(Organisation o)
+    {
+        var copie = new Organisation { Id = o.Id, Nom = o.Nom, SecteurActivite = o.SecteurActivite };
+        foreach (var a in o.Adresses) copie.Adresses.Add(a);
+        foreach (var t in o.Telecoms) copie.Telecoms.Add(t);
+        return copie;
+    }
+
     private static ActeImagerie Acte(string studyUid, Code loinc, Code? ccam, Code region, Professionnel executant)
     {
         var acte = new ActeImagerie

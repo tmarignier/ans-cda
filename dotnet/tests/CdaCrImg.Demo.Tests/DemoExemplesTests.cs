@@ -24,6 +24,16 @@ public class DemoExemplesTests(WebApplicationFactory<Program> factory, ITestOutp
         return data;
     }
 
+    [Theory]
+    [MemberData(nameof(Exemples))]
+    public void Exemple_IsCompleteAccordingToLibraryAnalysis(string id)
+    {
+        var analyse = CdaCrImg.Analyse.CdaAnalyseur.Analyser(new MemoryStream(ExemplesCda.CdaSansCommentaires(id)!));
+
+        Assert.True(analyse.EstComplet, string.Join("\n", analyse.Anomalies));
+        Assert.NotEmpty(analyse.NonGeres);
+    }
+
     [Fact]
     public void Exemples_ContainCrC()
     {

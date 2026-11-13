@@ -4,7 +4,8 @@
 
 Développer **CdaCrImg**, une librairie **.NET Standard 2.0 autonome** (aucune dépendance NuGet)
 qui encapsule la production d'un **compte rendu d'imagerie médicale** au format **HL7 CDA R2**,
-en-tête conforme au volet **CI-SIS IMG-CR-IMG 2024.01** de l'ANS.
+en-tête conforme au volet **CI-SIS IMG-CR-IMG 2024.01** de l'ANS, et l'analyse d'un CR existant
+(liste des champs présents ou absents, sans reconstruction du modèle).
 
 **Périmètre** : document **non structuré (CDA R2 niveau 1)**, le CR étant un PDF encapsulé
 (`nonXMLBody`, templateId IHE XDS-SD `1.3.6.1.4.1.19376.1.2.20`), pour des patients identifiés par
