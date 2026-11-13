@@ -213,6 +213,46 @@ public static class SampleReports
         return copie;
     }
 
+    /// <summary>
+    /// CR de téléradiologie (STD 3.2) : l'examen est réalisé au centre d'imagerie qui accueille le patient et
+    /// interprété à distance par un téléradiologue. Auteurs : le téléradiologue, plus le médecin responsable de
+    /// la structure d'accueil ; responsable du document (signataire) : ce médecin responsable.
+    /// </summary>
+    public static CompteRenduImagerie Teleradiologie()
+    {
+        var cr = Level1();
+        var date = cr.DateCreation;
+        var accueil = cr.Auteurs[0].Professionnel;
+        accueil.Organisation!.Nom = "Centre de radiologie Ambroise (structure d'accueil)";
+
+        var structureTeleradiologie = new Organisation
+        {
+            Id = Identifier.FromFiness("130045675"),
+            Nom = "Groupement de téléradiologie Sud",
+            SecteurActivite = new Code("AMBULATOIRE", CodeSystems.SecteurActivite, "Ambulatoire"),
+        };
+        structureTeleradiologie.Telecoms.Add(Telecom.Phone("0491000000", "WP"));
+        var teleradiologue = new Professionnel
+        {
+            Id = Identifier.FromRpps("01234567808"),
+            Profession = Code.ProfessionSavoirFaire("G15_10/SM44", "Médecin - Radio-diagnostic (SM)"),
+            Nom = new PersonName("TELERAD", "Camille", prefix: "MME", suffix: "DR"),
+            Organisation = structureTeleradiologie,
+        };
+
+        cr.Id = new Identifier("1.2.250.1.213.1.1.1.45.2024.4.1");
+        cr.SetId = new Identifier("1.2.250.1.213.1.1.1.45.2024.4");
+        cr.NumeroVersion = 1;
+        cr.DocumentRemplace = null;
+        cr.Titre = "CR d'imagerie médicale - Scanner Tête + Cou avec injection (téléradiologie)";
+        cr.Auteurs.Clear();
+        cr.Auteurs.Add(new Auteur(teleradiologue, date) { Fonction = new Code("ATTPHYS", CodeSystems.Hl7ParticipationFunction, "Référent") });
+        cr.Auteurs.Add(new Auteur(accueil, date));
+        cr.SignataireLegal = new Signature(accueil, date);
+        foreach (var acte in cr.Actes) acte.Executant = teleradiologue;
+        return cr;
+    }
+
     private static ActeImagerie Acte(string studyUid, Code loinc, Code? ccam, Code region, Professionnel executant)
     {
         var acte = new ActeImagerie

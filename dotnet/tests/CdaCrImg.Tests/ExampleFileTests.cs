@@ -18,12 +18,16 @@ public class ExampleFileTests
     /// <summary>Exemple niveau 1 (PDF) ne contenant que les champs obligatoires (docs/cr-img/champs-obligatoires.md).</summary>
     public static string MinimalExamplePath => Path.Combine(RepoPaths.Examples, "CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_minimal.xml");
 
+    /// <summary>Exemple niveau 1 (PDF) de téléradiologie : deux auteurs, signataire responsable de la structure d'accueil.</summary>
+    public static string TeleradiologieExamplePath => Path.Combine(RepoPaths.Examples, "CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_teleradiologie.xml");
+
     /// <summary>Exemples générés : nom → (chemin, fabrique du CR).</summary>
     internal static readonly IReadOnlyDictionary<string, (Func<string> Path, Func<CompteRenduImagerie> Report)> Examples =
         new Dictionary<string, (Func<string>, Func<CompteRenduImagerie>)>
         {
             ["complet"] = (() => Level1ExamplePath, SampleReports.Level1),
             ["minimal"] = (() => MinimalExamplePath, SampleReports.Minimal),
+            ["teleradiologie"] = (() => TeleradiologieExamplePath, SampleReports.Teleradiologie),
         };
 
     private static readonly object WriteLock = new();
@@ -52,6 +56,22 @@ public class ExampleFileTests
         Assert.Empty(written.Descendants(v3 + "assignedPerson"));
         Assert.Empty(written.Root!.Elements(v3 + "participant"));
         Assert.DoesNotContain(written.Descendants(v3 + "translation"), t => (string?)t.Attribute("codeSystem") == CodeSystems.Ccam);
+    }
+
+    [Fact]
+    public void GeneratesTeleradiologyExampleInExemplesCda()
+    {
+        var written = XDocument.Load(EnsureExample("teleradiologie"));
+        var v3 = CdaNamespaces.Hl7;
+        string Rpps(XElement role) => (string)role.Element(v3 + "id")!.Attribute("extension")!;
+
+        Assert.Empty(CdaXsdValidator.Validate(written));
+        // STD 3.2 : téléradiologue + médecin responsable de la structure d'accueil, qui est le responsable du document.
+        var auteurs = written.Root!.Elements(v3 + "author").Select(a => Rpps(a.Element(v3 + "assignedAuthor")!)).ToList();
+        Assert.Equal(new[] { "801234567808", "801234560801" }, auteurs);
+        Assert.Equal(auteurs[1], Rpps(written.Root.Element(v3 + "legalAuthenticator")!.Element(v3 + "assignedEntity")!));
+        Assert.All(written.Descendants(v3 + "performer"), p => Assert.Equal(auteurs[0], Rpps(p.Element(v3 + "assignedEntity")!)));
+        Assert.True(CdaCrImg.Analyse.CdaAnalyseur.Analyser(written).EstComplet);
     }
 
     /// <summary>Écrit l'exemple s'il est absent ou obsolète et retourne son chemin (thread-safe : partagé avec SchematronTests).</summary>
