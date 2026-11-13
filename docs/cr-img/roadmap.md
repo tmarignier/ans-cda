@@ -71,11 +71,41 @@ fonctionnement de la librairie : `dotnet run --project dotnet/demo/CdaCrImg.Demo
 - **Critère atteint** : tests verts (266), document produit conforme XSD + trois profils transverses
 - À décider : licence du paquet (aucune licence de projet dans le dépôt) et publication sur nuget.org
 
+## Lot 4 — Analyse d'un CDA existant
+
+Objectif : à partir d'un fichier CDA fourni en entrée, présenter la **liste précise des champs
+renseignés** dans le document, avec le **caractère obligatoire ou facultatif** de chaque champ.
+
+- [ ] Référentiel des champs dans la librairie (source unique) : pour chaque champ de l'en-tête, nom
+      CdaCrImg, emplacement CDA (XPath), description, caractère **obligatoire / facultatif / obligatoire
+      si le groupe est renseigné**, source de la règle (volet IMG-CR-IMG, structuration minimale, IHE) ;
+      repris de `champs-obligatoires.md`, et vérifié par les tests contre `CrImgValidator` et `FormCatalog`
+      de la démo (qui s'appuie ensuite sur ce référentiel)
+- [ ] API d'analyse (`CdaCrImg.Analyse`, zéro dépendance, `System.Xml.Linq`) : entrée `XDocument`,
+      `Stream` ou chemin ; sortie : liste ordonnée des champs avec, pour chacun, la valeur lue (ou les
+      valeurs pour un champ répété), son emplacement et son caractère obligatoire / facultatif
+- [ ] Statut de chaque champ : **présent**, **obligatoire absent**, **facultatif absent** ; les éléments
+      présents dans le CDA mais non gérés par la librairie (ex. `informant`, `authenticator`,
+      `participant` INF, `guardian`) sont listés à part comme **non gérés**
+- [ ] Documents acceptés : CR d'imagerie CDA R2 niveau 1 (`nonXMLBody`) ; un CDA niveau 3 est analysé
+      pour son en-tête, le corps structuré étant signalé hors périmètre ; un document qui n'est pas un CR
+      d'imagerie (code 18748-4) ou pas un CDA est refusé avec un message explicite
+- [ ] Démo : page « Analyser un CDA » (dépôt d'un fichier ou choix d'un exemple de `Resources/`) affichant
+      le tableau des champs (libellé, valeur, emplacement, obligatoire / facultatif, statut), filtrable
+- [ ] Tests : analyse de l'exemple ANS niveau 1, des exemples de la démo et des CDA produits par la
+      librairie (tous les champs obligatoires présents, aucun champ manquant entre écriture et analyse) ;
+      cas négatifs (champ obligatoire absent, document qui n'est pas un CR d'imagerie)
+- **Critère de fin** : pour tout CDA d'exemple du dépôt, la liste des champs est produite, chaque champ
+  y porte son caractère obligatoire / facultatif conforme au référentiel, et les champs obligatoires
+  absents sont signalés
+- Hors lot : reconstruction complète du modèle `CompteRenduImagerie` depuis un CDA (CDA → modèle → CDA)
+
 ## Points d'attention
 
 - Nom définitif du package / espace de noms : `CdaCrImg`
 - Niveau de structuration : niveau 1 (PDF) uniquement ; le niveau 3 (corps structuré) est hors périmètre du projet
-- Lecture/parsing d'un CR existant (CDA → modèle) : Pas dans le périmètre
+- Lecture d'un CR existant : limitée à l'analyse des champs présents (lot 4) ; la reconstruction complète
+  du modèle (CDA → `CompteRenduImagerie`) reste hors périmètre
 - Génération d'une archive IHE XDM / métadonnées XDS (DMP) : hors périmètre pour le moment
 - Signature / horodatage : hors périmètre pour le moment
 - Patients : uniquement des patients identifiés par leur INS (INS et traits d'identité obligatoires)
