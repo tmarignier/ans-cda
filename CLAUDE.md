@@ -85,6 +85,9 @@ par le proxy de l'environnement web). Java 21 est disponible pour `tools/validat
   `ExemplesCDA/`) pour faire passer un test.
   Seule exception : les exemples générés par la librairie, préfixés `CdaCrImg_` dans `ExemplesCDA/`
   (ex. `CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1.xml`, écrit par `ExampleFileTests`).
+- **Référentiel des champs** : tout champ ajouté à la librairie doit être décrit dans
+  `dotnet/src/CdaCrImg/Referentiel/ReferentielChamps.cs` (XPath, cardinalité, source) ;
+  `ReferentielChampsTests` vérifie sa cohérence avec `CrImgValidator` et `CrImgWriter`.
 - **Démo** : tout champ ajouté à la librairie doit être ajouté au catalogue du formulaire
   (`dotnet/demo/CdaCrImg.Demo/Form/FormCatalog.cs`) et au mapper ; `DemoFormCatalogTests` vérifie que
   la mention obligatoire / facultatif de chaque champ correspond à `CrImgValidator`.

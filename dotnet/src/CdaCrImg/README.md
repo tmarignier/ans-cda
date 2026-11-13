@@ -50,5 +50,15 @@ string xml = CrImgWriter.WriteToString(cr);                         // lève CrI
 
 Chaque non-conformité indique le chemin de la propriété concernée (ex. `Actes[0].Modalites`).
 
+## Référentiel des champs
+
+`ReferentielChamps.Champs` (`CdaCrImg.Referentiel`) liste chaque champ du compte rendu avec son
+emplacement dans le CDA (XPath), sa cardinalité et son caractère obligatoire ou facultatif :
+
+```csharp
+foreach (var champ in ReferentielChamps.Champs)
+    Console.WriteLine($"{champ.Chemin} {champ.Cardinalite} {champ.MentionObligation} : {champ.XPathComplet}");
+```
+
 Documentation complète, liste des champs obligatoires et application de démonstration :
 <https://github.com/tmarignier/ans-cda>.

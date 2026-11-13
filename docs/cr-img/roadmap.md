@@ -76,11 +76,12 @@ fonctionnement de la librairie : `dotnet run --project dotnet/demo/CdaCrImg.Demo
 Objectif : à partir d'un fichier CDA fourni en entrée, présenter la **liste précise des champs
 renseignés** dans le document, avec le **caractère obligatoire ou facultatif** de chaque champ.
 
-- [ ] Référentiel des champs dans la librairie (source unique) : pour chaque champ de l'en-tête, nom
-      CdaCrImg, emplacement CDA (XPath), description, caractère **obligatoire / facultatif / obligatoire
-      si le groupe est renseigné**, source de la règle (volet IMG-CR-IMG, structuration minimale, IHE) ;
-      repris de `champs-obligatoires.md`, et vérifié par les tests contre `CrImgValidator` et `FormCatalog`
-      de la démo (qui s'appuie ensuite sur ce référentiel)
+- [x] Référentiel des champs dans la librairie (`CdaCrImg.Referentiel`, source unique) : pour chaque champ
+      de l'en-tête et le corps, chemin CdaCrImg, emplacement CDA (XPath relatif au parent), cardinalité,
+      description, caractère **obligatoire / facultatif / obligatoire si le groupe est renseigné**, source
+      de la règle, origine de la valeur (appelant, valeur par défaut, valeur fixe) ; vérifié par les tests
+      contre `CrImgValidator`, le modèle, `CrImgWriter` et l'exemple ANS niveau 1 ; le `FormCatalog` de la
+      démo y est relié (élément CDA affiché, mention obligatoire cohérente)
 - [ ] API d'analyse (`CdaCrImg.Analyse`, zéro dépendance, `System.Xml.Linq`) : entrée `XDocument`,
       `Stream` ou chemin ; sortie : liste ordonnée des champs avec, pour chacun, la valeur lue (ou les
       valeurs pour un champ répété), son emplacement et son caractère obligatoire / facultatif

@@ -57,6 +57,16 @@ Principes :
    structuration minimale et ceux du volet sont des ressources liées aux fichiers du kit ANS (source
    unique), chargées à la demande. `JeuDeValeurs.Charger` lit aussi un JDV fourni par l'appelant (SVS
    ou ART-DECOR), par exemple le JDV LOINC des actes (1,5 Mo, non embarqué).
+8. **Référentiel des champs** (`CdaCrImg.Referentiel`) : `ReferentielChamps.Champs` décrit chaque champ
+   du document (`ChampCda`) : chemin de la propriété CdaCrImg (`Auteurs[].Professionnel.Id`, convention de
+   `ValidationIssue.Path` sans index), section, libellé, description, XPath 1.0 relatif au champ parent
+   (préfixes `cda` et `ps3-20`, `CreerResolveurEspaces`), cardinalité, source de la règle, origine de la
+   valeur (appelant, valeur par défaut, valeur fixe de la librairie) et caractère **obligatoire /
+   facultatif / obligatoire si le groupe est renseigné** (déduit de la cardinalité et des champs parents
+   facultatifs). C'est la source unique du caractère obligatoire ; `ReferentielChampsTests` prouve qu'il
+   décrit fidèlement `CrImgValidator` (vider chaque champ sur un CR complet), le modèle (chaque chemin
+   est une propriété), `CrImgWriter` et l'exemple ANS niveau 1 (XPath et cardinalités). Il servira à
+   l'analyse d'un CDA existant (lot 4).
 
 ## API
 
@@ -99,7 +109,9 @@ CrImgWriter.Write(cr, stream);           // UTF-8 ; ou CrImgWriter.WriteToString
 
 `dotnet/demo/CdaCrImg.Demo` (ASP.NET Core Razor Pages, net10.0) : un formulaire généré depuis un
 catalogue de champs (`Form/FormCatalog.cs` : libellé, obligatoire / facultatif / obligatoire si le groupe
-est renseigné, description, valeur d'exemple, propriété CdaCrImg). À la soumission, `ReportFormMapper`
+est renseigné, description, valeur d'exemple, propriété CdaCrImg). Chaque champ du formulaire est
+relié au référentiel des champs de la librairie (`FieldDefinition.Champ`) : l'élément CDA et la
+cardinalité sont affichés, et un champ affiché obligatoire doit l'être dans le référentiel. À la soumission, `ReportFormMapper`
 construit le `CompteRenduImagerie`, `CrImgValidator` le contrôle et `CrImgWriter` renvoie le CDA XML
 (affiché ou téléchargé). Les listes déroulantes viennent des jeux de valeurs embarqués dans la
 librairie (`JeuxDeValeursCisis`). Sans fichier transmis, le PDF d'exemple
@@ -126,6 +138,7 @@ dotnet/
 ├── src/CdaCrImg/                   # netstandard2.0, zéro dépendance
 │   ├── CdaNamespaces.cs  CodeSystems.cs  Codes.cs  TemplateIds.cs
 │   ├── Model/            (POCO métier + Hl7/ : types HL7)
+│   ├── Referentiel/      (ReferentielChamps, ChampCda : emplacement, cardinalité, obligation de chaque champ)
 │   ├── Serialization/    (CrImgWriter, CdaXml, Hl7Format)
 │   ├── Terminologies/    (JeuDeValeurs, JeuxDeValeursCisis + JDV du kit ANS en ressources)
 │   └── Validation/       (CrImgValidator [complétude, formats, terminologies], options, ModelPaths)
@@ -135,7 +148,8 @@ dotnet/
     │                               #   CdaXsdValidator (XSD .NET), AnsJavaValidator (XSD Java + schématrons)
     ├── CdaCrImg.Tests/             # tests de la librairie (sans dépendance à la démo) : writer, validateur,
     │                               #   formats, terminologies, schématrons, non-régression, exemples générés
-    └── CdaCrImg.Demo.Tests/        # tests de la démo : catalogue du formulaire vs CrImgValidator, tests HTTP
+    └── CdaCrImg.Demo.Tests/        # tests de la démo : catalogue du formulaire vs CrImgValidator et le
+                                    #   référentiel des champs, tests HTTP
 ```
 
 ## Stratégie de test

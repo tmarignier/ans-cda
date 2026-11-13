@@ -25,6 +25,10 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
     rédige et valide le CR. C'est le **créateur** du CR, dans son **LPS** (logiciel de professionnel de santé).
   - **Structure d'imagerie** : RIS (accession number, Study Instance UID), PACS / DRIM-Box source (images, URL d'accès).
   - La **librairie CdaCrImg** reçoit ces données du LPS : elle ne les invente pas, sauf les valeurs fixes du § 3.
+- **Référentiel des champs** : la librairie expose ces informations par programme
+  (`CdaCrImg.Referentiel.ReferentielChamps` : chemin, XPath, cardinalité, caractère obligatoire, source),
+  pour tous les champs, obligatoires et facultatifs ; les tests vérifient sa cohérence avec ce document,
+  `CrImgValidator` et les documents produits.
 - Les valeurs **fixes** (templateId, code du document…) sont produites automatiquement :
   voir [§ 3](#3-valeurs-produites-automatiquement-par-la-librairie).
 
