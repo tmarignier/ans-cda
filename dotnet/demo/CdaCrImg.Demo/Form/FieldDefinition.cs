@@ -1,3 +1,5 @@
+using CdaCrImg.Referentiel;
+
 namespace CdaCrImg.Demo.Form;
 
 /// <summary>Valeur d'une liste déroulante, issue d'un jeu de valeurs ANS.</summary>
@@ -60,6 +62,9 @@ public sealed record FieldDefinition(
         Requirement.Optional => "Facultatif",
         _ => $"Obligatoire si « {GroupLabel} » est renseigné",
     };
+
+    /// <summary>Champ du référentiel CdaCrImg correspondant (emplacement CDA, cardinalité, caractère obligatoire).</summary>
+    public ChampCda? Champ => ReferentielChamps.TrouverParChemin(ModelPath);
 
     /// <summary>Vrai si le champ appartient au groupe <paramref name="group"/> ou à l'un de ses sous-groupes.</summary>
     public bool IsInGroup(string group) =>

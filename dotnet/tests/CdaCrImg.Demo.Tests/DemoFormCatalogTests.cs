@@ -1,4 +1,5 @@
 using CdaCrImg.Demo.Form;
+using CdaCrImg.Referentiel;
 using CdaCrImg.Serialization;
 using CdaCrImg.Validation;
 
@@ -81,6 +82,17 @@ public class DemoFormCatalogTests
             if (f.Requirement == Requirement.RequiredIfGroup) Assert.NotNull(f.GroupLabel);
         });
         Assert.Equal(FormCatalog.Fields.Count, FormCatalog.Fields.Select(f => f.Key).Distinct().Count());
+    }
+
+    [Fact]
+    public void EveryField_IsDescribedByLibraryReferential()
+    {
+        Assert.All(FormCatalog.Fields, f =>
+        {
+            Assert.True(f.Champ != null, $"« {f.Key} » : propriété {f.ModelPath} absente du référentiel des champs.");
+            if (f.Requirement == Requirement.Required)
+                Assert.True(f.Champ.Obligation == Obligation.Obligatoire, $"« {f.Key} » est obligatoire mais {f.Champ} ne l'est pas.");
+        });
     }
 
     private static Dictionary<string, string?> Without(params string[] keys)

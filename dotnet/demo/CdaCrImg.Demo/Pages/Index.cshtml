@@ -124,7 +124,8 @@
                             }
                             <p class="description" id="@descriptionId">
                                 @field.Description
-                                <span class="meta">Exemple : <code>@field.Example</code> · Propriété : <code>@field.ModelPath</code></span>
+                                <span class="meta">Exemple : <code>@field.Example</code> · Propriété : <code>@field.ModelPath</code>@if (field.Champ is { } champ)
+                                {<text> · CDA : <code>@champ.XPathComplet</code> [@champ.Cardinalite]</text>}</span>
                             </p>
                             @if (hasError)
                             {
