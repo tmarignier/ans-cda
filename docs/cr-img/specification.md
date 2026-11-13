@@ -27,6 +27,24 @@ Espaces de noms : `urn:hl7-org:v3` (défaut), `xsi`, `ps3-20` = `urn:dicom-org:p
 | **3 (structuré)** — hors périmètre CdaCrImg | `structuredBody` avec sections/entrées DICOM PS3.20 | Schématron IMG-CR-IMG + profils transverses |
 | **1 (non structuré)** — **périmètre CdaCrImg** | `nonXMLBody/text` PDF base64 (`mediaType="application/pdf" representation="B64"`) | Profils transverses uniquement. La STD définit IMG-CR-IMG comme un modèle **à corps structuré** ; le niveau 1 est le document CDA non structuré générique du CI-SIS, avec le même en-tête. Structuration minimale : **seuls** les templateId `2.16.840.1.113883.2.8.2.1`, `1.2.250.1.213.1.1.1.1` et `1.3.6.1.4.1.19376.1.2.20` sont autorisés (pas de templateId DICOM ni `…1.1.1.45`). Le schématron du volet **n'est pas applicable** (4 failed-assert attendus sur l'exemple N1). |
 
+## 1 bis. Téléradiologie (contexte d'utilisation de CdaCrImg)
+
+SFD 3.2.2 (d'après la fiche mémo HAS Téléimagerie, mai 2019) : un examen avec **interprétation à
+distance** est réalisé dans la structure d'imagerie qui accueille le patient (manipulateur
+d'électroradiologie, médecin de proximité) et supervisé puis interprété en temps réel par l'imageur à
+distance (téléradiologue), qui rédige le compte rendu ; le CR est transmis de manière sécurisée au
+médecin demandeur, au médecin traitant et aux professionnels désignés, et versé au DMP. La
+**téléexpertise** (deuxième avis, SFD 3.2.2.2) relève du même volet.
+
+STD 3.2, précisions de l'en-tête pour la téléradiologie (version 2024.01 du 13/05/2024) :
+
+- **ajouter un auteur** pour le médecin responsable de la structure d'imagerie qui accueille le patient
+  (en plus du téléradiologue) ;
+- le **responsable du document** (`legalAuthenticator`) est le médecin responsable de la structure
+  d'imagerie qui accueille le patient.
+
+Correspondance avec le modèle CdaCrImg : [architecture.md](architecture.md#contexte-dutilisation--la-téléradiologie).
+
 ## 2. En-tête (ClinicalDocument)
 
 Ordre XSD à respecter (CDA R2) : `realmCode, typeId, templateId*, id, code, title, effectiveTime,

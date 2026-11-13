@@ -7,6 +7,12 @@ qui encapsule la production d'un **compte rendu d'imagerie médicale** au format
 en-tête conforme au volet **CI-SIS IMG-CR-IMG 2024.01** de l'ANS, et l'analyse d'un CR existant
 (liste des champs présents ou absents, sans reconstruction du modèle).
 
+**Contexte d'utilisation : la téléradiologie** (SFD 3.2.2, STD 3.2) : l'examen est réalisé dans la
+structure d'imagerie qui accueille le patient et interprété à distance par le téléradiologue. Les
+auteurs sont le téléradiologue et le médecin responsable de la structure d'accueil, qui est aussi le
+signataire légal. Tout développement doit rester valable dans ce cas (exemple de référence :
+`SampleReports.Teleradiologie`).
+
 **Périmètre** : document **non structuré (CDA R2 niveau 1)**, le CR étant un PDF encapsulé
 (`nonXMLBody`, templateId IHE XDS-SD `1.3.6.1.4.1.19376.1.2.20`), pour des patients identifiés par
 leur **INS**. Le corps structuré (niveau 3, templateId `1.2.250.1.213.1.1.1.45`) est **hors
@@ -25,12 +31,12 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `dotnet/demo/CdaCrImg.Demo/Resources/*.xml` | Exemples de CDA proposés pour pré-remplir le formulaire de la démo (relus par `Form/ExemplesCda.cs`) |
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête (dans le périmètre) ; sections et entrées du niveau 3 (référence, hors périmètre) |
 | `docs/cr-img/champs-obligatoires.md` | Champs minimaux obligatoires d'un CR (nom CdaCrImg, description, règles, sources) |
-| `docs/cr-img/champs.xlsx`, `champs.csv` | Liste de tous les champs pour Excel, exportée du référentiel (CSV régénéré par `ReferentielExportTests`, classeur par `tools/champs-xlsx.py`) |
+| `docs/cr-img/champs.xlsx` | Liste de tous les champs (obligation, description, documentation, source de la donnée), exportée du référentiel par `ReferentielExportTests` |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
 | `docs/cr-img/roadmap.md` | Lots de développement et critères de fin |
 | `ExemplesCDA/IMG_CR_IMG_2024.01_CDA-R2-Niveau-1.xml` | **Exemple de référence ANS** du CR non structuré (PDF base64, `nonXMLBody`) |
 | `ExemplesCDA/IMG_CR_IMG_2024.01.xml` | Exemple ANS du CR structuré (niveau 3, hors périmètre ; utile pour l'en-tête) |
-| `ExemplesCDA/CdaCrImg_*.xml` | Exemples générés par la librairie (complet et minimal), écrits par `ExampleFileTests` |
+| `ExemplesCDA/CdaCrImg_*.xml` | Exemples générés par la librairie (complet, minimal, téléradiologie), écrits par `ExampleFileTests` |
 | `schematrons/profils/` | **Schématrons transverses applicables** : structuration minimale, modèles de contenus CI-SIS, IHE |
 | `schematrons/CI-SIS_IMG-CR-IMG_2024.01.sch` | Schématron du volet : niveau 3 uniquement (hors périmètre) ; ses règles d'en-tête restent une référence |
 | `infrastructure/cda/CDA_extended.xsd` | XSD CDA R2 étendu (DICOM PS3.20, pharmacie, SDTC) |

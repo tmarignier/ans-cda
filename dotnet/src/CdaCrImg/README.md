@@ -5,6 +5,9 @@ format **HL7 CDA R2 non structuré (niveau 1)** : le CR au format PDF est encaps
 dont l'en-tête est conforme au volet **CI-SIS IMG-CR-IMG 2024.01** de l'ANS, pour des patients
 identifiés par leur **INS**.
 
+Elle est conçue pour la **téléradiologie** : l'examen est réalisé dans la structure d'imagerie qui
+accueille le patient et interprété à distance par le téléradiologue.
+
 Les documents produits sont valides au regard du schéma XSD CDA R2 et des schématrons transverses du
 CI-SIS (structuration minimale, modèles de contenus, IHE) du kit ANS TestContenuCDA.
 
@@ -36,6 +39,22 @@ cr.Actes.Add(acte);                                      // Study UID, LOINC, mo
 IReadOnlyList<ValidationIssue> issues = CrImgValidator.Validate(cr); // vide si conforme
 string xml = CrImgWriter.WriteToString(cr);                         // lève CrImgValidationException sinon
 ```
+
+## Téléradiologie
+
+Selon les spécifications techniques du volet (STD 3.2), le CR a pour auteurs le téléradiologue **et** le
+médecin responsable de la structure d'imagerie qui accueille le patient ; ce dernier est le responsable
+du document :
+
+```csharp
+cr.Auteurs.Add(new Auteur(teleradiologue, dateRedaction));
+cr.Auteurs.Add(new Auteur(responsableStructureAccueil, dateRedaction));
+cr.SignataireLegal = new Signature(responsableStructureAccueil, dateSignature);
+acte.Executant = teleradiologue;   // imageur qui supervise et interprète l'acte
+```
+
+L'identité du patient (INS), l'Accession Number, le Study Instance UID et le lieu de prise en charge
+proviennent de la structure d'accueil.
 
 ## Contrôles
 

@@ -29,9 +29,14 @@ chacune : son nom dans la librairie CdaCrImg, sa description métier et les info
   (`CdaCrImg.Referentiel.ReferentielChamps` : chemin, XPath, cardinalité, caractère obligatoire, source),
   pour tous les champs, obligatoires et facultatifs ; les tests vérifient sa cohérence avec ce document,
   `CrImgValidator` et les documents produits. La liste complète des champs (obligatoires et facultatifs)
-  est exportée pour Excel dans [`champs.xlsx`](champs.xlsx) (mis en forme, avec légende) et
-  [`champs.csv`](champs.csv) (régénéré par le test `ReferentielExportTests` ;
-  `python3 tools/champs-xlsx.py` reproduit le classeur à partir du CSV).
+  est exportée dans le classeur Excel [`champs.xlsx`](champs.xlsx) (source de chaque donnée comprise,
+  avec légende), régénéré par le test `ReferentielExportTests`.
+- **Téléradiologie** (contexte d'utilisation de la librairie) : l'examen est réalisé dans la structure
+  d'imagerie qui accueille le patient et interprété à distance par le téléradiologue. Les auteurs sont
+  le téléradiologue **et** le médecin responsable de la structure d'accueil, qui est aussi le
+  signataire légal (STD 3.2) ; la structure d'accueil fournit l'identité du patient, l'Accession Number,
+  le Study Instance UID et le contexte de prise en charge. Voir
+  [architecture.md](architecture.md#contexte-dutilisation--la-téléradiologie).
 - Les valeurs **fixes** (templateId, code du document…) sont produites automatiquement :
   voir [§ 3](#3-valeurs-produites-automatiquement-par-la-librairie).
 

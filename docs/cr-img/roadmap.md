@@ -105,6 +105,22 @@ renseignés** dans le document, avec le **caractère obligatoire ou facultatif**
   absents sont signalés
 - Hors lot : reconstruction complète du modèle `CompteRenduImagerie` depuis un CDA (CDA → modèle → CDA)
 
+## Téléradiologie (contexte d'utilisation)
+
+La librairie est utilisée en téléradiologie : examen réalisé dans la structure qui accueille le patient,
+interprété à distance par le téléradiologue (SFD 3.2.2, STD 3.2).
+
+- [x] En-tête : plusieurs auteurs (téléradiologue + médecin responsable de la structure d'accueil) et
+      signataire distinct du rédacteur, déjà permis par le modèle (`Auteurs`, `SignataireLegal`)
+- [x] Exemple généré `CdaCrImg_…_teleradiologie.xml` (`SampleReports.Teleradiologie`), validé XSD, trois
+      profils transverses et analyse complète
+- [x] Documentation : rôles et correspondance avec le modèle (architecture.md, specification.md,
+      champs-obligatoires.md) ; colonne « Source de la donnée » du classeur `champs.xlsx`
+- [ ] Démo : saisie d'un second auteur (médecin responsable de la structure d'accueil) et d'un
+      signataire distinct de l'auteur ; exemple de téléradiologie proposé dans le formulaire
+- [ ] À préciser avec les utilisateurs : structure gardienne du document (`custodian`) et circuit de
+      transmission du CR (médecin demandeur, DMP), selon la convention de téléradiologie
+
 ## Points d'attention
 
 - Nom définitif du package / espace de noms : `CdaCrImg`

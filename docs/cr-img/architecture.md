@@ -3,6 +3,28 @@
 Périmètre : CR d'imagerie **non structuré (CDA R2 niveau 1, PDF encapsulé)**, patients avec **INS**.
 Le corps structuré (niveau 3) est hors périmètre.
 
+## Contexte d'utilisation : la téléradiologie
+
+La librairie est utilisée dans le cadre de la **téléradiologie** (télé-imagerie, SFD 3.2.2) : l'examen est
+réalisé dans la **structure d'imagerie qui accueille le patient** (site demandeur : manipulateur,
+médecin de proximité, RIS / PACS) et **interprété à distance par le téléradiologue**, qui supervise la
+réalisation de l'acte et rédige le compte rendu. Conséquences sur l'en-tête (STD 3.2) :
+
+| Élément CDA | Modèle CdaCrImg | En téléradiologie |
+|---|---|---|
+| `author` [1..*] | `Auteurs` | le **téléradiologue** qui rédige le CR, **plus** un auteur pour le **médecin responsable de la structure d'imagerie qui accueille le patient** |
+| `legalAuthenticator` [1..1] | `SignataireLegal` | le **médecin responsable de la structure d'imagerie qui accueille le patient** (responsable du document) |
+| `documentationOf/serviceEvent/performer` | `Actes[i].Executant` | l'imageur qui supervise et interprète l'acte (le téléradiologue), avec son établissement de rattachement |
+| `inFulfillmentOf/order`, `serviceEvent/id` | `Demandes`, `Actes[i].StudyInstanceUid` | numéro de demande du médecin demandeur ; Accession Number et Study Instance UID attribués par le **RIS de la structure d'accueil** |
+| `recordTarget`, `componentOf` | `Patient`, `PriseEnCharge` | identité INS (identitovigilance) et lieu de prise en charge : **structure d'accueil** |
+| `custodian` | `Custodian` | structure qui conserve le CR, selon la convention de téléradiologie |
+
+Exemple généré et validé (XSD + trois profils transverses) :
+[`ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_teleradiologie.xml`](../../ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_teleradiologie.xml)
+(`SampleReports.Teleradiologie`, test `ExampleFileTests.GeneratesTeleradiologyExampleInExemplesCda`).
+La colonne « Source de la donnée » de [`champs.xlsx`](champs.xlsx) indique, champ par champ, qui
+fournit la donnée en téléradiologie.
+
 ## Contraintes
 
 | Contrainte | Conséquence |
