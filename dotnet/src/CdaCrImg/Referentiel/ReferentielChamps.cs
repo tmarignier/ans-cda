@@ -142,35 +142,105 @@ namespace CdaCrImg.Referentiel
             return LogicielAuteur + " (métadonnées du document)";
         }
 
-        /// <summary>Valeurs de <see cref="ChampCda.FourniParRis"/>.</summary>
-        internal static class Ris
-        {
-            public const string Oui = "Oui";
-            public const string Non = "Non";
-            public const string EnPartie = "En partie";
-        }
+        private const string AbsentVolet = "Absent du volet";
 
         /// <summary>
-        /// Indique si la donnée d'un champ fourni par l'appelant doit venir du RIS de la structure d'imagerie qui
-        /// accueille le patient (volet Téléradiologie, flux 1 et 4, ou RIS directement) ; voir
-        /// <c>docs/cr-img/teleradiologie.md</c>.
+        /// Élément du volet Téléradiologie du CI-SIS (HL7 v2.5.1, version 0.2.0) qui véhicule la donnée d'un champ
+        /// fourni par l'appelant : flux, segment et champ HL7 v2, ou <c>Absent du volet</c> ; voir
+        /// <c>docs/cr-img/teleradiologie.md</c>, section 3.
         /// </summary>
-        private static string FourniParRis(string chemin)
+        private static string VoletTeleradiologie(string chemin)
         {
             bool Est(string prefixe) => chemin == prefixe || chemin.StartsWith(prefixe + ".", StringComparison.Ordinal);
-            bool Fin(string suffixe) => chemin.EndsWith(suffixe, StringComparison.Ordinal);
 
-            if (Est("Patient") || Est("Custodian") || Est("PriseEnCharge") || Est("Demandes[]")) return Ris.Oui;
-            if (Est("Actes[].StudyInstanceUid") || Est("Actes[].Code") || Est("Actes[].Debut") || Est("Actes[].Fin")
-                || Est("Actes[].Modalites") || Est("Actes[].RegionsAnatomiques")) return Ris.Oui;
-            if (Est("MedecinsDemandeurs[].DateDemande")) return Ris.Oui;
-            if (Fin(".Profession") || Fin(".Profession.DisplayName")) return Ris.Non; // annuaire santé
-            if (Est("SignataireLegal.Horodatage") || Est("SignataireLegal.SignatureCode")) return Ris.Non;
-            if (Est("SignataireLegal.Professionnel")) return Ris.Oui; // médecin responsable de la structure d'accueil
-            if (Est("SignataireLegal")) return Ris.EnPartie;
-            if (Est("Auteurs[].Horodatage") || Est("Auteurs[].Fonction")) return Ris.Non;
-            if (Est("Auteurs[]")) return Ris.EnPartie; // oui pour le médecin responsable, non pour le téléradiologue
-            return Ris.Non;
+            // Patient : segment PID des flux 1 à 4 (PAM-FR 2.11, annexe INS).
+            switch (chemin)
+            {
+                case "Patient": return "Flux 1 à 4 : PID";
+                case "Patient.Ins": return "Flux 1 à 4 : PID-3 (type INS, PID-32 = VALI)";
+                case "Patient.AutresIdentifiants": return "Flux 1 à 4 : PID-3 (autres identifiants, ex. IPP)";
+                case "Patient.Adresses": return "Flux 1 à 4 : PID-11 (type H)";
+                case "Patient.Telecoms": return "Flux 1 à 4 : PID-13";
+                case "Patient.NomNaissance": return "Flux 1 à 4 : PID-5.1 (type L)";
+                case "Patient.PremierPrenomNaissance": return "Flux 1 à 4 : PID-5.2 (type L)";
+                case "Patient.PrenomsNaissance": return "Flux 1 à 4 : PID-5.3 (type L)";
+                case "Patient.NomUtilise": return "Flux 1 à 4 : PID-5.1 (type D)";
+                case "Patient.PrenomUtilise": return "Flux 1 à 4 : PID-5.2 (type D)";
+                case "Patient.Sexe": return "Flux 1 à 4 : PID-8";
+                case "Patient.DateNaissance": return "Flux 1 à 4 : PID-7";
+                case "Patient.LieuNaissanceCog": return "Flux 1 à 4 : PID-11.9 (type BDL)";
+                case "Patient.LieuNaissanceCommune": return "Flux 1 à 4 : PID-11.3 (type BDL)";
+            }
+
+            // Demande et examens.
+            if (Est("Demandes[].NumeroDemande")) return "Flux 1 à 4 : ORC-2 / OBR-2 (Order Placer Number : 2.1 valeur, 2.3 autorité)";
+            if (Est("Demandes[].AccessionNumber")) return "Flux 4 : IPC-1 (1.1 valeur, 1.3 autorité), un par examen";
+            if (Est("Demandes[]")) return "Flux 1 : ORC / OBR ; flux 4 : groupe ORDER (un par examen)";
+            if (Est("MedecinsDemandeurs[].DateDemande")) return "Flux 1 : ORC-9";
+            if (Est("Actes[].StudyInstanceUid")) return "Flux 4 : IPC-3";
+            if (Est("Actes[].Code")) return "Flux 4 : OBX-5 de CODE_ACTE_IMAGERIE (LN) ; IPC-2";
+            if (Est("Actes[].Modalites")) return "Flux 4 : OBX-5 de MODALITE_IMAGERIE (à défaut flux 1) ; JDV 1.2.250.1.213.1.1.5.660, codes non DICOM à convertir";
+            if (Est("Actes[].RegionsAnatomiques")) return "Flux 4 : OBX-5 de REGION_ANATOMIQUE, sub-ID n.1 (à défaut flux 1)";
+            if (Est("Actes[].Debut")) return "Flux 4 : TQ1-7";
+            if (chemin == "Actes[]") return "Flux 4 : groupe ORDER (un par examen)";
+
+            // Professionnels : XCN (ORC-12, repris en OBR-16) et organisation XON (ORC-21).
+            var teleradiologue = (Flux: "Flux 3", Libelle: "téléradiologue", Organisation: "plateforme de téléradiologie");
+            var responsable = (Flux: "Flux 1", Libelle: "PS responsable de la structure d'accueil", Organisation: "structure d'imagerie");
+            string? Pro(string racine, params (string Flux, string Libelle, string Organisation)[] acteurs)
+            {
+                if (!Est(racine)) return null;
+                var reste = chemin.Length == racine.Length ? "" : chemin.Substring(racine.Length + 1);
+                string? element;
+                switch (reste)
+                {
+                    case "": element = "ORC-12 / OBR-16"; break;
+                    case "Id": element = "ORC-12.1 (PS_IdNat) et ORC-12.9 (autorité)"; break;
+                    case "Nom": element = "ORC-12.2 et ORC-12.3"; break;
+                    case "Nom.Family": element = "ORC-12.2"; break;
+                    case "Nom.Given": element = "ORC-12.3"; break;
+                    case "Nom.Prefix": element = "ORC-12.6"; break;
+                    case "Nom.Suffix": element = "ORC-12.5"; break;
+                    case "Telecoms": element = "ORC-14"; break;
+                    case "Organisation": element = "ORC-21"; break;
+                    case "Organisation.Id": element = "ORC-21.10 (Struct_IdNat), ORC-21.6 (autorité) et ORC-21.7 (type)"; break;
+                    case "Organisation.Nom": element = "ORC-21.1"; break;
+                    default: element = null; break;
+                }
+                if (element == null) return null;
+                var valeurs = acteurs
+                    .Where(a => !(reste == "Telecoms" && a.Flux != "Flux 1"))
+                    .Select(a => $"{a.Flux} : {element} ({(reste.StartsWith("Organisation", StringComparison.Ordinal) ? a.Organisation : a.Libelle)})")
+                    .ToList();
+                return valeurs.Count == 0 ? AbsentVolet : string.Join(" ; ", valeurs);
+            }
+            var professionnel = Pro("Auteurs[].Professionnel", teleradiologue, responsable)
+                ?? Pro("SignataireLegal.Professionnel", responsable)
+                ?? Pro("Actes[].Executant", teleradiologue);
+            if (professionnel != null) return professionnel;
+            if (chemin == "Auteurs[]") return "Flux 3 : ORC-12 (téléradiologue) ; Flux 1 : ORC-12 (PS responsable de la structure d'accueil)";
+            if (chemin == "SignataireLegal") return "Flux 1 : ORC-12 (PS responsable de la structure d'accueil, s'il s'agit d'un médecin)";
+            const string StructureAccueil = "Flux 1 : ORC-21 (structure d'imagerie)";
+
+            // Structure d'accueil.
+            if (chemin == "Custodian") return StructureAccueil;
+            if (chemin == "Custodian.Id") return "Flux 1 : ORC-21.10 (Struct_IdNat), ORC-21.6 (autorité) et ORC-21.7 (type)";
+            if (chemin == "Custodian.Nom") return "Flux 1 : ORC-21.1";
+
+            // Venue.
+            switch (chemin)
+            {
+                case "PriseEnCharge": return "Flux 1, 2 et 4 : PV1";
+                case "PriseEnCharge.Modalite":
+                case "PriseEnCharge.Modalite.DisplayName": return "Flux 1, 2 et 4 : PV1-2 (O → AMB, I → IMP, E → EMER)";
+                case "PriseEnCharge.Debut": return "Flux 1, 2 et 4 : PV1-44";
+                case "PriseEnCharge.Fin": return "Flux 1, 2 et 4 : PV1-45";
+                case "PriseEnCharge.Lieu": return StructureAccueil;
+                case "PriseEnCharge.Lieu.Id": return "Flux 1 : ORC-21.10 (Struct_IdNat)";
+                case "PriseEnCharge.Lieu.Nom": return "Flux 1 : ORC-21.1";
+            }
+            if (chemin == "Corps") return AbsentVolet + " (le CR est transmis par le volet Transmission d'un document CDA-R2 en HL7v2)";
+            return AbsentVolet;
         }
 
         private static IReadOnlyList<ChampCda> Construire()
@@ -185,7 +255,7 @@ namespace CdaCrImg.Referentiel
             {
                 var champ = new ChampCda(chemin, parent, section, libelle, description, xPath, min, max, source, origine, valeur,
                     origine == Librairie ? SourceLibrairie : SourceDonnee(chemin),
-                    origine == Librairie ? Ris.Non : FourniParRis(chemin));
+                    origine == Librairie ? "Sans objet (valeur fixe de la librairie)" : VoletTeleradiologie(chemin));
                 champs.Add(champ);
                 return champ;
             }

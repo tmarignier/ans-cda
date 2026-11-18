@@ -122,6 +122,8 @@ interprété à distance par le téléradiologue (SFD 3.2.2, STD 3.2).
       partagés avec le CR CDA, place et transmission du compte rendu ([teleradiologie.md](teleradiologie.md))
 - [x] Reporter les écarts dans le référentiel des champs (colonne « Source de la donnée » et `champs.xlsx`,
       légende « Volet TLR ») : teleradiologie.md, section 6
+- [x] Colonne « Volet téléradiologie » de `champs.xlsx` : flux, segment et champ HL7 v2 du volet qui véhicule
+      chaque donnée, ou « Absent du volet » (comparaison avec une librairie conçue selon ce volet)
 - [ ] À préciser avec les utilisateurs : médecin ou manipulateur comme PS responsable (E1), correspondance
       des modalités (E5), organisation de l'exécutant (E9) ; circuit de transmission du CR (MSS, DMP),
       question ouverte du volet. Le `custodian` est la structure d'imagerie (E8)
