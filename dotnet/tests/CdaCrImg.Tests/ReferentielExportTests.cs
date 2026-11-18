@@ -37,6 +37,7 @@ public class ReferentielExportTests
         ("Référence à la documentation", "Paragraphe de docs/cr-img/champs-obligatoires.md et sources de la règle."),
         ("Source de la donnée", "Acteur ou système qui fournit la donnée, d'après les rôles décrits par l'ANS (SFD 3.2.2 et 3.2.3, STD 3.2), téléradiologie comprise : l'examen est réalisé dans la structure d'imagerie qui accueille le patient et interprété à distance par le téléradiologue. « Librairie CdaCrImg » : valeur fixe produite par la librairie."),
         ("STD", "Volet CI-SIS IMG-CR-IMG 2024.01, spécifications techniques (docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf)."),
+        ("Volet TLR", "Volet Téléradiologie du CI-SIS, guide HL7 v2 0.2.0 (https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/) : flux 1 demande (ORM^O01), flux 3 réponse (ORU^R01), flux 4 complément post-examen (OMI^O23) ; analyse dans docs/cr-img/teleradiologie.md."),
         ("SFD", "Volet CI-SIS IMG-CR-IMG 2024.01, spécifications fonctionnelles (docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf)."),
         ("SM", "Structuration minimale des documents de santé CI-SIS (schematrons/profils/structurationMinimale)."),
         ("XSD", "Schéma CDA R2 (infrastructure/cda/CDA_extended.xsd)."),

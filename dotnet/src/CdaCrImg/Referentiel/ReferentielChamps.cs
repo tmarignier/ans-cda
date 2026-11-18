@@ -107,31 +107,36 @@ namespace CdaCrImg.Referentiel
             bool Fin(string suffixe) => chemin.EndsWith(suffixe, StringComparison.Ordinal);
 
             if (Est("Patient"))
-                return StructureAccueil + " : identité du patient (RIS), qualifiée par le téléservice INSi";
+                return StructureAccueil + " : identité du patient (RIS), qualifiée par le téléservice INSi ; volet TLR : PID des flux 1 et 4, identité qualifiée (PID-32 = VALI)";
             if (Est("Auteurs[]"))
             {
                 if (Fin(".Horodatage")) return LogicielAuteur + ", à la validation du CR";
                 if (Fin(".Fonction")) return LogicielAuteur;
                 if (Est("Auteurs[].Professionnel.Organisation")) return "Structure d'exercice de l'auteur (en téléradiologie : structure de téléradiologie, ou structure d'accueil pour son médecin responsable)";
-                return "Auteur : radiologue qui rédige le CR (téléradiologue) ; en téléradiologie, auteur supplémentaire : médecin responsable de la structure d'accueil (STD 3.2). " + Annuaire;
+                return "Auteur : radiologue qui rédige le CR (téléradiologue, volet TLR flux 3 ORC-12) ; en téléradiologie, auteur supplémentaire : médecin responsable de la structure d'accueil (STD 3.2 ; volet TLR flux 1 ORC-12, qui peut désigner un manipulateur). Profession absente des flux : " + Annuaire;
             }
-            if (Est("Custodian")) return "Structure qui produit et conserve le CR (en téléradiologie : selon la convention entre structures)";
+            if (Est("Custodian")) return "Structure qui conserve le CR ; en téléradiologie : structure d'imagerie qui accueille le patient, responsable du CR et de sa publication au DMP via son RIS (volet TLR, flux 1 ORC-21)";
             if (Est("SignataireLegal"))
             {
                 if (Fin(".Horodatage")) return "Logiciel du signataire, à la signature";
-                return "Responsable du document : radiologue signataire ; en téléradiologie, médecin responsable de la structure qui accueille le patient (STD 3.2). " + Annuaire;
+                return "Responsable du document : radiologue signataire ; en téléradiologie, médecin responsable de la structure qui accueille le patient (STD 3.2 ; volet TLR flux 1 ORC-12 s'il s'agit d'un médecin). " + Annuaire;
             }
-            if (Est("MedecinsDemandeurs[]")) return "Demande d'examen : médecin demandeur (SFD 3.3.1)";
-            if (Est("Demandes[].NumeroDemande")) return "Médecin demandeur : numéro attribué à sa demande (STD 3.2)";
-            if (Est("Demandes[].AccessionNumber")) return "RIS de la structure d'imagerie qui accueille le patient (STD 3.3.4.5)";
+            if (Est("MedecinsDemandeurs[].DateDemande")) return "Demande d'examen : date de la demande (volet TLR, flux 1 ORC-9)";
+            if (Est("MedecinsDemandeurs[]")) return "Demande d'examen : médecin demandeur (SFD 3.3.1) ; absent des flux du volet TLR : document de demande ou RIS";
+            if (Est("Demandes[].NumeroDemande")) return "Order Placer Number (STD 3.2) ; en téléradiologie, attribué par le RIS de la structure d'accueil (volet TLR, ORC-2 des flux 1 et 4)";
+            if (Est("Demandes[].AccessionNumber")) return "RIS de la structure d'imagerie qui accueille le patient (STD 3.3.4.5) ; volet TLR : flux 4 IPC-1, un par examen";
             if (Est("Demandes[]")) return "Demande d'examen du médecin demandeur (SFD 3.3.1)";
-            if (Est("Actes[].StudyInstanceUid")) return "RIS / PACS de la structure d'imagerie qui accueille le patient (STD 3.3.4.5)";
-            if (Est("Actes[].Debut") || Est("Actes[].Fin")) return StructureAccueil + " : RIS ou modalité d'acquisition";
+            if (Est("Actes[].StudyInstanceUid")) return "RIS / PACS de la structure d'imagerie qui accueille le patient (STD 3.3.4.5) ; volet TLR : flux 4 IPC-3";
+            if (Est("Actes[].Debut")) return StructureAccueil + " : RIS ou modalité d'acquisition ; volet TLR : flux 4 TQ1-7";
+            if (Est("Actes[].Fin")) return StructureAccueil + " : RIS ou modalité d'acquisition (absente des flux du volet TLR)";
+            if (Est("Actes[].Code")) return "Code LOINC de l'examen réalisé ; volet TLR : flux 4 OBX CODE_ACTE_IMAGERIE (et IPC-2)";
+            if (Est("Actes[].Modalites")) return StructureAccueil + " : étude DICOM (Modality 0008,0060) ; volet TLR flux 4 OBX MODALITE_IMAGERIE, codes non DICOM (MED-11xx) à convertir";
+            if (Est("Actes[].RegionsAnatomiques")) return "Volet TLR : flux 4 OBX REGION_ANATOMIQUE (optionnel), à défaut région demandée au flux 1";
             if (Est("Actes[].Executant.Organisation")) return "Établissement de rattachement de l'exécutant (STD 3.2, DRIM-Box)";
             if (Est("Actes[].Executant")) return "Imageur qui supervise la réalisation de l'acte (en téléradiologie : à distance, SFD 3.2.2.1). " + Annuaire;
-            if (Est("Actes[].CodeCcam")) return LogicielAuteur + " ou RIS (cotation de l'acte)";
+            if (Est("Actes[].CodeCcam")) return LogicielAuteur + " ou RIS (cotation de l'acte) ; absent des flux du volet TLR";
             if (Est("Actes[]") || Est("Depistage")) return "Demande d'examen (acte, modalité, région, dépistage), protocole validé par l'imageur (SFD 3.2.3.4, 3.3.1)";
-            if (Est("PriseEnCharge")) return StructureAccueil + " : contexte et lieu de la prise en charge";
+            if (Est("PriseEnCharge")) return StructureAccueil + " : contexte et lieu de la prise en charge (volet TLR : PV1)";
             if (Est("Corps")) return "Radiologue auteur (téléradiologue) : CR rédigé et validé dans son logiciel, au format PDF";
             if (Est("Titre")) return "Radiologue auteur (téléradiologue), via son logiciel";
             return LogicielAuteur + " (métadonnées du document)";

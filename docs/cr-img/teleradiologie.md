@@ -94,7 +94,7 @@ chaque auteur : c'est donc l'appelant qui doit l'obtenir.
 **E2. Numéro de demande.** Pour le guide, l'Order Placer Number est **attribué par le RIS** de la
 structure d'imagerie (ORC-2, avec son autorité d'affectation), alors que le référentiel des champs
 indique « Médecin demandeur : numéro attribué à sa demande ». En téléradiologie, `NumeroDemande` =
-ORC-2 du flux 1. La source de la donnée est à corriger dans le référentiel.
+ORC-2 du flux 1. La source de la donnée est corrigée dans le référentiel.
 
 **E3. Accession Number par examen.** Le flux 4 associe un Accession Number à **chaque examen** (un
 groupe ORDER par Study Instance UID), tous rattachés au même Order Placer Number. Dans CdaCrImg,
@@ -141,7 +141,7 @@ l'addendum. La question des flux complémentaires est explicitement ouverte.
 
 ## 6. Suites proposées
 
-1. Référentiel des champs (`ReferentielChamps.SourceDonnee`, puis `champs.xlsx`) : sources de
+1. *(Fait.)* Référentiel des champs (`ReferentielChamps.SourceDonnee`, puis `champs.xlsx`) : sources de
    `NumeroDemande` (RIS, ORC-2), `AccessionNumber` (IPC-1, un par examen), `StudyInstanceUid` (IPC-3),
    `Actes[].Code` (OBX `CODE_ACTE_IMAGERIE`), `Actes[].Debut` (TQ1-7), `Custodian` (structure
    d'imagerie, ORC-21), `MedecinsDemandeurs` (hors flux).

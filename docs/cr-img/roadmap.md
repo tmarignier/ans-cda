@@ -120,8 +120,8 @@ interprété à distance par le téléradiologue (SFD 3.2.2, STD 3.2).
       signataire distinct de l'auteur ; exemple de téléradiologie proposé dans le formulaire
 - [x] Analyser le **volet Téléradiologie** du CI-SIS (guide HL7 v2, 0.2.0) : acteurs et flux, identifiants
       partagés avec le CR CDA, place et transmission du compte rendu ([teleradiologie.md](teleradiologie.md))
-- [ ] Reporter les écarts dans le référentiel des champs (colonne « Source de la donnée » et `champs.xlsx`) :
-      teleradiologie.md, section 6
+- [x] Reporter les écarts dans le référentiel des champs (colonne « Source de la donnée » et `champs.xlsx`,
+      légende « Volet TLR ») : teleradiologie.md, section 6
 - [ ] À préciser avec les utilisateurs : médecin ou manipulateur comme PS responsable (E1), correspondance
       des modalités (E5), organisation de l'exécutant (E9) ; circuit de transmission du CR (MSS, DMP),
       question ouverte du volet. Le `custodian` est la structure d'imagerie (E8)
