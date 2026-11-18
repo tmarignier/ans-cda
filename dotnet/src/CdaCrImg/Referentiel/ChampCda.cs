@@ -40,7 +40,7 @@ namespace CdaCrImg.Referentiel
         private readonly List<ChampCda> _enfants = new List<ChampCda>();
 
         internal ChampCda(string chemin, ChampCda? parent, string section, string libelle, string description,
-            string xPath, int min, int? max, string source, OrigineValeur origine, string? valeurParDefaut, string sourceDonnee, string fourniParRis)
+            string xPath, int min, int? max, string source, OrigineValeur origine, string? valeurParDefaut, string sourceDonnee, string voletTeleradiologie)
         {
             Chemin = chemin;
             Parent = parent;
@@ -54,7 +54,7 @@ namespace CdaCrImg.Referentiel
             Origine = origine;
             ValeurParDefaut = valeurParDefaut;
             SourceDonnee = sourceDonnee;
-            FourniParRis = fourniParRis;
+            VoletTeleradiologie = voletTeleradiologie;
             parent?._enfants.Add(this);
 
             var groupe = parent;
@@ -147,11 +147,10 @@ namespace CdaCrImg.Referentiel
         public string SourceDonnee { get; }
 
         /// <summary>
-        /// Donnée qui doit venir du RIS de la structure d'imagerie qui accueille le patient (en téléradiologie :
-        /// flux du volet Téléradiologie ou RIS directement) : <c>Oui</c>, <c>Non</c> ou <c>En partie</c>
-        /// (selon le professionnel concerné, voir <see cref="SourceDonnee"/>).
+        /// Élément du volet Téléradiologie du CI-SIS (guide HL7 v2.5.1, 0.2.0) qui véhicule la donnée : flux, segment
+        /// et champ HL7 v2 (ex. <c>Flux 4 : IPC-3</c>), ou <c>Absent du volet</c>.
         /// </summary>
-        public string FourniParRis { get; }
+        public string VoletTeleradiologie { get; }
 
         /// <summary>Mention affichable du caractère obligatoire, ex. « Obligatoire si « Identité » est renseigné ».</summary>
         public string MentionObligation => Obligation switch
