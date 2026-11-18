@@ -118,12 +118,13 @@ interprété à distance par le téléradiologue (SFD 3.2.2, STD 3.2).
       champs-obligatoires.md) ; colonne « Source de la donnée » du classeur `champs.xlsx`
 - [ ] Démo : saisie d'un second auteur (médecin responsable de la structure d'accueil) et d'un
       signataire distinct de l'auteur ; exemple de téléradiologie proposé dans le formulaire
-- [ ] Analyser le **volet Téléradiologie** du CI-SIS (guide HL7 v2, 0.1.0-ballot :
-      <https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/0.1.0-ballot/>) : acteurs et flux, identifiants à
-      partager avec le CR CDA (INS, numéro de demande, Accession Number, Study Instance UID), place et
-      transmission du compte rendu ; reporter les écarts dans la documentation et le référentiel des champs
-- [ ] À préciser avec les utilisateurs : structure gardienne du document (`custodian`) et circuit de
-      transmission du CR (médecin demandeur, DMP), selon la convention de téléradiologie
+- [x] Analyser le **volet Téléradiologie** du CI-SIS (guide HL7 v2, 0.2.0) : acteurs et flux, identifiants
+      partagés avec le CR CDA, place et transmission du compte rendu ([teleradiologie.md](teleradiologie.md))
+- [ ] Reporter les écarts dans le référentiel des champs (colonne « Source de la donnée » et `champs.xlsx`) :
+      teleradiologie.md, section 6
+- [ ] À préciser avec les utilisateurs : médecin ou manipulateur comme PS responsable (E1), correspondance
+      des modalités (E5), organisation de l'exécutant (E9) ; circuit de transmission du CR (MSS, DMP),
+      question ouverte du volet. Le `custodian` est la structure d'imagerie (E8)
 
 ## Points d'attention
 

@@ -13,9 +13,9 @@ auteurs sont le téléradiologue et le médecin responsable de la structure d'ac
 signataire légal. Tout développement doit rester valable dans ce cas (exemple de référence :
 `SampleReports.Teleradiologie`).
 Cadre d'interopérabilité de référence : **volet Téléradiologie** du CI-SIS (guide d'implémentation
-HL7 v2, version 0.1.0-ballot, en consultation) : <https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/0.1.0-ballot/>.
-Son contenu n'a pas encore été analysé (voir la roadmap) ; le consulter avant tout développement sur
-les échanges de téléradiologie (demande, identifiants, transmission du CR). Le site
+HL7 v2, version 0.2.0, en concertation) : <https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/>.
+Analyse, correspondance avec l'en-tête CDA et écarts : `docs/cr-img/teleradiologie.md` ; la lire avant
+tout développement sur les échanges de téléradiologie (demande, identifiants, transmission du CR). Le site
 `interop.esante.gouv.fr` est autorisé dans l'environnement cloud « ans-cda ».
 
 **Périmètre** : document **non structuré (CDA R2 niveau 1)**, le CR étant un PDF encapsulé
@@ -37,6 +37,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête (dans le périmètre) ; sections et entrées du niveau 3 (référence, hors périmètre) |
 | `docs/cr-img/champs-obligatoires.md` | Champs minimaux obligatoires d'un CR (nom CdaCrImg, description, règles, sources) |
 | `docs/cr-img/champs.xlsx` | Liste de tous les champs (obligation, description, documentation, source de la donnée), exportée du référentiel par `ReferentielExportTests` |
+| `docs/cr-img/teleradiologie.md` | Analyse du volet Téléradiologie (HL7 v2) : flux, identifiants partagés avec le CR, écarts |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
 | `docs/cr-img/roadmap.md` | Lots de développement et critères de fin |
 | `ExemplesCDA/IMG_CR_IMG_2024.01_CDA-R2-Niveau-1.xml` | **Exemple de référence ANS** du CR non structuré (PDF base64, `nonXMLBody`) |
