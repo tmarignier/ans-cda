@@ -12,6 +12,11 @@ structure d'imagerie qui accueille le patient et interprété à distance par le
 auteurs sont le téléradiologue et le médecin responsable de la structure d'accueil, qui est aussi le
 signataire légal. Tout développement doit rester valable dans ce cas (exemple de référence :
 `SampleReports.Teleradiologie`).
+Cadre d'interopérabilité de référence : **volet Téléradiologie** du CI-SIS (guide d'implémentation
+HL7 v2, version 0.1.0-ballot, en consultation) : <https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/0.1.0-ballot/>.
+Son contenu n'a pas encore été analysé (voir la roadmap) ; le consulter avant tout développement sur
+les échanges de téléradiologie (demande, identifiants, transmission du CR). Le site
+`interop.esante.gouv.fr` est autorisé dans l'environnement cloud « ans-cda ».
 
 **Périmètre** : document **non structuré (CDA R2 niveau 1)**, le CR étant un PDF encapsulé
 (`nonXMLBody`, templateId IHE XDS-SD `1.3.6.1.4.1.19376.1.2.20`), pour des patients identifiés par

@@ -45,6 +45,9 @@ STD 3.2, précisions de l'en-tête pour la téléradiologie (version 2024.01 du 
 
 Correspondance avec le modèle CdaCrImg : [architecture.md](architecture.md#contexte-dutilisation--la-téléradiologie).
 
+Cadre d'interopérabilité associé : **volet Téléradiologie** du CI-SIS, guide d'implémentation HL7 v2,
+version 0.1.0-ballot (en consultation, susceptible d'évoluer) : <https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/0.1.0-ballot/>. Non encore analysé.
+
 ## 2. En-tête (ClinicalDocument)
 
 Ordre XSD à respecter (CDA R2) : `realmCode, typeId, templateId*, id, code, title, effectiveTime,

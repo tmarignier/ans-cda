@@ -19,6 +19,11 @@ réalisation de l'acte et rédige le compte rendu. Conséquences sur l'en-tête 
 | `recordTarget`, `componentOf` | `Patient`, `PriseEnCharge` | identité INS (identitovigilance) et lieu de prise en charge : **structure d'accueil** |
 | `custodian` | `Custodian` | structure qui conserve le CR, selon la convention de téléradiologie |
 
+Cadre d'interopérabilité : le **volet Téléradiologie** du CI-SIS (guide d'implémentation HL7 v2,
+version 0.1.0-ballot, en consultation : <https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/0.1.0-ballot/>) décrit les échanges entre la structure d'accueil et le
+téléradiologue. CdaCrImg produit le compte rendu CDA ; l'articulation avec ce volet (identifiants
+partagés, transmission du CR) reste à analyser (roadmap, section Téléradiologie).
+
 Exemple généré et validé (XSD + trois profils transverses) :
 [`ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_teleradiologie.xml`](../../ExemplesCDA/CdaCrImg_IMG-CR-IMG_2024.01_CDA-R2-Niveau-1_teleradiologie.xml)
 (`SampleReports.Teleradiologie`, test `ExampleFileTests.GeneratesTeleradiologyExampleInExemplesCda`).
