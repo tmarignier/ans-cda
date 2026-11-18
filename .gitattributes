@@ -1,0 +1,8 @@
+# Scripts shell : fins de ligne LF même sur une copie de travail Windows (core.autocrlf)
+*.sh text eol=lf
+
+# Exemples générés par CdaCrImg (ExampleFileTests) : toujours en LF pour rester stables sous Windows
+ExemplesCDA/CdaCrImg_*.xml text eol=lf
+
+# Liste des champs générée par ReferentielExportTests
+docs/cr-img/champs.xlsx binary
