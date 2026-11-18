@@ -44,7 +44,7 @@ namespace CdaCrImg.Analyse
         public static AnalyseCda Analyser(Stream flux)
         {
             if (flux == null) throw new ArgumentNullException(nameof(flux));
-            return Analyser(Charger(() => XDocument.Load(flux, LoadOptions.SetLineInfo)));
+            return Analyser(Charger(() => Lire(XmlReader.Create(flux, LectureSure))));
         }
 
         /// <summary>Analyse le fichier CDA <paramref name="cheminFichier"/>.</summary>
@@ -52,7 +52,22 @@ namespace CdaCrImg.Analyse
         public static AnalyseCda Analyser(string cheminFichier)
         {
             if (cheminFichier == null) throw new ArgumentNullException(nameof(cheminFichier));
-            return Analyser(Charger(() => XDocument.Load(cheminFichier, LoadOptions.SetLineInfo)));
+            return Analyser(Charger(() => Lire(XmlReader.Create(cheminFichier, LectureSure))));
+        }
+
+        /// <summary>
+        /// Lecture d'un document reçu de l'extérieur : DTD refusée et aucune ressource externe résolue
+        /// (entités XML, XXE). Un CDA n'a pas de DTD.
+        /// </summary>
+        private static readonly XmlReaderSettings LectureSure = new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+        };
+
+        private static XDocument Lire(XmlReader lecteur)
+        {
+            using (lecteur) return XDocument.Load(lecteur, LoadOptions.SetLineInfo);
         }
 
         private static XDocument Charger(Func<XDocument> charger)

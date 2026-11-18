@@ -124,6 +124,8 @@ public class CdaAnalyseurTests(ITestOutputHelper output)
     [InlineData("<ClinicalDocument xmlns=\"urn:hl7-org:v3\"/>", "code du document absent")]
     [InlineData("<html/>", "pas un CDA R2")]
     [InlineData("<ClinicalDocument", "XML mal formé")]
+    [InlineData("<!DOCTYPE ClinicalDocument [<!ENTITY a \"aaaaaaaaaa\"><!ENTITY b \"&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;\">]>"
+        + "<ClinicalDocument xmlns=\"urn:hl7-org:v3\"><title>&b;</title></ClinicalDocument>", "XML mal formé")]
     public void InvalidDocument_IsRejected(string xml, string message)
     {
         var e = Assert.Throws<CdaAnalyseException>(() => CdaAnalyseur.Analyser(new MemoryStream(Encoding.UTF8.GetBytes(xml))));
