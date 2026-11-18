@@ -40,7 +40,7 @@ namespace CdaCrImg.Referentiel
         private readonly List<ChampCda> _enfants = new List<ChampCda>();
 
         internal ChampCda(string chemin, ChampCda? parent, string section, string libelle, string description,
-            string xPath, int min, int? max, string source, OrigineValeur origine, string? valeurParDefaut, string sourceDonnee)
+            string xPath, int min, int? max, string source, OrigineValeur origine, string? valeurParDefaut, string sourceDonnee, string fourniParRis)
         {
             Chemin = chemin;
             Parent = parent;
@@ -54,6 +54,7 @@ namespace CdaCrImg.Referentiel
             Origine = origine;
             ValeurParDefaut = valeurParDefaut;
             SourceDonnee = sourceDonnee;
+            FourniParRis = fourniParRis;
             parent?._enfants.Add(this);
 
             var groupe = parent;
@@ -144,6 +145,13 @@ namespace CdaCrImg.Referentiel
         /// (SFD 3.2, STD 3.2) ; « Librairie CdaCrImg » pour une valeur fixe.
         /// </summary>
         public string SourceDonnee { get; }
+
+        /// <summary>
+        /// Donnée qui doit venir du RIS de la structure d'imagerie qui accueille le patient (en téléradiologie :
+        /// flux du volet Téléradiologie ou RIS directement) : <c>Oui</c>, <c>Non</c> ou <c>En partie</c>
+        /// (selon le professionnel concerné, voir <see cref="SourceDonnee"/>).
+        /// </summary>
+        public string FourniParRis { get; }
 
         /// <summary>Mention affichable du caractère obligatoire, ex. « Obligatoire si « Identité » est renseigné ».</summary>
         public string MentionObligation => Obligation switch

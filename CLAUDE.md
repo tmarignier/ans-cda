@@ -36,7 +36,7 @@ jeux de valeurs du kit sont la **source de vérité** de la conformité. Le code
 | `dotnet/demo/CdaCrImg.Demo/Resources/*.xml` | Exemples de CDA proposés pour pré-remplir le formulaire de la démo (relus par `Form/ExemplesCda.cs`) |
 | `docs/cr-img/specification.md` | **Synthèse du volet IMG-CR-IMG** : en-tête (dans le périmètre) ; sections et entrées du niveau 3 (référence, hors périmètre) |
 | `docs/cr-img/champs-obligatoires.md` | Champs minimaux obligatoires d'un CR (nom CdaCrImg, description, règles, sources) |
-| `docs/cr-img/champs.xlsx` | Liste de tous les champs (obligation, description, documentation, source de la donnée), exportée du référentiel par `ReferentielExportTests` |
+| `docs/cr-img/champs.xlsx` | Liste de tous les champs (obligation, description, documentation, source de la donnée, donnée à fournir par le RIS), exportée du référentiel par `ReferentielExportTests` |
 | `docs/cr-img/teleradiologie.md` | Analyse du volet Téléradiologie (HL7 v2) : flux, identifiants partagés avec le CR, écarts |
 | `docs/cr-img/architecture.md` | Choix techniques et API cible de la librairie |
 | `docs/cr-img/roadmap.md` | Lots de développement et critères de fin |

@@ -142,6 +142,37 @@ namespace CdaCrImg.Referentiel
             return LogicielAuteur + " (métadonnées du document)";
         }
 
+        /// <summary>Valeurs de <see cref="ChampCda.FourniParRis"/>.</summary>
+        internal static class Ris
+        {
+            public const string Oui = "Oui";
+            public const string Non = "Non";
+            public const string EnPartie = "En partie";
+        }
+
+        /// <summary>
+        /// Indique si la donnée d'un champ fourni par l'appelant doit venir du RIS de la structure d'imagerie qui
+        /// accueille le patient (volet Téléradiologie, flux 1 et 4, ou RIS directement) ; voir
+        /// <c>docs/cr-img/teleradiologie.md</c>.
+        /// </summary>
+        private static string FourniParRis(string chemin)
+        {
+            bool Est(string prefixe) => chemin == prefixe || chemin.StartsWith(prefixe + ".", StringComparison.Ordinal);
+            bool Fin(string suffixe) => chemin.EndsWith(suffixe, StringComparison.Ordinal);
+
+            if (Est("Patient") || Est("Custodian") || Est("PriseEnCharge") || Est("Demandes[]")) return Ris.Oui;
+            if (Est("Actes[].StudyInstanceUid") || Est("Actes[].Code") || Est("Actes[].Debut") || Est("Actes[].Fin")
+                || Est("Actes[].Modalites") || Est("Actes[].RegionsAnatomiques")) return Ris.Oui;
+            if (Est("MedecinsDemandeurs[].DateDemande")) return Ris.Oui;
+            if (Fin(".Profession") || Fin(".Profession.DisplayName")) return Ris.Non; // annuaire santé
+            if (Est("SignataireLegal.Horodatage") || Est("SignataireLegal.SignatureCode")) return Ris.Non;
+            if (Est("SignataireLegal.Professionnel")) return Ris.Oui; // médecin responsable de la structure d'accueil
+            if (Est("SignataireLegal")) return Ris.EnPartie;
+            if (Est("Auteurs[].Horodatage") || Est("Auteurs[].Fonction")) return Ris.Non;
+            if (Est("Auteurs[]")) return Ris.EnPartie; // oui pour le médecin responsable, non pour le téléradiologue
+            return Ris.Non;
+        }
+
         private static IReadOnlyList<ChampCda> Construire()
         {
             var champs = new List<ChampCda>();
@@ -153,7 +184,8 @@ namespace CdaCrImg.Referentiel
                 int min, int? max, string source, OrigineValeur origine = Appelant, string? valeur = null)
             {
                 var champ = new ChampCda(chemin, parent, section, libelle, description, xPath, min, max, source, origine, valeur,
-                    origine == Librairie ? SourceLibrairie : SourceDonnee(chemin));
+                    origine == Librairie ? SourceLibrairie : SourceDonnee(chemin),
+                    origine == Librairie ? Ris.Non : FourniParRis(chemin));
                 champs.Add(champ);
                 return champ;
             }

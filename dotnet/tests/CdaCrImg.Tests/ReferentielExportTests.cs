@@ -17,7 +17,7 @@ public class ReferentielExportTests
     public static readonly string[] Colonnes =
     {
         "Nom du champ", "Identifiant technique", "Obligatoire ?", "Description", "Référence à la documentation",
-        "Source de la donnée",
+        "Source de la donnée", "Doit venir du RIS ?",
     };
 
     private static readonly Dictionary<string, string> Sources = new()
@@ -36,6 +36,7 @@ public class ReferentielExportTests
         ("Description", "Description métier, cardinalité dans le CDA, valeur fixe ou par défaut produite par la librairie, et élément CDA (XPath ; préfixe cda = urn:hl7-org:v3)."),
         ("Référence à la documentation", "Paragraphe de docs/cr-img/champs-obligatoires.md et sources de la règle."),
         ("Source de la donnée", "Acteur ou système qui fournit la donnée, d'après les rôles décrits par l'ANS (SFD 3.2.2 et 3.2.3, STD 3.2), téléradiologie comprise : l'examen est réalisé dans la structure d'imagerie qui accueille le patient et interprété à distance par le téléradiologue. « Librairie CdaCrImg » : valeur fixe produite par la librairie."),
+        ("Doit venir du RIS ?", "Oui : donnée fournie par le RIS de la structure d'imagerie qui accueille le patient (en téléradiologie, par les flux 1 et 4 du volet Téléradiologie ou directement par le RIS). Non : fournie par le logiciel du téléradiologue, l'annuaire santé, le document de demande ou la librairie. En partie : oui pour le médecin responsable de la structure d'accueil (ORC-12 du flux 1), non pour le téléradiologue ou pour la profession (annuaire)."),
         ("STD", "Volet CI-SIS IMG-CR-IMG 2024.01, spécifications techniques (docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_STD_CDA_20251212.pdf)."),
         ("Volet TLR", "Volet Téléradiologie du CI-SIS, guide HL7 v2 0.2.0 (https://interop.esante.gouv.fr/ig/hl7v2/teleradiologie/) : flux 1 demande (ORM^O01), flux 3 réponse (ORU^R01), flux 4 complément post-examen (OMI^O23) ; analyse dans docs/cr-img/teleradiologie.md."),
         ("SFD", "Volet CI-SIS IMG-CR-IMG 2024.01, spécifications fonctionnelles (docs/cr-img/ans/CI-SIS_VOLET_CONTENUS_IMG-CR-IMG_2024.01_SFD_20251212.pdf)."),
@@ -84,17 +85,41 @@ public class ReferentielExportTests
             (description, StyleCellule.Texte),
             (reference, StyleCellule.Texte),
             (c.SourceDonnee, StyleCellule.Texte),
+            (c.FourniParRis, c.FourniParRis switch
+            {
+                "Oui" => StyleCellule.Oui,
+                "Non" => StyleCellule.Non,
+                _ => StyleCellule.Conditionnel,
+            }),
         };
     }
 
     internal static IReadOnlyList<FeuilleXlsx> Feuilles() => new[]
     {
-        new FeuilleXlsx("Champs", new[] { 50.0, 44, 22, 80, 55, 60 },
+        new FeuilleXlsx("Champs", new[] { 50.0, 44, 22, 80, 55, 60, 18 },
             ReferentielChamps.Champs.Select(Ligne).Prepend(Colonnes.Select(c => (c, StyleCellule.Entete)).ToArray()).ToList()),
         new FeuilleXlsx("Légende", new[] { 30.0, 120 },
             Legende.Select(l => new[] { (l.Item1, StyleCellule.TexteGras), (l.Item2, StyleCellule.Texte) })
                 .Prepend(new[] { ("Colonne / abréviation", StyleCellule.Entete), ("Signification", StyleCellule.Entete) }).ToList()),
     };
+
+    [Theory]
+    [InlineData("Patient.Ins", "Oui")]
+    [InlineData("Demandes[].NumeroDemande", "Oui")]
+    [InlineData("Demandes[].AccessionNumber", "Oui")]
+    [InlineData("Actes[].StudyInstanceUid", "Oui")]
+    [InlineData("Custodian.Id", "Oui")]
+    [InlineData("SignataireLegal.Professionnel.Id", "Oui")]
+    [InlineData("SignataireLegal.Professionnel.Profession", "Non")]
+    [InlineData("Auteurs[].Professionnel.Id", "En partie")]
+    [InlineData("Actes[].CodeCcam", "Non")]
+    [InlineData("Actes[].Executant.Id", "Non")]
+    [InlineData("MedecinsDemandeurs[].Professionnel.Id", "Non")]
+    public void FlagsFieldsThatMustComeFromRis(string chemin, string attendu)
+    {
+        Assert.Equal(attendu, ReferentielChamps.Champs.Single(c => c.Chemin == chemin).FourniParRis);
+        Assert.All(ReferentielChamps.Champs, c => Assert.Contains(c.FourniParRis, new[] { "Oui", "Non", "En partie" }));
+    }
 
     [Fact]
     public void GeneratesFieldListWorkbook()
